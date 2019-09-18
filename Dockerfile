@@ -1,11 +1,5 @@
-FROM golang:1.11.4-alpine3.8 AS build
-RUN apk add --no-cache --update git make openssh-client
-# Set up ssh credentials to fetch private dependencies.
-ARG SSH_PRIVATE_KEY
-RUN mkdir /root/.ssh/
-RUN echo "${SSH_PRIVATE_KEY}" | base64 -d > /root/.ssh/id_rsa
-RUN chmod 0600 /root/.ssh/id_rsa
-RUN ssh-keyscan source.datanerd.us >> /root/.ssh/known_hosts
+FROM golang:1.13-alpine3.10 AS build
+RUN apk add --no-cache --update git make
 
 WORKDIR /go/src/github.com/newrelic/nri-prometheus
 COPY Makefile Makefile

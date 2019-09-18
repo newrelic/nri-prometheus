@@ -4,6 +4,7 @@ NATIVEOS	 := $(shell go version | awk -F '[ /]' '{print $$4}')
 NATIVEARCH	 := $(shell go version | awk -F '[ /]' '{print $$5}')
 INTEGRATION  := nri-prometheus
 BINARY_NAME   = $(INTEGRATION)
+IMAGE_NAME   ?= newrelic/nri-prometheus
 GOPATH := $(shell go env GOPATH)
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
 GO_PKGS      := $(shell go list ./... | grep -v "/vendor/")
@@ -13,6 +14,10 @@ GOTOOLS       = github.com/kardianos/govendor \
 all: build
 
 build: check-version clean validate test compile
+
+docker-build:
+	@echo "=== $(INTEGRATION) === [ docker-build ]: Building Docker image..."
+	@docker build -t $(IMAGE_NAME) .
 
 clean:
 	@echo "=== $(INTEGRATION) === [ clean ]: Removing binaries and coverage file..."
@@ -67,4 +72,4 @@ ifneq "$(GOARCH)" "$(NATIVEARCH)"
 endif
 endif
 
-.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint
+.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build
