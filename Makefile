@@ -15,6 +15,10 @@ all: build
 
 build: check-version clean validate test compile
 
+docker-build:
+	@echo "=== $(INTEGRATION) === [ docker-build ]: Building Docker image..."
+	@docker build -t $(IMAGE_NAME) .
+
 clean:
 	@echo "=== $(INTEGRATION) === [ clean ]: Removing binaries and coverage file..."
 	@rm -rfv bin
@@ -68,4 +72,4 @@ ifneq "$(GOARCH)" "$(NATIVEARCH)"
 endif
 endif
 
-.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint
+.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build
