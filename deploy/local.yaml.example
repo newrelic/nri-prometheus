@@ -1,0 +1,118 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nri-prometheus
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: nri-prometheus
+rules:
+- apiGroups: [""]
+  resources:
+    - "nodes"
+    - "nodes/metrics"
+    - "nodes/stats"
+    - "nodes/proxy"
+    - "pods"
+    - "services"
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: nri-prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nri-prometheus
+subjects:
+- kind: ServiceAccount
+  name: nri-prometheus
+  namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nri-prometheus
+  labels:
+    app: nri-prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nri-prometheus
+  template:
+    metadata:
+      labels:
+        app: nri-prometheus
+    spec:
+      serviceAccountName: nri-prometheus
+      containers:
+      - name: nri-prometheus
+        image: quay.io/newrelic/nri-prometheus
+        args:
+          - "--configfile=/etc/nri-prometheus/config.yaml"
+        ports:
+          - containerPort: 8080
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nri-prometheus/
+        env:
+          - name: "LICENSE_KEY"
+            value: "<ADD_YOUR_VALUE_HERE>"
+          - name: "BEARER_TOKEN_FILE"
+            value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+          - name: "CA_FILE"
+            value: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: nri-prometheus-cfg
+---
+apiVersion: v1
+data:
+  config.yaml: |
+    # The name of your cluster. It's important to match other New Relic products to relate the data.
+    cluster_name: "<YOUR_CLUSTER_NAME>"
+    # How often the integration should run. Defaults to 30s.
+    # scrape_duration: "30s"
+    # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
+    # scrape_timeout: "30s"
+    # Wether the integration should run in verbose mode or not. Defaults to false.
+    verbose: false
+    # Wether the integration should skip TLS verification or not. Defaults to false.
+    insecure_skip_verify: false
+    # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
+    scrape_enabled_label: "prometheus.io/scrape"
+    # Wether k8s nodes needs to be labelled to be scraped or not. Defaults to false.
+    require_scrape_enabled_label_for_nodes: true
+    #targets:
+    #  - description: Secure etcd example
+    #    urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
+    #    tls_config:
+    #      ca_file_path: "/etc/etcd/etcd-client-ca.crt"
+    #      cert_file_path: "/etc/etcd/etcd-client.crt"
+    #      key_file_path: "/etc/etcd/etcd-client.key"
+    transformations:
+    #  - description: "General processing rules"
+    #    rename_attributes:
+    #      - metric_prefix: ""
+    #        attributes:
+    #          container_name: "containerName"
+    #          pod_name: "podName"
+    #          namespace: "namespaceName"
+    #          node: "nodeName"
+    #          container: "containerName"
+    #          pod: "podName"
+    #          deployment: "deploymentName"
+kind: ConfigMap
+metadata:
+  name: nri-prometheus-cfg
+  namespace: default

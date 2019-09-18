@@ -1,0 +1,11 @@
+apiVersion: skaffold/v1beta12
+kind: Config
+build:
+  artifacts:
+  - image: quay.io/newrelic/nri-prometheus
+    docker:
+      dockerfile: Dockerfile.dev
+deploy:
+  kubectl:
+    manifests:
+    - deploy/local.yaml

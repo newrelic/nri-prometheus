@@ -1,0 +1,8 @@
+FROM alpine:latest
+MAINTAINER Full Stack Integrations <fsi.communications@newrelic.com>
+RUN apk add --no-cache ca-certificates
+
+USER nobody
+ADD bin/nri-prometheus /bin/
+
+ENTRYPOINT ["/bin/nri-prometheus"]
