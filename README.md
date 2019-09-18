@@ -15,9 +15,23 @@ However, at the moment the tests are totally isolated and you don't need a clust
 
 We're currently supporting **Go 1.13**.
 
-### Execute tests
+### Running the tests & linters
 
-You can do it running `make test`.
+You can run the linters with `make validate` and the tests with `make test`.
+
+### Build the binary
+
+To build the project run: `make build`. This will output the binary release at `bin/nri-prometheus`.
+
+### Build the docker image
+
+In case you wish to push your own version of the image to a Docker registry, you can build it with:
+
+```bash
+IMAGE_NAME=<YOUR_IMAGE_NAME> make docker-build
+```
+
+And push it later with `docker push`
 
 ### Executing the integration in a development cluster
 
@@ -26,16 +40,4 @@ deploy/local.yaml.example to deploy/local.yaml and edit the placeholders.
  - To get the Infrastructure License key, visit:
    `https://newrelic.com/accounts/<YOUR_ACCOUNT_ID>`. It's located in the right sidebar.
 - After updating the yaml file, you need to compile the integration: `GOOS=linux make compile-only`.
-- Once you have it compiled, you need to deploy it in your K8s cluster: `skaffold run`
-
-## Release proccess
-
-First, run `release.sh` script with the new version that will be released. This should update the CHANGELOG, the version stored in the code and the manifest that gets uploaded to the download site.
-
-Update the `CHANGELOG.md` file in this repository and create a [GH release](https://github.com/newrelic/nri-prometheus/releases/new).
-Use the version of the release as input for the CI Job later on.
-
-Create a Github release for the version that is about to be released. The title of the release should follow the template: `v0.0.0`. The changelog of each version should be part of the release description.
-
-Trigger the [CI Release Job](#pending-link) to build and push the docker image, and to upload the Kubernetes
-manifest template to download.newrelic.com.
+- Once you have it compiled, you need to deploy it in your Kubernetes cluster: `skaffold run`

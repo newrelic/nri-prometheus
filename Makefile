@@ -4,6 +4,7 @@ NATIVEOS	 := $(shell go version | awk -F '[ /]' '{print $$4}')
 NATIVEARCH	 := $(shell go version | awk -F '[ /]' '{print $$5}')
 INTEGRATION  := nri-prometheus
 BINARY_NAME   = $(INTEGRATION)
+IMAGE_NAME   ?= newrelic/nri-prometheus
 GOPATH := $(shell go env GOPATH)
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
 GO_PKGS      := $(shell go list ./... | grep -v "/vendor/")
