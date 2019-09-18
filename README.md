@@ -1,5 +1,7 @@
 # New Relic Prometheus OpenMetrics Integration
 
+[![CLA assistant](https://cla-assistant.io/readme/badge/newrelic/nri-prometheus)](https://cla-assistant.io/newrelic/nri-prometheus)
+
 Fetch metrics in the Prometheus metrics inside or outside Kubernetes and send them to the New Relic Metrics platform.
 
 ## How to use it?
