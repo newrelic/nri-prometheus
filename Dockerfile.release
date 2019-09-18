@@ -1,0 +1,11 @@
+FROM alpine:3.9
+
+RUN apk add --no-cache --upgrade \
+        ca-certificates \
+        musl=1.1.20-r5
+
+USER nobody
+
+ENTRYPOINT ["/bin/nri-prometheus"]
+
+COPY nri-prometheus /bin/nri-prometheus

@@ -10,3 +10,4 @@ vendor/github.com/newrelic/*/
 !vendor/github.com/newrelic/go-telemetry-sdk/
 bin/
 deploy/local*.yaml
+dist/
