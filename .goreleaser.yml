@@ -1,0 +1,39 @@
+---
+#before:
+#  hooks:
+#    - go mod tidy
+builds:
+- id: nri-prometheus
+  main: ./cmd/nri-prometheus/main.go
+  binary: nri-prometheus
+  env:
+    - CGO_ENABLED=0
+  goos:
+    - freebsd
+    - linux
+    - darwin
+  ignore:
+    - goarch: 386
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+dockers:
+- dockerfile: Dockerfile.release
+  binaries:
+    - nri-prometheus
+  image_templates:
+    - 'newrelic/nri-prometheus:v{{ .Major }}.{{ .Minor }}'
+    - 'newrelic/nri-prometheus:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
