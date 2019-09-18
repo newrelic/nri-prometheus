@@ -1,5 +1,4 @@
 FROM golang:1.13-alpine3.10 AS build
-MAINTAINER Full Stack Integrations <fsi.communications@newrelic.com>
 RUN apk add --no-cache --update git make
 
 WORKDIR /go/src/github.com/newrelic/nri-prometheus
@@ -13,7 +12,6 @@ RUN make compile-only
 RUN chmod +x bin/nri-prometheus
 
 FROM alpine:latest
-MAINTAINER Full Stack Integrations <fsi.communications@newrelic.com>
 RUN apk add --no-cache ca-certificates
 
 USER nobody
