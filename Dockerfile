@@ -1,5 +1,4 @@
 FROM golang:1.11.4-alpine3.8 AS build
-MAINTAINER Full Stack Integrations <fsi.communications@newrelic.com>
 RUN apk add --no-cache --update git make openssh-client
 # Set up ssh credentials to fetch private dependencies.
 ARG SSH_PRIVATE_KEY
@@ -19,7 +18,6 @@ RUN make compile-only
 RUN chmod +x bin/nri-prometheus
 
 FROM alpine:latest
-MAINTAINER Full Stack Integrations <fsi.communications@newrelic.com>
 RUN apk add --no-cache ca-certificates
 
 USER nobody
