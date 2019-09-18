@@ -15,6 +15,13 @@ However, at the moment the tests are totally isolated and you don't need a clust
 
 We're currently supporting **Go 1.13**.
 
+### Prerequisites
+
+1. The project needs to be cloned at `$GOPATH/src/github.com/newrelic/nri-prometheus`.
+2. Ensure you added `$GOPATH/bin` to your `$PATH`, otherwise builds won't be possible.
+
+If you want to learn more about the GOPATH, check the [official Go docs](https://golang.org/doc/code.html#GOPATH).
+
 ### Running the tests & linters
 
 You can run the linters with `make validate` and the tests with `make test`.
