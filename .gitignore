@@ -11,3 +11,7 @@ vendor/github.com/newrelic/*/
 bin/
 deploy/local*.yaml
 dist/
+config.yaml
+deploy/nri-prometheus.major.yaml
+deploy/nri-prometheus.minor.yaml
+target/
