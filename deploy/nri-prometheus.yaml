@@ -57,7 +57,7 @@ spec:
       serviceAccountName: nri-prometheus
       containers:
       - name: nri-prometheus
-        image: newrelic/kps:0.10.3
+        image: newrelic/nri-prometheus:1.0.0
         args:
           - "--configfile=/etc/nri-prometheus/config.yaml"
         ports:

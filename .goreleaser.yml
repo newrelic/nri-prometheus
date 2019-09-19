@@ -27,8 +27,8 @@ dockers:
   binaries:
     - nri-prometheus
   image_templates:
-    - 'newrelic/nri-prometheus:v{{ .Major }}.{{ .Minor }}'
-    - 'newrelic/nri-prometheus:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}'
+    - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+    - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}.{{ .Patch }}'
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
