@@ -59,7 +59,6 @@ func validateConfig(cfg *Config) error {
 
 // LoadViperDefaults loads the default configuration into the given Viper loader.
 func LoadViperDefaults(viper *viper.Viper) {
-	viper.SetDefault("metric_api_url", "https://metric-api.newrelic.com/metric/v1/infra")
 	viper.SetDefault("debug", false)
 	viper.SetDefault("verbose", false)
 	viper.SetDefault("emitters", []string{"telemetry"})
