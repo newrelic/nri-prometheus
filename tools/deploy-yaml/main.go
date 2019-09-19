@@ -15,8 +15,8 @@ import (
 )
 
 var (
-	majorVersion = "snapshot"
-	minorVersion = "snapshot"
+	majorVersion = "dev"
+	minorVersion = "dev"
 )
 
 func main() {
@@ -29,11 +29,12 @@ func main() {
 	if nil != err {
 		log.Fatal(err)
 	}
-	writeTemplate(tmpl, majorVersion)
-	writeTemplate(tmpl, minorVersion)
+	writeTemplate(tmpl, majorVersion, majorVersion)
+	writeTemplate(tmpl, minorVersion, minorVersion)
+	writeTemplate(tmpl, minorVersion, "latest")
 }
 
-func writeTemplate(tmpl *template.Template, version string) {
+func writeTemplate(tmpl *template.Template, version string, yamlVersion string) {
 	bf := bytes.NewBuffer([]byte{})
 	err := tmpl.Execute(bf, struct {
 		Version string
@@ -42,7 +43,7 @@ func writeTemplate(tmpl *template.Template, version string) {
 		log.Fatal(err)
 	}
 	err = ioutil.WriteFile(
-		fmt.Sprintf("../../target/deploy/nri-prometheus-%s.yaml", version),
+		fmt.Sprintf("../../target/deploy/nri-prometheus-%s.yaml", yamlVersion),
 		bf.Bytes(),
 		0644)
 

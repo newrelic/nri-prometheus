@@ -1,7 +1,7 @@
 ---
 builds:
   - id: nri-prometheus
-    main: ./cmd/nri-prometheus/main.go
+    main: ./cmd/nri-prometheus/
     binary: nri-prometheus
     ldflags:
       - -s -w -X github.com/newrelic/nri-prometheus/internal/integration.Version={{.Version}}
