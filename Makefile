@@ -88,5 +88,6 @@ release/deps: $(GORELEASER_BIN)
 release: release/deps
 	@echo "=== $(INTEGRATION) === [ release ]: Releasing new version..."
 	@$(GORELEASER_BIN) release
+	@(aws s3 sync ./target/deploy/ ${S3_BUCKET})
 
 .PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build release release/deps
