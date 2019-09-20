@@ -50,6 +50,10 @@ func validateConfig(cfg *Config) error {
 	if cfg.ClusterName == "" {
 		return fmt.Errorf(requiredMsg, "cluster_name")
 	}
+	if cfg.LicenseKey == "" {
+		return fmt.Errorf(requiredMsg, "license_key")
+	}
+
 	return nil
 }
 
@@ -66,8 +70,8 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 	}
 
 	err := validateConfig(cfg)
-	if err != nil { // Handle errors reading the config file
-		logrus.WithError(err).Fatal("while getting configuration options")
+	if err != nil { // Handle errors validating the config file
+		logrus.WithError(err).Fatal("while validating configuration options")
 	}
 
 	selfRetriever, err := endpoints.SelfRetriever()

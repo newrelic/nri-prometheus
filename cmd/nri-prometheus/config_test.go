@@ -12,6 +12,8 @@ func TestDetermineMetricAPIURL(t *testing.T) {
 		license     string
 		expectedURL string
 	}{
+		// empty license
+		{license: "", expectedURL: defaultMetricAPIURL},
 		// non-region license
 		{license: "0123456789012345678901234567890123456789", expectedURL: defaultMetricAPIURL},
 		// four letter region

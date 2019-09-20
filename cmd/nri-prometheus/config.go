@@ -3,7 +3,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
+	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
@@ -20,11 +20,11 @@ func loadConfig() (*scraper.Config, error) {
 	cfg.SetConfigType("yaml")
 	cfg.AddConfigPath("/etc/nri-prometheus/")
 	cfg.AddConfigPath(".")
-	loadViperDefaults(cfg)
+	setViperDefaults(cfg)
 
 	err := cfg.ReadInConfig()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not read configuration")
 	}
 
 	var scraperCfg scraper.Config
@@ -32,22 +32,18 @@ func loadConfig() (*scraper.Config, error) {
 	err = cfg.Unmarshal(&scraperCfg)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not parse configuration file")
 	}
 
-	if scraperCfg.LicenseKey == "" {
-		return nil, errors.New("LICENSE_KEY is required and can't be empty")
-	}
-
-	if scraperCfg.MetricAPIURL != "" {
+	if scraperCfg.MetricAPIURL == "" {
 		scraperCfg.MetricAPIURL = determineMetricAPIURL(scraperCfg.LicenseKey)
 	}
 
-	return &scraperCfg, err
+	return &scraperCfg, nil
 }
 
-// LoadViperDefaults loads the default configuration into the given Viper loader.
-func loadViperDefaults(viper *viper.Viper) {
+// setViperDefaults loads the default configuration into the given Viper registry.
+func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("debug", false)
 	viper.SetDefault("verbose", false)
 	viper.SetDefault("emitters", []string{"telemetry"})
@@ -60,7 +56,7 @@ func loadViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("insecure_skip_verify", false)
 }
 
-// BindViperEnv automatically binds the variables in given configuration struct to environment variables.
+// bindViperEnv automatically binds the variables in given configuration struct to environment variables.
 // This is needed because Viper only takes environment variables into consideration for unmarshalling if they are also
 // defined in the configuration file. We need to be able to use environment variables even if such variable is not in
 // the config file.

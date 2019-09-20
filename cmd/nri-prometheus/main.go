@@ -10,7 +10,7 @@ import (
 func main() {
 	cfg, err := loadConfig()
 	if err != nil {
-		logrus.WithError(err).Fatal("while getting configuration options")
+		logrus.WithError(err).Fatal("while loading configuration")
 	}
 
 	scraper.Run(cfg)
