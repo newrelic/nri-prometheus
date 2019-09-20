@@ -15,8 +15,11 @@ import (
 const (
 	// Name of the integration
 	Name = "nri-prometheus"
+)
+
+var (
 	// Version of the integration
-	Version = "1.0.0"
+	Version = "dev"
 )
 
 var ilog = logrus.WithField("component", "integration.Execute")

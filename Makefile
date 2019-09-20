@@ -7,6 +7,9 @@ BINARY_NAME   = $(INTEGRATION)
 IMAGE_NAME   ?= newrelic/nri-prometheus
 GOPATH := $(shell go env GOPATH)
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
+GORELEASER_VERSION := v0.118.0
+GORELEASER_SHA256 := 4ff50937727f5dc6bb1c63a224dff05034b530862734593f10eca887b5f0125e
+GORELEASER_BIN ?= $(GOPATH)/bin/goreleaser
 GO_PKGS      := $(shell go list ./... | grep -v "/vendor/")
 GOTOOLS       = github.com/kardianos/govendor \
 		github.com/stretchr/testify/assert \
@@ -22,6 +25,7 @@ docker-build:
 clean:
 	@echo "=== $(INTEGRATION) === [ clean ]: Removing binaries and coverage file..."
 	@rm -rfv bin
+	@rm -rfv target
 
 tools: check-version tools-golangci-lint
 	@echo "=== $(INTEGRATION) === [ tools ]: Installing tools required by the project..."
@@ -72,4 +76,17 @@ ifneq "$(GOARCH)" "$(NATIVEARCH)"
 endif
 endif
 
-.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build
+$(GORELEASER_BIN):
+	@echo "=== $(INTEGRATION) === [ release/deps ]: Installing goreleaser"
+	@(curl -Ls https://github.com/goreleaser/goreleaser/releases/download/$(GORELEASER_VERSION)/goreleaser_Linux_x86_64.tar.gz --output /tmp/goreleaser.tar.gz)
+	@(echo "$(GORELEASER_SHA256) /tmp/goreleaser.tar.gz" | sha256sum --check)
+	@(tar -xf  /tmp/goreleaser.tar.gz -C $(GOPATH)/bin/)
+	@(rm -f /tmp/goreleaser.tar.gz)
+
+release/deps: $(GORELEASER_BIN)
+
+release: release/deps
+	@echo "=== $(INTEGRATION) === [ release ]: Releasing new version..."
+	@$(GORELEASER_BIN) release
+
+.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build release release/deps
