@@ -8,16 +8,12 @@ import (
 	"log"
 	"net/http"
 	"net/http/pprof"
-	"reflect"
-	"strings"
 	"time"
-
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/sirupsen/logrus"
 )
 
 // Config is the config struct for the scraper.
@@ -55,44 +51,6 @@ func validateConfig(cfg *Config) error {
 		return fmt.Errorf(requiredMsg, "cluster_name")
 	}
 	return nil
-}
-
-// LoadViperDefaults loads the default configuration into the given Viper loader.
-func LoadViperDefaults(viper *viper.Viper) {
-	viper.SetDefault("debug", false)
-	viper.SetDefault("verbose", false)
-	viper.SetDefault("emitters", []string{"telemetry"})
-	viper.SetDefault("scrape_enabled_label", "prometheus.io/scrape")
-	viper.SetDefault("require_scrape_enabled_label_for_nodes", false)
-	viper.SetDefault("scrape_timeout", time.Duration(5000000000))
-	viper.SetDefault("scrape_duration", "30s")
-	viper.SetDefault("emitter_harvest_period", "1s")
-	viper.SetDefault("auto_decorate", false)
-	viper.SetDefault("insecure_skip_verify", false)
-}
-
-// BindViperEnv automatically binds the variables in given configuration struct to environment variables.
-// This is needed because Viper only takes environment variables into consideration for unmarshalling if they are also
-// defined in the configuration file. We need to be able to use environment variables even if such variable is not in
-// the config file.
-// For more information see https://github.com/spf13/viper/issues/188.
-func BindViperEnv(vCfg *viper.Viper, iface interface{}, parts ...string) {
-	ifv := reflect.ValueOf(iface)
-	ift := reflect.TypeOf(iface)
-	for i := 0; i < ift.NumField(); i++ {
-		v := ifv.Field(i)
-		t := ift.Field(i)
-		tv, ok := t.Tag.Lookup("mapstructure")
-		if !ok {
-			continue
-		}
-		switch v.Kind() {
-		case reflect.Struct:
-			BindViperEnv(vCfg, v.Interface(), append(parts, tv)...)
-		default:
-			_ = vCfg.BindEnv(strings.Join(append(parts, tv), "_"))
-		}
-	}
 }
 
 // RunWithEmitters runs the scraper with preselected emitters.
