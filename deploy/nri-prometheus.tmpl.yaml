@@ -84,8 +84,8 @@ data:
     cluster_name: "<YOUR_CLUSTER_NAME>"
     # How often the integration should run. Defaults to 30s.
     # scrape_duration: "30s"
-    # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
-    # scrape_timeout: "30s"
+    # The HTTP client timeout when fetching data from endpoints. Defaults to 5s.
+    # scrape_timeout: "5s"
     # Wether the integration should run in verbose mode or not. Defaults to false.
     verbose: false
     # Wether the integration should skip TLS verification or not. Defaults to false.
