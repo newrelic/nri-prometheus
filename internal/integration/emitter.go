@@ -175,7 +175,8 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 
 // emitSummary sends all quantiles included with the summary as percentiles to New Relic.
 //
-// Related specification: https://source.datanerd.us/agents/exporter-specs/blob/master/Guidelines.md
+// Related specification:
+// https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#percentiles
 func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) error {
 	summary, ok := metric.value.(*mpb.Summary)
 	if !ok {
@@ -221,9 +222,10 @@ func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) erro
 	return results
 }
 
-// emitHistogram sends histogram data and currated percentiles to New Relic.
+// emitHistogram sends histogram data and curated percentiles to New Relic.
 //
-// Related specification: https://source.datanerd.us/agents/exporter-specs/blob/master/Guidelines.md
+// Related specification:
+// https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#histograms
 func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) error {
 	hist, ok := metric.value.(*mpb.Histogram)
 	if !ok {
