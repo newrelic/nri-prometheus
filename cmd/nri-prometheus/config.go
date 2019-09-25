@@ -49,7 +49,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("emitters", []string{"telemetry"})
 	viper.SetDefault("scrape_enabled_label", "prometheus.io/scrape")
 	viper.SetDefault("require_scrape_enabled_label_for_nodes", false)
-	viper.SetDefault("scrape_timeout", time.Duration(5000000000))
+	viper.SetDefault("scrape_timeout", 5*time.Second)
 	viper.SetDefault("scrape_duration", "30s")
 	viper.SetDefault("emitter_harvest_period", "1s")
 	viper.SetDefault("auto_decorate", false)
