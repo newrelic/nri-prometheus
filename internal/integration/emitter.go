@@ -6,18 +6,17 @@ package integration
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"os"
 	"time"
 
 	"github.com/newrelic/go-telemetry-sdk/cumulative"
 	"github.com/newrelic/go-telemetry-sdk/telemetry"
+	"github.com/sirupsen/logrus"
 )
 
 const (
 	// Ideally these 2 values should be configurable as integer multiples of the scrape interval.
-	deltaExpirationAge            = 30 * time.Second
-	deltaExpirationCheckInternval = 30 * time.Second
+	defaultDeltaExpirationAge           = 30 * time.Second
+	defaultDeltaExpirationCheckInterval = 30 * time.Second
 )
 
 // Emitter is an interface representing the ability to emit metrics.
@@ -29,57 +28,81 @@ type Emitter interface {
 // TelemetryEmitter emits metrics using the go-telemetry-sdk.
 type TelemetryEmitter struct {
 	name            string
-	apiKey          string
+	percentiles     []float64
 	harvester       *telemetry.Harvester
 	deltaCalculator *cumulative.DeltaCalculator
 }
 
-type roundTripperFunc func(*http.Request) (*http.Response, error)
+type TelemetryEmitterConfig struct {
+	// Percentile values to calculate for every Prometheus metrics of histogram type.
+	Percentiles []float64
 
-// RoundTrip is the implementation for http.RoundTripper.
-func (fn roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return fn(req)
+	// HarvesterOpts configuration functions for the telemetry Harvester.
+	HarvesterOpts []TelemetryHarvesterOpt
+
+	// DeltaExpirationAge sets the cumulative DeltaCalculator expiration age
+	// which determines how old an entry must be before it is considered for
+	// expiration. Defaults to 30s.
+	DeltaExpirationAge time.Duration
+	// DeltaExpirationCheckInternval sets the cumulative DeltaCalculator
+	// duration between checking for expirations. Defaults to 30s.
+	DeltaExpirationCheckInternval time.Duration
 }
 
-// CancelRequest is an optional interface required for go1.4 and go1.5
-func (fn roundTripperFunc) CancelRequest(*http.Request) {}
+// TelemetryHarvesterOpt sets configuration options for the
+// `TelemetryEmitter`'s `telemetry.Harvester`.
+type TelemetryHarvesterOpt = func(*telemetry.Config)
 
-// NewTelemetryEmitterWithRoundTripper returns a new TelemetryEmitter with the
-// given http.RoundTripper.
-func NewTelemetryEmitterWithRoundTripper(apiURL, apiKey string, rt roundTripperFunc) *TelemetryEmitter {
-	dc := cumulative.NewDeltaCalculator()
-	dc.SetExpirationAge(deltaExpirationAge)
-	dc.SetExpirationCheckInterval(deltaExpirationCheckInternval)
-	return &TelemetryEmitter{
-		name:   "telemetry",
-		apiKey: apiKey,
-		harvester: telemetry.NewHarvester(
-			func(cfg *telemetry.Config) {
-				cfg.MetricsURLOverride = apiURL
-				cfg.Client.Transport = rt
-			},
-			telemetry.ConfigAPIKey(apiKey),
-			telemetry.ConfigBasicErrorLogger(os.Stdout)),
-		deltaCalculator: dc,
+// TelemetryHarvesterWithMetricsURL sets the url to use for the metrics endpoint.
+func TelemetryHarvesterWithMetricsURL(url string) TelemetryHarvesterOpt {
+	return func(config *telemetry.Config) {
+		config.MetricsURLOverride = url
+	}
+}
+
+// TelemetryHarvesterWithHarvestPeriod sets harvest period.
+func TelemetryHarvesterWithHarvestPeriod(t time.Duration) TelemetryHarvesterOpt {
+	return func(config *telemetry.Config) {
+		config.HarvestPeriod = t
+	}
+}
+
+// TelemetryHarvesterWithInfraTransport wraps the `telemetry.Harvester`
+// `Transport` so that it uses the `licenseKey` instead of the `apiKey`.
+func TelemetryHarvesterWithInfraTransport(licenseKey string) TelemetryHarvesterOpt {
+	return func(cfg *telemetry.Config) {
+		cfg.Client.Transport = newInfraTransport(cfg.Client.Transport, licenseKey)
 	}
 }
 
 // NewTelemetryEmitter returns a new TelemetryEmitter.
-func NewTelemetryEmitter(apiURL, apiKey string, harvestPeriod time.Duration) *TelemetryEmitter {
+func NewTelemetryEmitter(cfg TelemetryEmitterConfig) *TelemetryEmitter {
 	dc := cumulative.NewDeltaCalculator()
-	dc.SetExpirationAge(deltaExpirationAge)
-	dc.SetExpirationCheckInterval(deltaExpirationCheckInternval)
+
+	if cfg.DeltaExpirationAge != 0 {
+		dc.SetExpirationAge(cfg.DeltaExpirationAge)
+	} else {
+		dc.SetExpirationAge(defaultDeltaExpirationAge)
+	}
+	logrus.Debugf(
+		"telemetry emitter configured with delta counter expiration age: %s",
+		cfg.DeltaExpirationAge,
+	)
+
+	if cfg.DeltaExpirationCheckInternval != 0 {
+		dc.SetExpirationCheckInterval(cfg.DeltaExpirationCheckInternval)
+	} else {
+		dc.SetExpirationCheckInterval(defaultDeltaExpirationCheckInterval)
+	}
+	logrus.Debugf(
+		"telemetry emitter configured with delta counter expiration check interval: %s",
+		cfg.DeltaExpirationAge,
+	)
+
 	return &TelemetryEmitter{
-		name:   "telemetry",
-		apiKey: apiKey,
-		harvester: telemetry.NewHarvester(
-			func(cfg *telemetry.Config) {
-				cfg.MetricsURLOverride = apiURL
-				cfg.HarvestPeriod = harvestPeriod
-				cfg.Client.Transport = newInfraTransport(cfg.Client.Transport, apiKey)
-			},
-			telemetry.ConfigAPIKey(apiKey),
-			telemetry.ConfigBasicErrorLogger(os.Stdout)),
+		name:            "telemetry",
+		harvester:       telemetry.NewHarvester(cfg.HarvesterOpts...),
+		percentiles:     cfg.Percentiles,
 		deltaCalculator: dc,
 	}
 }

@@ -7,14 +7,15 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"testing"
-	"time"
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/newrelic/go-telemetry-sdk/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
 )
 
@@ -42,10 +43,20 @@ func BenchmarkTelemetrySDKEmitter(b *testing.B) {
 	}
 	b.Logf("Number of metrics in supersized sample: %d", len(superMetrics))
 
+	c := TelemetryEmitterConfig{
+		HarvesterOpts: []TelemetryHarvesterOpt{
+			func(cfg *telemetry.Config) {
+				cfg.Client.Transport = nilRoundTripper()
+			},
+			TelemetryHarvesterWithMetricsURL("nilapiurl"),
+			telemetry.ConfigBasicErrorLogger(os.Stdout),
+		},
+	}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		emitter := NewTelemetryEmitterWithRoundTripper("nilapiurl", "some api key", nilRoundTripper())
+		emitter := NewTelemetryEmitter(c)
 		err = emitter.Emit(superMetrics)
 		assert.NoError(b, err)
 		// Need to trigger a manual harvest here otherwise the benchmark is useless.
@@ -67,6 +78,16 @@ func nilRoundTripper() roundTripperFunc {
 	return rt
 }
 
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+// RoundTrip is the implementation for http.RoundTripper.
+func (fn roundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
+	return fn(req)
+}
+
+// CancelRequest is an optional interface required for go1.4 and go1.5
+func (fn roundTripperFunc) CancelRequest(*http.Request) {}
+
 func decodePromMetrics(src io.Reader) (*prometheus.MetricFamiliesByName, error) {
 	mfs := prometheus.MetricFamiliesByName{}
 	d := expfmt.NewDecoder(src, expfmt.FmtText)
@@ -81,9 +102,4 @@ func decodePromMetrics(src io.Reader) (*prometheus.MetricFamiliesByName, error) 
 		mfs[mf.GetName()] = mf
 	}
 	return &mfs, nil
-}
-
-func TestNewTelemetryEmitterWithRoundTripper(t *testing.T) {
-	e := NewTelemetryEmitter("http://myapi.com", "myAPIkey", time.Second*20)
-	assert.Equal(t, "myAPIkey", e.apiKey)
 }

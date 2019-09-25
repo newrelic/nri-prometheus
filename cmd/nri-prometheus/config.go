@@ -54,6 +54,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("emitter_harvest_period", "1s")
 	viper.SetDefault("auto_decorate", false)
 	viper.SetDefault("insecure_skip_verify", false)
+	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 }
 
 // bindViperEnv automatically binds the variables in given configuration struct to environment variables.
