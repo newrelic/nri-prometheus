@@ -6,10 +6,13 @@ package integration
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/newrelic/go-telemetry-sdk/cumulative"
 	"github.com/newrelic/go-telemetry-sdk/telemetry"
+	"github.com/newrelic/nri-prometheus/internal/histogram"
+	mpb "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,6 +36,8 @@ type TelemetryEmitter struct {
 	deltaCalculator *cumulative.DeltaCalculator
 }
 
+// TelemetryEmitterConfig is the configuration required for the
+// `TelemetryEmitter`
 type TelemetryEmitterConfig struct {
 	// Percentile values to calculate for every Prometheus metrics of histogram type.
 	Percentiles []float64
@@ -115,6 +120,11 @@ func (te *TelemetryEmitter) Name() string {
 // Emit makes the mapping between Prometheus and NR metrics and records them
 // into the NR telemetry harvester.
 func (te *TelemetryEmitter) Emit(metrics []Metric) error {
+	var results error
+
+	// Record metrics at a uniform time so processing is not reflected in
+	// the measurement that already took place.
+	now := time.Now()
 	for _, metric := range metrics {
 		switch metric.metricType {
 		case metricType_GAUGE:
@@ -122,15 +132,179 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 				Name:       metric.name,
 				Attributes: metric.attributes,
 				Value:      metric.value.(float64),
-				Timestamp:  time.Now(),
+				Timestamp:  now,
 			})
 		case metricType_COUNTER:
-			if m, ok := te.deltaCalculator.CountMetric(metric.name, metric.attributes, metric.value.(float64), time.Now()); ok {
+			m, ok := te.deltaCalculator.CountMetric(
+				metric.name,
+				metric.attributes,
+				metric.value.(float64),
+				now,
+			)
+			if ok {
 				te.harvester.RecordMetric(m)
+			}
+		case metricType_SUMMARY:
+			if err := te.emitSummary(metric, now); err != nil {
+				if results == nil {
+					results = err
+				} else {
+					results = fmt.Errorf("%v: %w", err, results)
+				}
+			}
+		case metricType_HISTOGRAM:
+			if err := te.emitHistogram(metric, now); err != nil {
+				if results == nil {
+					results = err
+				} else {
+					results = fmt.Errorf("%v: %w", err, results)
+				}
+			}
+		default:
+			if err := fmt.Errorf("unknown metric type %q", metric.metricType); err != nil {
+				if results == nil {
+					results = err
+				} else {
+					results = fmt.Errorf("%v: %w", err, results)
+				}
 			}
 		}
 	}
-	return nil
+	return results
+}
+
+// emitSummary sends all quantiles included with the summary as percentiles to New Relic.
+//
+// Related specification: https://source.datanerd.us/agents/exporter-specs/blob/master/Guidelines.md
+func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) error {
+	summary, ok := metric.value.(*mpb.Summary)
+	if !ok {
+		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
+	}
+
+	var results error
+	metricName := metric.name + ".percentiles"
+	quantiles := summary.GetQuantile()
+	for _, q := range quantiles {
+		// translate to percentiles
+		p := q.GetQuantile() * 100.0
+		if p < 0.0 || p > 100.0 {
+			err := fmt.Errorf("invalid percentile `%g` for %s: must be in range [0.0, 100.0]", p, metric.name)
+			if results == nil {
+				results = err
+			} else {
+				results = fmt.Errorf("%v: %w", err, results)
+			}
+			continue
+		}
+
+		v := q.GetValue()
+		if !validNRValue(v) {
+			err := fmt.Errorf("invalid percentile value for %s: %g", metric.name, v)
+			if results == nil {
+				results = err
+			} else {
+				results = fmt.Errorf("%v: %w", err, results)
+			}
+			continue
+		}
+
+		percentileAttrs := copyAttrs(metric.attributes)
+		percentileAttrs["percentile"] = p
+		te.harvester.RecordMetric(telemetry.Gauge{
+			Name:       metricName,
+			Attributes: percentileAttrs,
+			Value:      v,
+			Timestamp:  timestamp,
+		})
+	}
+	return results
+}
+
+// emitHistogram sends histogram data and currated percentiles to New Relic.
+//
+// Related specification: https://source.datanerd.us/agents/exporter-specs/blob/master/Guidelines.md
+func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) error {
+	hist, ok := metric.value.(*mpb.Histogram)
+	if !ok {
+		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
+	}
+
+	if validNRValue(hist.GetSampleSum()) {
+		if m, ok := te.deltaCalculator.CountMetric(metric.name+".sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
+			te.harvester.RecordMetric(m)
+		}
+	}
+
+	metricName := metric.name + ".buckets"
+	buckets := make(histogram.Buckets, 0, len(hist.Bucket))
+	for _, b := range hist.GetBucket() {
+		upperBound := b.GetUpperBound()
+		count := float64(b.GetCumulativeCount())
+		if !math.IsInf(upperBound, 1) && validNRValue(count) {
+			bucketAttrs := copyAttrs(metric.attributes)
+			bucketAttrs["histogram.bucket.upperBound"] = upperBound
+			if m, ok := te.deltaCalculator.CountMetric(metricName, bucketAttrs, count, timestamp); ok {
+				te.harvester.RecordMetric(m)
+			}
+		}
+		buckets = append(
+			buckets,
+			histogram.Bucket{
+				UpperBound: upperBound,
+				Count:      count,
+			},
+		)
+	}
+
+	var results error
+	metricName = metric.name + ".percentiles"
+	for _, p := range te.percentiles {
+		v, err := histogram.Percentile(p, buckets)
+		if err != nil {
+			if results == nil {
+				results = err
+			} else {
+				results = fmt.Errorf("%v: %w", err, results)
+			}
+			continue
+		}
+
+		if !validNRValue(v) {
+			err := fmt.Errorf("invalid percentile value for %s: %g", metric.name, v)
+			if results == nil {
+				results = err
+			} else {
+				results = fmt.Errorf("%v: %w", err, results)
+			}
+			continue
+		}
+
+		percentileAttrs := copyAttrs(metric.attributes)
+		percentileAttrs["percentile"] = p
+		te.harvester.RecordMetric(telemetry.Gauge{
+			Name:       metricName,
+			Attributes: percentileAttrs,
+			Value:      v,
+			Timestamp:  timestamp,
+		})
+	}
+
+	return results
+}
+
+// copyAttrs returns a (shallow) copy of the passed attrs.
+func copyAttrs(attrs map[string]interface{}) map[string]interface{} {
+	duplicate := make(map[string]interface{}, len(attrs))
+	for k, v := range attrs {
+		duplicate[k] = v
+	}
+	return duplicate
+}
+
+// validNRValue returns if v is a New Relic metric supported float64.
+func validNRValue(v float64) bool {
+	return !math.IsInf(v, 0) && !math.IsNaN(v)
 }
 
 // StdoutEmitter emits metrics to stdout.
