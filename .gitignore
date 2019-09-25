@@ -16,3 +16,8 @@ deploy/nri-prometheus.major.yaml
 deploy/nri-prometheus.minor.yaml
 target/
 .envrc
+snyk-monitor-result.json
+snyk-result.json
+snyk_report.css
+snyk_report.html
+
