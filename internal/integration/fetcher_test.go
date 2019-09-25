@@ -187,6 +187,66 @@ func TestConvertPromMetrics(t *testing.T) {
 						},
 					},
 				},
+				"histogram_example": dto.MetricFamily{
+					// use anonymous struct to return *dto.MetricType literal.
+					Type: &(&struct{ x dto.MetricType }{dto.MetricType_HISTOGRAM}).x,
+					Metric: []*dto.Metric{
+						{
+							Label: []*dto.LabelPair{
+								{
+									// use anonymous struct to return *string literal.
+									Name:  &(&struct{ x string }{"histLabelName"}).x,
+									Value: &(&struct{ x string }{"histLabelValue"}).x,
+								},
+							},
+							Histogram: &dto.Histogram{
+								// use anonymous struct to return *float64 literal.
+								SampleCount: &(&struct{ x uint64 }{10}).x,
+								SampleSum:   &(&struct{ x float64 }{42}).x,
+								Bucket: []*dto.Bucket{
+									&dto.Bucket{
+										CumulativeCount: &(&struct{ x uint64 }{42}).x,
+										UpperBound:      &(&struct{ x float64 }{100}).x,
+									},
+									&dto.Bucket{
+										CumulativeCount: &(&struct{ x uint64 }{24}).x,
+										UpperBound:      &(&struct{ x float64 }{50}).x,
+									},
+								},
+							},
+						},
+					},
+				},
+				"summary_example": dto.MetricFamily{
+					// use anonymous struct to return *dto.MetricType literal.
+					Type: &(&struct{ x dto.MetricType }{dto.MetricType_SUMMARY}).x,
+					Metric: []*dto.Metric{
+						{
+							Label: []*dto.LabelPair{
+								{
+									// use anonymous struct to return *string literal.
+									Name:  &(&struct{ x string }{"summaryLabelName"}).x,
+									Value: &(&struct{ x string }{"summaryLabelValue"}).x,
+								},
+							},
+							Summary: &dto.Summary{
+								// use anonymous struct to return *float64 and *unint64 literal.
+								SampleCount: &(&struct{ x uint64 }{10}).x,
+								SampleSum:   &(&struct{ x float64 }{42}).x,
+								Quantile: []*dto.Quantile{
+									&dto.Quantile{
+										Quantile: &(&struct{ x float64 }{0.5}).x,
+										Value:    &(&struct{ x float64 }{100}).x,
+									},
+									&dto.Quantile{
+										Quantile: &(&struct{ x float64 }{0.9}).x,
+										Value:    &(&struct{ x float64 }{200}).x,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			[]Metric{
 				{
@@ -209,6 +269,56 @@ func TestConvertPromMetrics(t *testing.T) {
 						"targetName":     "hotdog-stand",
 						"nrMetricType":   "gauge",
 						"promMetricType": "gauge",
+					},
+				},
+				{
+					name:       "histogram_example",
+					metricType: metricType_HISTOGRAM,
+					value: &dto.Histogram{
+						// use anonymous struct to return *float64 literal.
+						SampleCount: &(&struct{ x uint64 }{10}).x,
+						SampleSum:   &(&struct{ x float64 }{42}).x,
+						Bucket: []*dto.Bucket{
+							&dto.Bucket{
+								CumulativeCount: &(&struct{ x uint64 }{42}).x,
+								UpperBound:      &(&struct{ x float64 }{100}).x,
+							},
+							&dto.Bucket{
+								CumulativeCount: &(&struct{ x uint64 }{24}).x,
+								UpperBound:      &(&struct{ x float64 }{50}).x,
+							},
+						},
+					},
+					attributes: labels.Set{
+						"histLabelName":  "histLabelValue",
+						"targetName":     "hotdog-stand",
+						"nrMetricType":   "histogram",
+						"promMetricType": "histogram",
+					},
+				},
+				{
+					name:       "summary_example",
+					metricType: metricType_SUMMARY,
+					value: &dto.Summary{
+						// use anonymous struct to return *float64 literal.
+						SampleCount: &(&struct{ x uint64 }{10}).x,
+						SampleSum:   &(&struct{ x float64 }{42}).x,
+						Quantile: []*dto.Quantile{
+							&dto.Quantile{
+								Quantile: &(&struct{ x float64 }{0.5}).x,
+								Value:    &(&struct{ x float64 }{100}).x,
+							},
+							&dto.Quantile{
+								Quantile: &(&struct{ x float64 }{0.9}).x,
+								Value:    &(&struct{ x float64 }{200}).x,
+							},
+						},
+					},
+					attributes: labels.Set{
+						"summaryLabelName": "summaryLabelValue",
+						"targetName":       "hotdog-stand",
+						"nrMetricType":     "summary",
+						"promMetricType":   "summary",
 					},
 				},
 			},
@@ -249,6 +359,66 @@ func TestConvertPromMetrics(t *testing.T) {
 						},
 					},
 				},
+				"histogram_example": dto.MetricFamily{
+					// use anonymous struct to return *dto.MetricType literal.
+					Type: &(&struct{ x dto.MetricType }{dto.MetricType_HISTOGRAM}).x,
+					Metric: []*dto.Metric{
+						{
+							Label: []*dto.LabelPair{
+								{
+									// use anonymous struct to return *string literal.
+									Name:  &(&struct{ x string }{"histLabelName"}).x,
+									Value: &(&struct{ x string }{"histLabelValue"}).x,
+								},
+							},
+							Histogram: &dto.Histogram{
+								// use anonymous struct to return *float64 literal.
+								SampleCount: &(&struct{ x uint64 }{20}).x,
+								SampleSum:   &(&struct{ x float64 }{52}).x,
+								Bucket: []*dto.Bucket{
+									&dto.Bucket{
+										CumulativeCount: &(&struct{ x uint64 }{52}).x,
+										UpperBound:      &(&struct{ x float64 }{200}).x,
+									},
+									&dto.Bucket{
+										CumulativeCount: &(&struct{ x uint64 }{34}).x,
+										UpperBound:      &(&struct{ x float64 }{60}).x,
+									},
+								},
+							},
+						},
+					},
+				},
+				"summary_example": dto.MetricFamily{
+					// use anonymous struct to return *dto.MetricType literal.
+					Type: &(&struct{ x dto.MetricType }{dto.MetricType_SUMMARY}).x,
+					Metric: []*dto.Metric{
+						{
+							Label: []*dto.LabelPair{
+								{
+									// use anonymous struct to return *string literal.
+									Name:  &(&struct{ x string }{"summaryLabelName"}).x,
+									Value: &(&struct{ x string }{"summaryLabelValue"}).x,
+								},
+							},
+							Summary: &dto.Summary{
+								// use anonymous struct to return *float64 and *unint64 literal.
+								SampleCount: &(&struct{ x uint64 }{20}).x,
+								SampleSum:   &(&struct{ x float64 }{52}).x,
+								Quantile: []*dto.Quantile{
+									&dto.Quantile{
+										Quantile: &(&struct{ x float64 }{0.5}).x,
+										Value:    &(&struct{ x float64 }{42}).x,
+									},
+									&dto.Quantile{
+										Quantile: &(&struct{ x float64 }{0.9}).x,
+										Value:    &(&struct{ x float64 }{24}).x,
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 			[]Metric{
 				{
@@ -271,6 +441,56 @@ func TestConvertPromMetrics(t *testing.T) {
 						"targetName":     "hotdog-stand",
 						"nrMetricType":   "gauge",
 						"promMetricType": "gauge",
+					},
+				},
+				{
+					name:       "histogram_example",
+					metricType: metricType_HISTOGRAM,
+					value: &dto.Histogram{
+						// use anonymous struct to return *float64 literal.
+						SampleCount: &(&struct{ x uint64 }{20}).x,
+						SampleSum:   &(&struct{ x float64 }{52}).x,
+						Bucket: []*dto.Bucket{
+							&dto.Bucket{
+								CumulativeCount: &(&struct{ x uint64 }{52}).x,
+								UpperBound:      &(&struct{ x float64 }{200}).x,
+							},
+							&dto.Bucket{
+								CumulativeCount: &(&struct{ x uint64 }{34}).x,
+								UpperBound:      &(&struct{ x float64 }{60}).x,
+							},
+						},
+					},
+					attributes: labels.Set{
+						"histLabelName":  "histLabelValue",
+						"targetName":     "hotdog-stand",
+						"nrMetricType":   "histogram",
+						"promMetricType": "histogram",
+					},
+				},
+				{
+					name:       "summary_example",
+					metricType: metricType_SUMMARY,
+					value: &dto.Summary{
+						// use anonymous struct to return *float64 and *unint64 literal.
+						SampleCount: &(&struct{ x uint64 }{20}).x,
+						SampleSum:   &(&struct{ x float64 }{52}).x,
+						Quantile: []*dto.Quantile{
+							&dto.Quantile{
+								Quantile: &(&struct{ x float64 }{0.5}).x,
+								Value:    &(&struct{ x float64 }{42}).x,
+							},
+							&dto.Quantile{
+								Quantile: &(&struct{ x float64 }{0.9}).x,
+								Value:    &(&struct{ x float64 }{24}).x,
+							},
+						},
+					},
+					attributes: labels.Set{
+						"summaryLabelName": "summaryLabelValue",
+						"targetName":       "hotdog-stand",
+						"nrMetricType":     "summary",
+						"promMetricType":   "summary",
 					},
 				},
 			},
