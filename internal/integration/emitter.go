@@ -12,7 +12,7 @@ import (
 	"github.com/newrelic/go-telemetry-sdk/cumulative"
 	"github.com/newrelic/go-telemetry-sdk/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/histogram"
-	mpb "github.com/prometheus/client_model/go"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -178,7 +178,7 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 // Related specification:
 // https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#percentiles
 func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) error {
-	summary, ok := metric.value.(*mpb.Summary)
+	summary, ok := metric.value.(*dto.Summary)
 	if !ok {
 		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
 	}
@@ -227,7 +227,7 @@ func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) erro
 // Related specification:
 // https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#histograms
 func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) error {
-	hist, ok := metric.value.(*mpb.Histogram)
+	hist, ok := metric.value.(*dto.Histogram)
 	if !ok {
 		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
 	}
