@@ -84,15 +84,15 @@ data:
     cluster_name: "<YOUR_CLUSTER_NAME>"
     # How often the integration should run. Defaults to 30s.
     # scrape_duration: "30s"
-    # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
-    # scrape_timeout: "30s"
+    # The HTTP client timeout when fetching data from endpoints. Defaults to 5s.
+    # scrape_timeout: "5s"
     # Wether the integration should run in verbose mode or not. Defaults to false.
     verbose: false
     # Wether the integration should skip TLS verification or not. Defaults to false.
     insecure_skip_verify: false
     # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
     scrape_enabled_label: "prometheus.io/scrape"
-    # Wether k8s nodes needs to be labelled to be scraped or not. Defaults to false.
+    # Whether k8s nodes need to be labelled to be scraped or not. Defaults to true.
     require_scrape_enabled_label_for_nodes: true
     #targets:
     #  - description: Secure etcd example
