@@ -16,7 +16,12 @@ GOTOOLS       = github.com/kardianos/govendor \
 
 all: build
 
-build: check-version clean validate test compile
+build: check-version clean validate test compile docker-release
+
+docker-release:
+	@echo "=== $(INTEGRATION) === [ docker-release ]: Building Docker image for release..."
+	@cp Dockerfile.release bin/Dockerfile
+	@docker build -t $(IMAGE_NAME):release bin/
 
 docker-build:
 	@echo "=== $(INTEGRATION) === [ docker-build ]: Building Docker image..."
@@ -89,5 +94,20 @@ release: release/deps
 	@echo "=== $(INTEGRATION) === [ release ]: Releasing new version..."
 	@$(GORELEASER_BIN) release
 	@(aws s3 sync ./target/deploy/ ${S3_BUCKET})
+	@$(MAKE) snyk/monitor
 
-.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build release release/deps
+release/test: release/deps
+	@echo "=== $(INTEGRATION) === [ release/test ]: Testing releasing new version..."
+	@$(GORELEASER_BIN) release --snapshot --skip-publish --rm-dist
+
+snyk: deps-only
+	@echo "=== $(INTEGRATION) === [ snyk ]: Running snyk..."
+	# @snyk test # issue with Govendor causing snyk to fail
+	@snyk test --docker $(IMAGE_NAME):release --file=Dockerfile.release
+
+snyk/monitor: deps-only
+	@echo "=== $(INTEGRATION) === [ snyk/monitor ]: Running snyk..."
+	# @snyk monitor # issue with Govendor causing snyk to fail
+	@snyk monitor --docker $(IMAGE_NAME):release --file=Dockerfile.release
+
+.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build release release/deps release/test snyk snyk/monitor docker-release
