@@ -8,8 +8,10 @@ import (
 	"log"
 	"net/http"
 	"net/http/pprof"
+	"os"
 	"time"
 
+	"github.com/newrelic/go-telemetry-sdk/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -36,6 +38,7 @@ type Config struct {
 	BearerTokenFile                   string                       `mapstructure:"bearer_token_file"`
 	InsecureSkipVerify                bool                         `mapstructure:"insecure_skip_verify" default:"false"`
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
+	Percentiles                       []float64                    `mapstructure:"percentiles"`
 	DecorateFile                      bool
 }
 
@@ -53,7 +56,14 @@ func validateConfig(cfg *Config) error {
 	if cfg.LicenseKey == "" {
 		return fmt.Errorf(requiredMsg, "license_key")
 	}
-
+	for _, p := range cfg.Percentiles {
+		if p < 0.0 {
+			return fmt.Errorf("percentiles must be greater than or equal to 0.0, got %f", p)
+		}
+		if p > 100.0 {
+			return fmt.Errorf("percentiles must be less than or equal to 100.0, got %f", p)
+		}
+	}
 	return nil
 }
 
@@ -145,13 +155,35 @@ func Run(cfg *Config) {
 		case "stdout":
 			emitters = append(emitters, integration.NewStdoutEmitter())
 		case "telemetry":
-			h, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
+			hTime, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
 			if err != nil {
-				logrus.Fatalf("invalid telemetry emitter harvest period: %s", cfg.EmitterHarvestPeriod)
+				logrus.Fatalf(
+					"invalid telemetry emitter harvest period %s: %v",
+					cfg.EmitterHarvestPeriod,
+					err,
+				)
+			}
+			harvesterOpts := []func(*telemetry.Config){
+				telemetry.ConfigAPIKey(cfg.LicenseKey),
+				telemetry.ConfigBasicErrorLogger(os.Stdout),
+				integration.TelemetryHarvesterWithInfraTransport(cfg.LicenseKey),
+				integration.TelemetryHarvesterWithMetricsURL(cfg.MetricAPIURL),
+				integration.TelemetryHarvesterWithHarvestPeriod(hTime),
 			}
 
-			logrus.Debugf("telemetry emitter configured with API endpoint %s, harvest period of %s", cfg.MetricAPIURL, cfg.EmitterHarvestPeriod)
-			emitters = append(emitters, integration.NewTelemetryEmitter(cfg.MetricAPIURL, cfg.LicenseKey, h))
+			logrus.Debugf("telemetry emitter configured with API endpoint: %s", cfg.MetricAPIURL)
+			logrus.Debugf("telemetry emitter configured with harvest period: %s", cfg.EmitterHarvestPeriod)
+			if cfg.Verbose {
+				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicDebugLogger(os.Stdout))
+				logrus.Debugln("telemetry emitter configured to log debug messages")
+			}
+
+			c := integration.TelemetryEmitterConfig{
+				Percentiles:   cfg.Percentiles,
+				HarvesterOpts: harvesterOpts,
+			}
+			logrus.Debugf("telemetry emitter configured with percentiles: %v", cfg.Percentiles)
+			emitters = append(emitters, integration.NewTelemetryEmitter(c))
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
 			continue

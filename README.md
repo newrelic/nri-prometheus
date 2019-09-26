@@ -16,12 +16,13 @@ it. For development, we recommend using [Docker](https://docs.docker.com/install
 
 However, at the moment the tests are totally isolated and you don't need a cluster to run them.
 
-We're currently supporting **Go 1.13**.
-
 ### Prerequisites
 
-1. The project needs to be cloned at `$GOPATH/src/github.com/newrelic/nri-prometheus`.
-2. Ensure you added `$GOPATH/bin` to your `$PATH`, otherwise builds won't be possible.
+1. **Go 1.13**. This project uses the [error
+   wrapping](https://golang.org/doc/go1.13#error_wrapping) support, which makes
+   it incompatible with previous Go versions.
+2. The project needs to be cloned at `$GOPATH/src/github.com/newrelic/nri-prometheus`.
+3. Ensure you added `$GOPATH/bin` to your `$PATH`, otherwise builds won't be possible.
 
 If you want to learn more about the GOPATH, check the [official Go docs](https://golang.org/doc/code.html#GOPATH).
 

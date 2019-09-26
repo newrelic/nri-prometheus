@@ -275,8 +275,11 @@ type metricType string
 
 //nolint:golint
 const (
-	metricType_COUNTER metricType = "count"
-	metricType_GAUGE   metricType = "gauge"
+	metricType_COUNTER   metricType = "count"
+	metricType_GAUGE     metricType = "gauge"
+	metricType_SUMMARY   metricType = "summary"
+	metricType_HISTOGRAM metricType = "histogram"
+	metricType_UNTYPED   metricType = "untyped"
 )
 
 // Metric represents a Prometheus metric.
@@ -289,9 +292,11 @@ type Metric struct {
 }
 
 var supportedMetricTypes = map[io_prometheus_client.MetricType]string{
-	io_prometheus_client.MetricType_COUNTER: "counter",
-	io_prometheus_client.MetricType_GAUGE:   "gauge",
-	io_prometheus_client.MetricType_UNTYPED: "untyped",
+	io_prometheus_client.MetricType_COUNTER:   "counter",
+	io_prometheus_client.MetricType_GAUGE:     "gauge",
+	io_prometheus_client.MetricType_HISTOGRAM: "histogram",
+	io_prometheus_client.MetricType_SUMMARY:   "summary",
+	io_prometheus_client.MetricType_UNTYPED:   "untyped",
 }
 
 func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.MetricFamiliesByName) []Metric {
@@ -316,11 +321,6 @@ func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.Met
 			continue
 		}
 		for _, m := range mf.GetMetric() {
-			attrs := map[string]interface{}{}
-			attrs["targetName"] = targetName
-			for _, l := range m.GetLabel() {
-				attrs[l.GetName()] = l.GetValue()
-			}
 			var value interface{}
 			var nrType metricType
 			switch ntype {
@@ -333,11 +333,22 @@ func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.Met
 			case io_prometheus_client.MetricType_GAUGE:
 				value = m.GetGauge().GetValue()
 				nrType = metricType_GAUGE
+			case io_prometheus_client.MetricType_SUMMARY:
+				value = m.GetSummary()
+				nrType = metricType_SUMMARY
+			case io_prometheus_client.MetricType_HISTOGRAM:
+				value = m.GetHistogram()
+				nrType = metricType_HISTOGRAM
 			default:
 				if log.Level <= logrus.DebugLevel {
 					log.WithField("target", targetName).Debugf("metric type not supported: %s", mtype)
 				}
 				continue
+			}
+			attrs := map[string]interface{}{}
+			attrs["targetName"] = targetName
+			for _, l := range m.GetLabel() {
+				attrs[l.GetName()] = l.GetValue()
 			}
 			attrs["nrMetricType"] = string(nrType)
 			attrs["promMetricType"] = mtype
