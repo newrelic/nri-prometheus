@@ -116,7 +116,6 @@ func coalesceBuckets(buckets Buckets) Buckets {
 // As a somewhat hacky solution until ingestion is atomic per scrape, we
 // calculate the "envelope" of the histogram buckets, essentially removing
 // any decreases in the count between successive buckets.
-
 func ensureMonotonic(buckets Buckets) {
 	max := buckets[0].Count
 	for i := range buckets[1:] {
