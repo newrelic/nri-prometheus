@@ -92,7 +92,7 @@ data:
     insecure_skip_verify: false
     # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
     scrape_enabled_label: "prometheus.io/scrape"
-    # Whether k8s nodes needs to be labelled to be scraped or not. Defaults to false.
+    # Whether k8s nodes needs to be labelled to be scraped or not. Defaults to true.
     require_scrape_enabled_label_for_nodes: true
     #targets:
     #  - description: Secure etcd example
