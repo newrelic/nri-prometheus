@@ -90,6 +90,15 @@ data:
     verbose: false
     # Wether the integration should skip TLS verification or not. Defaults to false.
     insecure_skip_verify: false
+    # The HTTP(S) Proxy the emitters should use when submitting metrics.
+    # emitter_proxy: http://localhost:8888
+    # Certificate to add to the root CA that the emitter will use when
+    # verifying server certificates.
+    # If left empty, TLS uses the host's root CA set.
+    # emitter_ca_file: /path/to/cert/server.pem
+    # Wether the emitter should skip TLS verification or not when
+    # submitting data. Defaults to false.
+    # emitter_insecure_skip_verify: false
     # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
     scrape_enabled_label: "prometheus.io/scrape"
     # Whether k8s nodes need to be labelled to be scraped or not. Defaults to true.
