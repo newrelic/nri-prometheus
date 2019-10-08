@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/url"
 	"time"
 
 	"github.com/newrelic/go-telemetry-sdk/cumulative"
@@ -74,10 +75,34 @@ func TelemetryHarvesterWithHarvestPeriod(t time.Duration) TelemetryHarvesterOpt 
 
 // TelemetryHarvesterWithInfraTransport wraps the `telemetry.Harvester`
 // `Transport` so that it uses the `licenseKey` instead of the `apiKey`.
-func TelemetryHarvesterWithInfraTransport(licenseKey string) TelemetryHarvesterOpt {
-	return func(cfg *telemetry.Config) {
-		cfg.Client.Transport = newInfraTransport(cfg.Client.Transport, licenseKey)
+func TelemetryHarvesterWithInfraTransport(
+	licenseKey string,
+	proxyStr string,
+	caFile string,
+	insecureSkipVerify bool,
+) (TelemetryHarvesterOpt, error) {
+
+	tlsConfig, err := NewTLSConfig(caFile, insecureSkipVerify)
+	if err != nil {
+		return nil, err
 	}
+
+	var proxyURL *url.URL
+	if proxyStr != "" {
+		proxyURL, err = url.Parse(proxyStr)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return func(cfg *telemetry.Config) {
+		cfg.Client.Transport = newInfraTransport(
+			cfg.Client.Transport,
+			licenseKey,
+			tlsConfig,
+			proxyURL,
+		)
+	}, nil
 }
 
 // NewTelemetryEmitter returns a new TelemetryEmitter.

@@ -40,6 +40,9 @@ type Config struct {
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
 	Percentiles                       []float64                    `mapstructure:"percentiles"`
 	DecorateFile                      bool
+	EmitterProxy                      string `mapstructure:"emitter_proxy"`
+	EmitterCaFile                     string `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify         bool   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 }
 
 // Number of /metrics targets that can be fetched in parallel
@@ -163,16 +166,44 @@ func Run(cfg *Config) {
 					err,
 				)
 			}
+
+			transportOption, err := integration.TelemetryHarvesterWithInfraTransport(
+				cfg.LicenseKey,
+				cfg.EmitterProxy,
+				cfg.EmitterCaFile,
+				cfg.EmitterInsecureSkipVerify,
+			)
+
+			if err != nil {
+				logrus.Fatalf(
+					"couldn't set emitter with proxy %v CA file %v and insecureSkipVerify %v: %v",
+					cfg.EmitterProxy,
+					cfg.EmitterCaFile,
+					cfg.EmitterInsecureSkipVerify,
+					err,
+				)
+			}
+
 			harvesterOpts := []func(*telemetry.Config){
 				telemetry.ConfigAPIKey(cfg.LicenseKey),
 				telemetry.ConfigBasicErrorLogger(os.Stdout),
-				integration.TelemetryHarvesterWithInfraTransport(cfg.LicenseKey),
+				transportOption,
 				integration.TelemetryHarvesterWithMetricsURL(cfg.MetricAPIURL),
 				integration.TelemetryHarvesterWithHarvestPeriod(hTime),
 			}
 
 			logrus.Debugf("telemetry emitter configured with API endpoint: %s", cfg.MetricAPIURL)
+			logrus.Debugf("telemetry emitter configured with API endpoint: %s", cfg.MetricAPIURL)
 			logrus.Debugf("telemetry emitter configured with harvest period: %s", cfg.EmitterHarvestPeriod)
+			if cfg.EmitterProxy != "" {
+				logrus.Debugf("telemetry emitter configured with proxy : %s", cfg.EmitterProxy)
+			}
+			if cfg.EmitterCaFile != "" {
+				logrus.Debugf("telemetry emitter configured with CA file: %s", cfg.EmitterCaFile)
+			}
+			if cfg.EmitterInsecureSkipVerify {
+				logrus.Debugf("telemetry emitter configured with insecure skip verify")
+			}
 			if cfg.Verbose {
 				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicDebugLogger(os.Stdout))
 				logrus.Debugln("telemetry emitter configured to log debug messages")
