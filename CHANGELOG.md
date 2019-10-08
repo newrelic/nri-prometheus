@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - Reconnect support when resource watcher connection is dropped.
+- Add support for Histograms and Summaries following
+  [New Relic's guidelines for higher-level metric abstractions](https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md).
 
 ### Changed
 - Fix and refactor self describing metrics
-- Fix how the scrape interval is respected. 
+- Fix how the scrape interval is respected.
 
 ## 0.10.3
 ### Added
@@ -29,14 +31,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - By default do not skip the TLS verification.
 - Revamp of the static target configuration:
-    - `endpoints` key renamed to `targets`. If you had endpoints configured before, you need to update your 
+    - `endpoints` key renamed to `targets`. If you had endpoints configured before, you need to update your
        configuration and restart the scraper.
     - Each item in target can contain one or many urls in the `urls` key. This key is always a list.
     - Each target hosts its own TLS configuration in the `tls_config` key.
     - The TLS configuration contains 3 keys: `ca_file_path`, `cert_file_path` and `key_file_path`
 - Rename rules are executed at the end of the transformations pipeline. Now Copy attributes
-rules are being executed before it, so the name of metrics being used for matching the source and 
-the dest match with the original scraped instead of the renamed one.  
+rules are being executed before it, so the name of metrics being used for matching the source and
+the dest match with the original scraped instead of the renamed one.
 
 ### Removed
 - Static targets cannot be configured via environment variables anymore, as it requires a complex structure now. See
@@ -55,7 +57,7 @@ the dest match with the original scraped instead of the renamed one.
 
 ### Changed
 - Delta calculator memory optimization
-- Avoid growing slices when converting from Prometheus metrics 
+- Avoid growing slices when converting from Prometheus metrics
   to our internal DTO by setting the final capacity. This reduces memory allocs.
 - Optimized Target Metadata generation
 - Distributed targets fetching on time, to avoid memory peaks and big heaps.
@@ -70,7 +72,7 @@ the dest match with the original scraped instead of the renamed one.
 ## 0.9.0 - 2019-06-12
 ### Added
 - Transformation rule to add static attributes, i.e. a cluster name, through the configuration.
-- Default attributes to decorate the metrics with: `clusterName`, `integrationVersion` and `integrationName`. 
+- Default attributes to decorate the metrics with: `clusterName`, `integrationVersion` and `integrationName`.
 - Mount pprof http endpoints when running in debug mode.
 - `targetName` attribute added to the metrics when converting from Prometheus metrics.
 - Integration benchmark
