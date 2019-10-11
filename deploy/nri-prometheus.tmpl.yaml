@@ -122,12 +122,12 @@ data:
     # level metrics abstractions https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md.
     # To better support visualization of this data, percentiles are calculated
     # based on the histogram metrics and sent to New Relic.
-    # By default, the following percentiles are calculated: 50.0, 95.0 and 99.0.
+    # By default, the following percentiles are calculated: 50, 95 and 99.
     #
     # percentiles:
-    #   - 50.0
-    #   - 95.0
-    #   - 99.0
+    #   - 50
+    #   - 95
+    #   - 99
 
     transformations:
       - description: "General processing rules"
