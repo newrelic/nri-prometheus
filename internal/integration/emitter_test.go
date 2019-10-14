@@ -5,12 +5,14 @@ package integration
 import (
 	"bytes"
 	"compress/gzip"
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"strconv"
 	"testing"
@@ -21,6 +23,7 @@ import (
 	mpb "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	"github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
@@ -406,4 +409,33 @@ func purgeTimestamps(metrics []interface{}) {
 		delete(assertedM, "timestamp")
 		delete(assertedM, "interval.ms")
 	}
+}
+
+func TestTelemetryHarvesterWithTLSConfig(t *testing.T) {
+	tlsConfig := &tls.Config{InsecureSkipVerify: true}
+	cfg := &telemetry.Config{Client: &http.Client{}}
+	TelemetryHarvesterWithTLSConfig(tlsConfig)(cfg)
+	rt := cfg.Client.Transport
+	tr := rt.(*http.Transport)
+	assert.True(t, tr.TLSClientConfig.InsecureSkipVerify)
+
+	tlsConfig.InsecureSkipVerify = false
+	TelemetryHarvesterWithTLSConfig(tlsConfig)(cfg)
+	rt = cfg.Client.Transport
+	tr = rt.(*http.Transport)
+	assert.False(t, tr.TLSClientConfig.InsecureSkipVerify)
+}
+
+func TestTelemetryHarvesterWithProxy(t *testing.T) {
+	proxyStr := "http://myproxy:444"
+	proxyURL, err := url.Parse(proxyStr)
+	require.NoError(t, err)
+	cfg := &telemetry.Config{Client: &http.Client{}}
+	TelemetryHarvesterWithProxy(proxyURL)(cfg)
+	rt := cfg.Client.Transport
+	tr, ok := rt.(*http.Transport)
+	assert.True(t, ok)
+	actualProxyURL, err := tr.Proxy(&http.Request{})
+	require.NoError(t, err)
+	assert.Equal(t, proxyURL, actualProxyURL)
 }
