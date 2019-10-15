@@ -129,7 +129,7 @@ func TelemetryHarvesterWithProxy(proxyURL *url.URL) TelemetryHarvesterOpt {
 		if !ok {
 			logrus.Warning(
 				"telemetry emitter couldn't be configured with proxy, ",
-				"client transport is not and http.Transport, ",
+				"client transport is not an http.Transport, ",
 				"continuing without proxy support",
 			)
 			return
