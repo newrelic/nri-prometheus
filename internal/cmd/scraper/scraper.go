@@ -6,7 +6,6 @@ package scraper
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
@@ -89,7 +88,7 @@ func validateConfig(cfg *Config) error {
 }
 
 // RunWithEmitters runs the scraper with preselected emitters.
-func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
+func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
 	if cfg.Verbose {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -97,22 +96,17 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 	logrus.Debugf("Config: %#v", cfg)
 
 	if len(emitters) == 0 {
-		logrus.Fatal("you need to configure at least one valid emitter.")
-	}
-
-	err := validateConfig(cfg)
-	if err != nil { // Handle errors validating the config file
-		logrus.WithError(err).Fatal("while validating configuration options")
+		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
 
 	selfRetriever, err := endpoints.SelfRetriever()
 	if err != nil {
-		logrus.WithError(err).Fatal("while parsing provided endpoints")
+		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	var retrievers []endpoints.TargetRetriever
 	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
 	if err != nil {
-		logrus.WithError(err).Fatal("while parsing provided endpoints")
+		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	retrievers = append(retrievers, fixedRetriever)
 
@@ -140,7 +134,11 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 
 	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
 	if err != nil {
-		log.Fatalf("parsing scrape_duration value (%v): %v", cfg.ScrapeDuration, err.Error())
+		return fmt.Errorf(
+			"parsing scrape_duration value (%v): %w",
+			cfg.ScrapeDuration,
+			err,
+		)
 	}
 
 	go integration.Execute(
@@ -160,14 +158,14 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	}
-	log.Fatal(http.ListenAndServe(":8080", r))
+	return http.ListenAndServe(":8080", r)
 }
 
 // Run runs the scraper
-func Run(cfg *Config) {
+func Run(cfg *Config) error {
 	err := validateConfig(cfg)
-	if err != nil { // Handle errors reading the config file
-		logrus.WithError(err).Fatal("while getting configuration options")
+	if err != nil {
+		return fmt.Errorf("while getting configuration options: %w", err)
 	}
 
 	var emitters []integration.Emitter
@@ -178,9 +176,10 @@ func Run(cfg *Config) {
 		case "telemetry":
 			hTime, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
 			if err != nil {
-				logrus.WithError(err).Fatalf(
-					"invalid telemetry emitter harvest period %s",
+				return fmt.Errorf(
+					"invalid telemetry emitter harvest period %s: %w",
 					cfg.EmitterHarvestPeriod,
+					err,
 				)
 			}
 
@@ -204,7 +203,7 @@ func Run(cfg *Config) {
 					cfg.EmitterInsecureSkipVerify,
 				)
 				if err != nil {
-					logrus.WithError(err).Fatal("invalid TLS configuration")
+					return fmt.Errorf("invalid TLS configuration: %w", err)
 				}
 				harvesterOpts = append(
 					harvesterOpts,
@@ -235,5 +234,5 @@ func Run(cfg *Config) {
 		}
 	}
 
-	RunWithEmitters(cfg, emitters)
+	return RunWithEmitters(cfg, emitters)
 }
