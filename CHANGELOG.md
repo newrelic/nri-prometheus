@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 
 ### Added
+- Support for HTTP(S) proxy for the emitters via the config options
+  `emitter_proxy`, `emitter_ca_file` and `emitter_insecure_skip_verify`.
 - Reconnect support when resource watcher connection is dropped.
 - Add support for Histograms and Summaries following
   [New Relic's guidelines for higher-level metric abstractions](https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md).

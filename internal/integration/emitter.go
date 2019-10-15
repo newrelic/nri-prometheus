@@ -4,9 +4,12 @@
 package integration
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/newrelic/go-telemetry-sdk/cumulative"
@@ -72,11 +75,70 @@ func TelemetryHarvesterWithHarvestPeriod(t time.Duration) TelemetryHarvesterOpt 
 	}
 }
 
-// TelemetryHarvesterWithInfraTransport wraps the `telemetry.Harvester`
-// `Transport` so that it uses the `licenseKey` instead of the `apiKey`.
-func TelemetryHarvesterWithInfraTransport(licenseKey string) TelemetryHarvesterOpt {
+// TelemetryHarvesterWithLicenseKeyRoundTripper wraps the emitter
+// client Transport to use the `licenseKey` instead of the `apiKey`.
+//
+// Other options that modify the underlying Client.Transport should be
+// set before this one, because this will change the Transport type
+// to licenseKeyRoundTripper.
+func TelemetryHarvesterWithLicenseKeyRoundTripper(licenseKey string) TelemetryHarvesterOpt {
 	return func(cfg *telemetry.Config) {
-		cfg.Client.Transport = newInfraTransport(cfg.Client.Transport, licenseKey)
+		cfg.Client.Transport = newLicenseKeyRoundTripper(
+			cfg.Client.Transport,
+			licenseKey,
+		)
+	}
+}
+
+// TelemetryHarvesterWithTLSConfig sets the TLS configuration to the
+// emitter client transport.
+func TelemetryHarvesterWithTLSConfig(tlsConfig *tls.Config) TelemetryHarvesterOpt {
+
+	return func(cfg *telemetry.Config) {
+		rt := cfg.Client.Transport
+		if rt == nil {
+			rt = http.DefaultTransport
+		}
+
+		t, ok := rt.(*http.Transport)
+		if !ok {
+			logrus.Warning(
+				"telemetry emitter TLS configuration couldn't be set, ",
+				"client transport is not an http.Transport.",
+			)
+			return
+		}
+
+		t = t.Clone()
+		t.TLSClientConfig = tlsConfig
+		cfg.Client.Transport = http.RoundTripper(t)
+		return
+	}
+}
+
+// TelemetryHarvesterWithProxy sets proxy configuration to the emitter
+// client transport.
+func TelemetryHarvesterWithProxy(proxyURL *url.URL) TelemetryHarvesterOpt {
+	return func(cfg *telemetry.Config) {
+		rt := cfg.Client.Transport
+		if rt == nil {
+			rt = http.DefaultTransport
+		}
+
+		t, ok := rt.(*http.Transport)
+		if !ok {
+			logrus.Warning(
+				"telemetry emitter couldn't be configured with proxy, ",
+				"client transport is not an http.Transport, ",
+				"continuing without proxy support",
+			)
+			return
+		}
+
+		t = t.Clone()
+		t.Proxy = http.ProxyURL(proxyURL)
+		cfg.Client.Transport = http.RoundTripper(t)
+		return
 	}
 }
 

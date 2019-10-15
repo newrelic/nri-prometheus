@@ -5,9 +5,10 @@ package scraper
 
 import (
 	"fmt"
-	"log"
+	"io/ioutil"
 	"net/http"
 	"net/http/pprof"
+	"net/url"
 	"os"
 	"time"
 
@@ -40,6 +41,11 @@ type Config struct {
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
 	Percentiles                       []float64                    `mapstructure:"percentiles"`
 	DecorateFile                      bool
+	EmitterProxy                      string `mapstructure:"emitter_proxy"`
+	// Parsed version of `EmitterProxy`
+	EmitterProxyURL           *url.URL
+	EmitterCAFile             string `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify bool   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 }
 
 // Number of /metrics targets that can be fetched in parallel
@@ -64,11 +70,25 @@ func validateConfig(cfg *Config) error {
 			return fmt.Errorf("percentiles must be less than or equal to 100.0, got %f", p)
 		}
 	}
+
+	if cfg.EmitterProxy != "" {
+		proxyURL, err := url.Parse(cfg.EmitterProxy)
+		if err != nil {
+			return fmt.Errorf("couldn't parse emitter proxy url: %w", err)
+		}
+		cfg.EmitterProxyURL = proxyURL
+	}
+
+	_, err := ioutil.ReadFile(cfg.EmitterCAFile)
+	if err != nil {
+		return fmt.Errorf("couldn't read emitter CA file: %w", err)
+	}
+
 	return nil
 }
 
 // RunWithEmitters runs the scraper with preselected emitters.
-func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
+func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
 	if cfg.Verbose {
 		logrus.SetLevel(logrus.DebugLevel)
@@ -76,22 +96,17 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 	logrus.Debugf("Config: %#v", cfg)
 
 	if len(emitters) == 0 {
-		logrus.Fatal("you need to configure at least one valid emitter.")
-	}
-
-	err := validateConfig(cfg)
-	if err != nil { // Handle errors validating the config file
-		logrus.WithError(err).Fatal("while validating configuration options")
+		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
 
 	selfRetriever, err := endpoints.SelfRetriever()
 	if err != nil {
-		logrus.WithError(err).Fatal("while parsing provided endpoints")
+		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	var retrievers []endpoints.TargetRetriever
 	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
 	if err != nil {
-		logrus.WithError(err).Fatal("while parsing provided endpoints")
+		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	retrievers = append(retrievers, fixedRetriever)
 
@@ -119,7 +134,11 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 
 	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
 	if err != nil {
-		log.Fatalf("parsing scrape_duration value (%v): %v", cfg.ScrapeDuration, err.Error())
+		return fmt.Errorf(
+			"parsing scrape_duration value (%v): %w",
+			cfg.ScrapeDuration,
+			err,
+		)
 	}
 
 	go integration.Execute(
@@ -139,14 +158,14 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) {
 		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	}
-	log.Fatal(http.ListenAndServe(":8080", r))
+	return http.ListenAndServe(":8080", r)
 }
 
 // Run runs the scraper
-func Run(cfg *Config) {
+func Run(cfg *Config) error {
 	err := validateConfig(cfg)
-	if err != nil { // Handle errors reading the config file
-		logrus.WithError(err).Fatal("while getting configuration options")
+	if err != nil {
+		return fmt.Errorf("while getting configuration options: %w", err)
 	}
 
 	var emitters []integration.Emitter
@@ -157,32 +176,57 @@ func Run(cfg *Config) {
 		case "telemetry":
 			hTime, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
 			if err != nil {
-				logrus.Fatalf(
-					"invalid telemetry emitter harvest period %s: %v",
+				return fmt.Errorf(
+					"invalid telemetry emitter harvest period %s: %w",
 					cfg.EmitterHarvestPeriod,
 					err,
 				)
 			}
+
 			harvesterOpts := []func(*telemetry.Config){
 				telemetry.ConfigAPIKey(cfg.LicenseKey),
 				telemetry.ConfigBasicErrorLogger(os.Stdout),
-				integration.TelemetryHarvesterWithInfraTransport(cfg.LicenseKey),
 				integration.TelemetryHarvesterWithMetricsURL(cfg.MetricAPIURL),
 				integration.TelemetryHarvesterWithHarvestPeriod(hTime),
 			}
 
-			logrus.Debugf("telemetry emitter configured with API endpoint: %s", cfg.MetricAPIURL)
-			logrus.Debugf("telemetry emitter configured with harvest period: %s", cfg.EmitterHarvestPeriod)
+			if cfg.EmitterProxyURL != nil {
+				harvesterOpts = append(
+					harvesterOpts,
+					integration.TelemetryHarvesterWithProxy(cfg.EmitterProxyURL),
+				)
+			}
+
+			if cfg.EmitterCAFile != "" {
+				tlsConfig, err := integration.NewTLSConfig(
+					cfg.EmitterCAFile,
+					cfg.EmitterInsecureSkipVerify,
+				)
+				if err != nil {
+					return fmt.Errorf("invalid TLS configuration: %w", err)
+				}
+				harvesterOpts = append(
+					harvesterOpts,
+					integration.TelemetryHarvesterWithTLSConfig(tlsConfig),
+				)
+			}
+
+			// Options that rely on modifying the emitter Client Transport
+			// should go before this one, as this changes the type of the
+			// Transport to `integration.licenseKeyRoundTripper`.
+			harvesterOpts = append(
+				harvesterOpts,
+				integration.TelemetryHarvesterWithLicenseKeyRoundTripper(cfg.LicenseKey),
+			)
+
 			if cfg.Verbose {
 				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicDebugLogger(os.Stdout))
-				logrus.Debugln("telemetry emitter configured to log debug messages")
 			}
 
 			c := integration.TelemetryEmitterConfig{
 				Percentiles:   cfg.Percentiles,
 				HarvesterOpts: harvesterOpts,
 			}
-			logrus.Debugf("telemetry emitter configured with percentiles: %v", cfg.Percentiles)
 			emitters = append(emitters, integration.NewTelemetryEmitter(c))
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
@@ -190,5 +234,5 @@ func Run(cfg *Config) {
 		}
 	}
 
-	RunWithEmitters(cfg, emitters)
+	return RunWithEmitters(cfg, emitters)
 }

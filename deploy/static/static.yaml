@@ -17,7 +17,7 @@ spec:
     metadata:
       labels:
         app: from-file-prometheus-exporter
-        newrelic/scrape: "true"
+        prometheus.io/scrape: "true"
     spec:
       containers:
         - name: from-file-prometheus-exporter

@@ -29,7 +29,7 @@ func TestRoundTripHeaderDecoration(t *testing.T) {
 		assert.Equal(t, licenseKey, req.Header.Get("X-License-Key"))
 		assert.Equal(t, "", req.Header.Get("X-Insert-Key"))
 	})
-	tr := newInfraTransport(rt, licenseKey)
+	tr := newLicenseKeyRoundTripper(rt, licenseKey)
 
 	_, _ = tr.RoundTrip(req)
 	rt.AssertExpectations(t)
