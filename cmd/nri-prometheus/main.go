@@ -16,6 +16,6 @@ func main() {
 
 	err = scraper.Run(cfg)
 	if err != nil {
-		logrus.WithError(err).Fatal("execution finished with error")
+		logrus.WithError(err).Fatal("error occurred while running scraper")
 	}
 }
