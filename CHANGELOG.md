@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## 1.2.0
+## 1.2.1
+### Fixed
+- Skip the check for the `emitter_ca_file` if it's empty.
 
+## 1.2.0
 ### Added
 - Support for HTTP(S) proxy for the emitters via the config options
   `emitter_proxy`, `emitter_ca_file` and `emitter_insecure_skip_verify`.
