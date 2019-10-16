@@ -79,9 +79,11 @@ func validateConfig(cfg *Config) error {
 		cfg.EmitterProxyURL = proxyURL
 	}
 
-	_, err := ioutil.ReadFile(cfg.EmitterCAFile)
-	if err != nil {
-		return fmt.Errorf("couldn't read emitter CA file: %w", err)
+	if cfg.EmitterCAFile != "" {
+		_, err := ioutil.ReadFile(cfg.EmitterCAFile)
+		if err != nil {
+			return fmt.Errorf("couldn't read emitter CA file: %w", err)
+		}
 	}
 
 	return nil
