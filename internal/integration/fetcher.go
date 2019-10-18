@@ -279,7 +279,6 @@ const (
 	metricType_GAUGE     metricType = "gauge"
 	metricType_SUMMARY   metricType = "summary"
 	metricType_HISTOGRAM metricType = "histogram"
-	//metricType_UNTYPED   metricType = "untyped"
 )
 
 // Metric represents a Prometheus metric.
