@@ -9,7 +9,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,4 +68,21 @@ func TestLogrusDebugPrintMasksLicenseKey(t *testing.T) {
 	if !strings.Contains(msg, maskedLicenseKey) {
 		t.Error("Log output does not contain the masked licenseKey")
 	}
+}
+
+func TestConfigParseWithCustomType(t *testing.T) {
+
+	const licenseKey = "MY_LICENSE_KEY"
+	cfgStr := []byte(fmt.Sprintf(`LICENSE_KEY: %s`, licenseKey))
+
+	vip := viper.New()
+	vip.SetConfigType("yaml")
+	err := vip.ReadConfig(bytes.NewBuffer(cfgStr))
+	require.NoError(t, err)
+
+	var cfg Config
+	err = vip.Unmarshal(&cfg)
+	require.NoError(t, err)
+
+	assert.Equal(t, licenseKey, string(cfg.LicenseKey))
 }
