@@ -23,7 +23,7 @@ import (
 type Config struct {
 	ConfigFile                        string
 	MetricAPIURL                      string                       `mapstructure:"metric_api_url"`
-	LicenseKey                        string                       `mapstructure:"license_key"`
+	LicenseKey                        LicenseKey                   `mapstructure:"license_key"`
 	ClusterName                       string                       `mapstructure:"cluster_name"`
 	Debug                             bool                         `mapstructure:"debug"`
 	Verbose                           bool                         `mapstructure:"verbose"`
@@ -46,6 +46,21 @@ type Config struct {
 	EmitterProxyURL           *url.URL
 	EmitterCAFile             string `mapstructure:"emitter_ca_file"`
 	EmitterInsecureSkipVerify bool   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+}
+
+const maskedLicenseKey = "****"
+
+// LicenseKey is a New Relic license key that will be masked when printed using standard formatters
+type LicenseKey string
+
+// String ensures that the LicenseKey will be masked in functions like fmt.Println(licenseKey)
+func (l LicenseKey) String() string {
+	return maskedLicenseKey
+}
+
+// GoString ensures that the LicenseKey will be masked in functions like fmt.Printf("%#v", licenseKey)
+func (l LicenseKey) GoString() string {
+	return maskedLicenseKey
 }
 
 // Number of /metrics targets that can be fetched in parallel
@@ -186,7 +201,7 @@ func Run(cfg *Config) error {
 			}
 
 			harvesterOpts := []func(*telemetry.Config){
-				telemetry.ConfigAPIKey(cfg.LicenseKey),
+				telemetry.ConfigAPIKey(string(cfg.LicenseKey)),
 				telemetry.ConfigBasicErrorLogger(os.Stdout),
 				integration.TelemetryHarvesterWithMetricsURL(cfg.MetricAPIURL),
 				integration.TelemetryHarvesterWithHarvestPeriod(hTime),
@@ -218,7 +233,7 @@ func Run(cfg *Config) error {
 			// Transport to `integration.licenseKeyRoundTripper`.
 			harvesterOpts = append(
 				harvesterOpts,
-				integration.TelemetryHarvesterWithLicenseKeyRoundTripper(cfg.LicenseKey),
+				integration.TelemetryHarvesterWithLicenseKeyRoundTripper(string(cfg.LicenseKey)),
 			)
 
 			if cfg.Verbose {
