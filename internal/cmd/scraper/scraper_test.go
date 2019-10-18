@@ -4,10 +4,12 @@
 package scraper
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,4 +42,27 @@ func TestLicenseKeyMasking(t *testing.T) {
 		unmasked := string(licenseKey)
 		assert.Equal(t, licenseKeyString, unmasked)
 	})
+}
+
+func TestLogrusDebugPrintMasksLicenseKey(t *testing.T) {
+
+	const licenseKey = "SECRET_LICENSE_KEY"
+
+	cfg := Config{
+		LicenseKey: licenseKey,
+	}
+
+	var b bytes.Buffer
+
+	logrus.SetOutput(&b)
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.Debugf("Config: %#v", cfg)
+
+	msg := b.String()
+	if strings.Contains(msg, licenseKey) {
+		t.Error("Log output contains the license key")
+	}
+	if !strings.Contains(msg, maskedLicenseKey) {
+		t.Error("Log output does not contain the masked licenseKey")
+	}
 }
