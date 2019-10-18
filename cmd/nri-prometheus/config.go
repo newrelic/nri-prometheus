@@ -36,7 +36,7 @@ func loadConfig() (*scraper.Config, error) {
 	}
 
 	if scraperCfg.MetricAPIURL == "" {
-		scraperCfg.MetricAPIURL = determineMetricAPIURL(scraperCfg.LicenseKey)
+		scraperCfg.MetricAPIURL = determineMetricAPIURL(string(scraperCfg.LicenseKey))
 	}
 
 	return &scraperCfg, nil
