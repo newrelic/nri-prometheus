@@ -264,7 +264,7 @@ func podTarget(p *apiv1.Pod, port, path string) Target {
 func podTargets(p *apiv1.Pod) []Target {
 
 	//if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
-	// the pod has no targets yet.
+	// the pod is not yet scrapable.
 	if p.Status.PodIP == "" {
 		return nil
 	}
@@ -299,13 +299,14 @@ func podTargets(p *apiv1.Pod) []Target {
 	return targets
 }
 
+// Option is implemented by functions that configure the KubernetesTargetRetriever
 type Option func(*KubernetesTargetRetriever) error
 
-// WithKubeConfig configures the KubernetesTargetRetriever with a kube config file.
-// kubeconfig should be the location of the kubeconfig file.
-func WithKubeConfig(kubeconfig string) Option {
+// WithKubeConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// from a kubeconfig file. This file is usually found in ~/.kube/config
+func WithKubeConfig(kubeConfigFile string) Option {
 	return func(ktr *KubernetesTargetRetriever) error {
-		config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+		config, err := clientcmd.BuildConfigFromFlags("", kubeConfigFile)
 		if err != nil {
 			return fmt.Errorf("could not read kubeconfig file: %w", err)
 		}
@@ -320,6 +321,8 @@ func WithKubeConfig(kubeconfig string) Option {
 	}
 }
 
+// WithInClusterConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// from a pod that is running in the cluster
 func WithInClusterConfig() Option {
 	return func(ktr *KubernetesTargetRetriever) error {
 		config, err := rest.InClusterConfig()
@@ -368,7 +371,7 @@ func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnable
 	}
 
 	if ktr.client == nil {
-		return nil, errors.New("NewKubernetesTargetRetriever requires a config to be set with the options")
+		return nil, errors.New("newKubernetesTargetRetriever requires a valid Kubernetes configuration option, none are given")
 	}
 
 	return ktr, nil
