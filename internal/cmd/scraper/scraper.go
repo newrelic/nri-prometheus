@@ -127,7 +127,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 	retrievers = append(retrievers, fixedRetriever)
 
-	kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes)
+	kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes, endpoints.WithInClusterConfig())
 	if err != nil {
 		logrus.WithError(err).Errorf("not possible to get a Kubernetes client. If you aren't running this integration in a Kubernetes cluster, you can ignore this error")
 	} else {

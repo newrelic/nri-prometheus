@@ -1639,10 +1639,34 @@
 			"revisionTime": "2018-11-08T18:57:36Z"
 		},
 		{
+			"checksumSHA1": "hJpqbilBYNCvAqoKan4gqKLXADk=",
+			"path": "k8s.io/client-go/tools/auth",
+			"revision": "14c42cd304d9e112a51d79937759edbd3665305b",
+			"revisionTime": "2019-10-16T16:35:56Z"
+		},
+		{
+			"checksumSHA1": "7LorUheXLUJfJUmf6jsNu3P6sa4=",
+			"path": "k8s.io/client-go/tools/clientcmd",
+			"revision": "b1c1d2e7ca769cde6c9ce3c4aac53fde6ca5c5d9",
+			"revisionTime": "2018-11-08T18:57:36Z"
+		},
+		{
 			"checksumSHA1": "4KsMHoSucjQi0FW3kqkFIPgssyk=",
 			"path": "k8s.io/client-go/tools/clientcmd/api",
 			"revision": "b1c1d2e7ca769cde6c9ce3c4aac53fde6ca5c5d9",
 			"revisionTime": "2018-11-08T18:57:36Z"
+		},
+		{
+			"checksumSHA1": "REsiLFxKYUjcTcPnDBwgr4GkArg=",
+			"path": "k8s.io/client-go/tools/clientcmd/api/latest",
+			"revision": "14c42cd304d9e112a51d79937759edbd3665305b",
+			"revisionTime": "2019-10-16T16:35:56Z"
+		},
+		{
+			"checksumSHA1": "gOq6PL80JftrypouhV+xxbf/WUo=",
+			"path": "k8s.io/client-go/tools/clientcmd/api/v1",
+			"revision": "14c42cd304d9e112a51d79937759edbd3665305b",
+			"revisionTime": "2019-10-16T16:35:56Z"
 		},
 		{
 			"checksumSHA1": "rRC9GCWXfyIXKHBCeKpw7exVybE=",
@@ -1679,6 +1703,12 @@
 			"path": "k8s.io/client-go/util/flowcontrol",
 			"revision": "b1c1d2e7ca769cde6c9ce3c4aac53fde6ca5c5d9",
 			"revisionTime": "2018-11-08T18:57:36Z"
+		},
+		{
+			"checksumSHA1": "Xtfe96NvDi6//e4QRZVN+DOu3Xk=",
+			"path": "k8s.io/client-go/util/homedir",
+			"revision": "14c42cd304d9e112a51d79937759edbd3665305b",
+			"revisionTime": "2019-10-16T16:35:56Z"
 		},
 		{
 			"checksumSHA1": "W6bJiNAwgNwNJC+y+TPtacgUGlY=",
