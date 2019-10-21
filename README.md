@@ -52,3 +52,16 @@ deploy/local.yaml.example to deploy/local.yaml and edit the placeholders.
    `https://newrelic.com/accounts/<YOUR_ACCOUNT_ID>`. It's located in the right sidebar.
 - After updating the yaml file, you need to compile the integration: `GOOS=linux make compile-only`.
 - Once you have it compiled, you need to deploy it in your Kubernetes cluster: `skaffold run`
+
+### Running the Kubernetes Target Retriever locally
+
+It can be useful to run the Kubernetes Target Retriever locally against a remote/local cluster to debug the endpoints that are discovered.
+The program located in `/cmd/k8s-target-retriever` is made for this.
+
+To run the program, go to `cmd/k8s-target-retriever` in your terminal, and run the following command:
+```shell script
+# ensure your kubectl is configured correcly & against the correct clusters
+kubectl config get-contexts
+# run the program 
+go run * -kubeconfig ~/.kube/config 
+``` 

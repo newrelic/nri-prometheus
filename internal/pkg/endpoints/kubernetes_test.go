@@ -91,7 +91,7 @@ func TestWatch_Pods(t *testing.T) {
 		if target.Name != "my-pod" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://:8080/metrics" {
+		if target.URL.String() != "http://10.10.10.1:8080/metrics" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -129,7 +129,7 @@ func TestWatch_PodsModify(t *testing.T) {
 		if target.Name != "my-pod-2" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://:8080/metrics" {
+		if target.URL.String() != "http://10.10.10.2:8080/metrics" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -342,6 +342,9 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				},
 			},
 		}},
+		Status: v1.PodStatus{
+			PodIP: "10.10.10.1",
+		},
 	}
 	p2 := &v1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
@@ -363,6 +366,9 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				},
 			},
 		}},
+		Status: v1.PodStatus{
+			PodIP: "10.10.10.2",
+		},
 	}
 
 	p3 := &v1.Pod{
@@ -385,6 +391,9 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				},
 			},
 		}},
+		Status: v1.PodStatus{
+			PodIP: "10.10.10.3",
+		},
 	}
 
 	_, err := clientset.Core().Pods("test-ns").Create(p)
@@ -445,6 +454,9 @@ func populateFakePodData(clientset *fake.Clientset) error {
 				},
 			},
 		}},
+		Status: v1.PodStatus{
+			PodIP: "10.10.10.1",
+		},
 	}
 
 	p2 := &v1.Pod{
@@ -467,6 +479,9 @@ func populateFakePodData(clientset *fake.Clientset) error {
 				},
 			},
 		}},
+		Status: v1.PodStatus{
+			PodIP: "10.10.10.2",
+		},
 	}
 
 	_, err := clientset.Core().Pods("test-ns").Create(p)
@@ -972,6 +987,50 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 	)
 }
 
+func TestProcessEventPodWithoutPodIP(t *testing.T) {
+	client := fake.NewSimpleClientset()
+	retriever := newFakeKubernetesTargetRetriever(client)
+	err := retriever.Watch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	pod := &v1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:  types.UID("seed"),
+			Name: "test-pod",
+			Labels: map[string]string{
+				"prometheus.io/scrape": "true",
+			},
+		},
+		Spec: v1.PodSpec{Containers: []v1.Container{
+			{
+				Ports: []v1.ContainerPort{
+					{
+						Name:          "http-metrics",
+						Protocol:      v1.ProtocolTCP,
+						ContainerPort: 8080,
+					},
+				},
+			},
+		}},
+	}
+
+	// Process the event. We expect no items to be cached
+	event := watch.Event{Type: watch.Added, Object: pod}
+	retriever.processEvent(event, false)
+	actual, _ := retriever.targets.Load(string(pod.GetUID()))
+	assert.Nil(t, actual)
+
+	// The pod has been updated, and has a PodIP assigned
+	pod.Status = v1.PodStatus{PodIP: "10.10.10.10"}
+
+	// We process the message again, and check if it now successfully caches the Pod
+	event = watch.Event{Type: watch.Modified, Object: pod}
+	retriever.processEvent(event, false)
+	actual, _ = retriever.targets.Load(string(pod.GetUID()))
+	assert.Equal(t, podTargets(pod), actual)
+}
+
 func TestProcessEvent(t *testing.T) {
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
@@ -999,6 +1058,7 @@ func TestProcessEvent(t *testing.T) {
 				},
 			},
 		}},
+		Status: v1.PodStatus{PodIP: "10.10.10.10"},
 	}
 
 	// Add the event.
