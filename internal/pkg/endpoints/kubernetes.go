@@ -322,7 +322,7 @@ func WithKubeConfig(kubeConfigFile string) Option {
 }
 
 // WithInClusterConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
-// from a pod that is running in the cluster
+// from within a running pod in the cluster (/var/run/secrets/kubernetes.io/serviceaccount/*)
 func WithInClusterConfig() Option {
 	return func(ktr *KubernetesTargetRetriever) error {
 		config, err := rest.InClusterConfig()

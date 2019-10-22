@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/kubernetes/client-go/util/homedir"
+	"k8s.io/client-go/util/homedir"
 
 	"github.com/sirupsen/logrus"
 
