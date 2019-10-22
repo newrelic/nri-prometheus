@@ -482,7 +482,6 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 		// In some configurations this is the case for nodes.
 		if !requireLabel {
 			k.addTarget(object, event.Type)
-			debugLogEvent(klog, event.Type, "added", object)
 		}
 	case watch.Modified:
 		if requireLabel {
