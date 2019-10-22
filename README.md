@@ -58,10 +58,10 @@ deploy/local.yaml.example to deploy/local.yaml and edit the placeholders.
 It can be useful to run the Kubernetes Target Retriever locally against a remote/local cluster to debug the endpoints that are discovered.
 The program located in `/cmd/k8s-target-retriever` is made for this.
 
-To run the program, go to `cmd/k8s-target-retriever` in your terminal, and run the following command:
+To run the program,run the following command in your terminal:
 ```shell script
-# ensure your kubectl is configured correcly & against the correct clusters
+# ensure your kubectl is configured correcly & against the correct cluster
 kubectl config get-contexts
 # run the program 
-go run * -kubeconfig ~/.kube/config 
+go run cmd/k8s-target-retriever/main.go
 ``` 

@@ -4,14 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
+
+	"github.com/kubernetes/client-go/util/homedir"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 )
 
-var kubeConfigFile = flag.String("kubeconfig", "", "location of the kube config file")
+var kubeConfigFile = flag.String("kubeconfig", "", "location of the kube config file. Defaults to ~/.kube/config")
 
 func init() {
 	flag.Usage = func() {
@@ -24,6 +27,10 @@ func init() {
 }
 func main() {
 	flag.Parse()
+
+	if *kubeConfigFile == "" {
+		*kubeConfigFile = filepath.Join(homedir.HomeDir(), ".kube", "config")
+	}
 
 	kubeconf := endpoints.WithKubeConfig(*kubeConfigFile)
 	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, kubeconf)
