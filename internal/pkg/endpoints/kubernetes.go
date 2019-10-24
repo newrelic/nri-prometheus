@@ -14,11 +14,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	"github.com/newrelic/nri-prometheus/internal/retry"
@@ -260,6 +262,13 @@ func podTarget(p *apiv1.Pod, port, path string) Target {
 }
 
 func podTargets(p *apiv1.Pod) []Target {
+
+	//if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
+	// the pod is not yet scrapable.
+	if p.Status.PodIP == "" {
+		return nil
+	}
+
 	// Annotations take precedence over labels.
 	path, ok := p.Annotations[defaultScrapePathLabel]
 	if !ok {
@@ -290,6 +299,47 @@ func podTargets(p *apiv1.Pod) []Target {
 	return targets
 }
 
+// Option is implemented by functions that configure the KubernetesTargetRetriever
+type Option func(*KubernetesTargetRetriever) error
+
+// WithKubeConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// from a kubeconfig file. This file is usually found in ~/.kube/config
+func WithKubeConfig(kubeConfigFile string) Option {
+	return func(ktr *KubernetesTargetRetriever) error {
+		config, err := clientcmd.BuildConfigFromFlags("", kubeConfigFile)
+		if err != nil {
+			return fmt.Errorf("could not read kubeconfig file: %w", err)
+		}
+
+		client, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			return fmt.Errorf("could create kubernetes client: %w", err)
+		}
+
+		ktr.client = client
+		return nil
+	}
+}
+
+// WithInClusterConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// from within a running pod in the cluster (/var/run/secrets/kubernetes.io/serviceaccount/*)
+func WithInClusterConfig() Option {
+	return func(ktr *KubernetesTargetRetriever) error {
+		config, err := rest.InClusterConfig()
+		if err != nil {
+			return fmt.Errorf("could not read inclusterconfig: %w", err)
+		}
+
+		client, err := kubernetes.NewForConfig(config)
+		if err != nil {
+			return fmt.Errorf("could create kubernetes client: %w", err)
+		}
+
+		ktr.client = client
+		return nil
+	}
+}
+
 // KubernetesTargetRetriever sets the watchers for the different Targets
 // and listens for the arrival of new data from them.
 type KubernetesTargetRetriever struct {
@@ -302,26 +352,29 @@ type KubernetesTargetRetriever struct {
 
 // NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
-func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool) (*KubernetesTargetRetriever, error) {
+func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, options ...Option) (*KubernetesTargetRetriever, error) {
+
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
 	}
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, err
-	}
 
-	client, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-
-	return &KubernetesTargetRetriever{
-		client:                            client,
+	ktr := &KubernetesTargetRetriever{
 		targets:                           new(sync.Map),
 		scrapeEnabledLabel:                scrapeEnabledLabel,
 		requireScrapeEnabledLabelForNodes: requireScrapeEnabledLabelForNodes,
-	}, nil
+	}
+
+	for _, opt := range options {
+		if err := opt(ktr); err != nil {
+			return nil, err
+		}
+	}
+
+	if ktr.client == nil {
+		return nil, errors.New("newKubernetesTargetRetriever requires a valid Kubernetes configuration option, none are given")
+	}
+
+	return ktr, nil
 }
 
 // Watch retrieves and caches an initial list of URLs and triggers a process in background
@@ -422,23 +475,20 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 		// If the object requires labeling, has the right label and was not seen before,
 		// we add it.
 		if requireLabel && scrapable && !seen {
-			k.targets.Store(string(object.GetUID()), objectTargets(object))
-			debugLogEvent(klog, event.Type, "added", object)
+			k.addTarget(object, event.Type)
 			return
 		}
 		// If the object doesn't require labels to be added, we always add.
 		// In some configurations this is the case for nodes.
 		if !requireLabel {
-			k.targets.Store(string(object.GetUID()), objectTargets(object))
-			debugLogEvent(klog, event.Type, "added", object)
+			k.addTarget(object, event.Type)
 		}
 	case watch.Modified:
 		if requireLabel {
 			// If the object requires labels, is scrapable and was not seen before,
 			// we add it.
 			if scrapable && !seen {
-				k.targets.Store(string(object.GetUID()), objectTargets(object))
-				debugLogEvent(klog, event.Type, "added", object)
+				k.addTarget(object, event.Type)
 				return
 			}
 			// If the object is not scrapable and we've seen it before, we remove it.
@@ -450,8 +500,7 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 		if !requireLabel {
 			// If the object doesn't require label and was not seen before, we add it.
 			if !seen {
-				k.targets.Store(string(object.GetUID()), objectTargets(object))
-				debugLogEvent(klog, event.Type, "added", object)
+				k.addTarget(object, event.Type)
 				return
 			}
 			// If the doesn't doesn't require label and we already have it, update its data.
@@ -462,13 +511,24 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 				return
 			}
 		}
-	case watch.Deleted:
-		k.targets.Delete(string(object.GetUID()))
-		debugLogEvent(klog, event.Type, "deleted", object)
-	case watch.Error:
+	case watch.Deleted, watch.Error:
 		k.targets.Delete(string(object.GetUID()))
 		debugLogEvent(klog, event.Type, "deleted", object)
 	}
+}
+
+// addTarget adds the target to the cache
+func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
+
+	targets := objectTargets(object)
+	// zero targets could be for pods that just have been scheduled, but no ipAddress assigned yet
+	if len(targets) == 0 {
+		debugLogEvent(klog, event, "ignored", object)
+		return
+	}
+
+	k.targets.Store(string(object.GetUID()), targets)
+	debugLogEvent(klog, event, "added", object)
 }
 
 func debugLogEvent(log *logrus.Entry, event watch.EventType, action string, object metav1.Object) {
