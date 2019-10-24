@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 1.2.2
 ### Added
 - Obfuscate the license key when logging the configuration. Running on debug
   mode prints the configuration object, this included the license key, to
@@ -18,10 +18,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   deploy manifest template is commented by default. It's left in the manifest
   as an example on how to use transformations. Installing with the new manifest
   will not filter metrics and everything will be sent to the New Relic platform.
-  
+
 ### Fixed
-- Fixed a bug that caused newly created pods without a valid podIP to be discovered 
-  and cached, and not be scraped unless nri-prometheus was restarted. 
+- Fixed a bug that caused newly created pods without a valid podIP to be discovered
+  and cached, and not be scraped unless nri-prometheus was restarted.
 
 ## 1.2.1
 ### Fixed
