@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Added
+- Obfuscate the license key when logging the configuration. Running on debug
+  mode prints the configuration object, this included the license key, to
+  prevent users from leaking their credentials when sharing their logs for
+  troubleshooting, if the license key is used in any kind of to string, print
+  or log statement the symbol `****` will be returned.
+
 ## 1.2.1
 ### Fixed
 - Skip the check for the `emitter_ca_file` if it's empty.
