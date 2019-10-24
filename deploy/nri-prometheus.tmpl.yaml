@@ -82,25 +82,32 @@ data:
   config.yaml: |
     # The name of your cluster. It's important to match other New Relic products to relate the data.
     cluster_name: "<YOUR_CLUSTER_NAME>"
+
     # How often the integration should run. Defaults to 30s.
     # scrape_duration: "30s"
+
     # The HTTP client timeout when fetching data from endpoints. Defaults to 5s.
     # scrape_timeout: "5s"
+
     # Wether the integration should run in verbose mode or not. Defaults to false.
     verbose: false
+
     # Wether the integration should skip TLS verification or not. Defaults to false.
     insecure_skip_verify: false
+
     # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
     scrape_enabled_label: "prometheus.io/scrape"
+
     # Whether k8s nodes need to be labelled to be scraped or not. Defaults to true.
     require_scrape_enabled_label_for_nodes: true
-    #targets:
-    #  - description: Secure etcd example
-    #    urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
-    #    tls_config:
-    #      ca_file_path: "/etc/etcd/etcd-client-ca.crt"
-    #      cert_file_path: "/etc/etcd/etcd-client.crt"
-    #      key_file_path: "/etc/etcd/etcd-client.key"
+
+    # targets:
+    #   - description: Secure etcd example
+    #     urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
+    #     tls_config:
+    #       ca_file_path: "/etc/etcd/etcd-client-ca.crt"
+    #       cert_file_path: "/etc/etcd/etcd-client.crt"
+    #       key_file_path: "/etc/etcd/etcd-client.key"
 
     # Proxy to be used by the emitters when submitting metrics. It should be
     # in the format [scheme]://[domain]:[port].
@@ -129,62 +136,70 @@ data:
     #   - 95
     #   - 99
 
-    transformations:
-      - description: "General processing rules"
-      #  rename_attributes:
-      #    - metric_prefix: ""
-      #      attributes:
-      #        container_name: "containerName"
-      #        pod_name: "podName"
-      #        namespace: "namespaceName"
-      #        node: "nodeName"
-      #        container: "containerName"
-      #        pod: "podName"
-      #        deployment: "deploymentName"
-        ignore_metrics:
-          # Metrics on pods and containers are being ignored as they are already collected by the New Relic Kubernetes Integration.
-          - except:
-            - kube_hpa_
-            - kube_daemonset_
-            - kube_statefulset_
-            - kube_endpoint_
-            - kube_service_
-            - kube_limitrange
-            - kube_node_
-            - kube_poddisruptionbudget_
-            - kube_resourcequota
-            - nr_stats
-        copy_attributes:
-          - from_metric: "kube_hpa_labels"
-            to_metrics: "kube_hpa_"
-            match_by:
-              - namespace
-              - hpa
-          - from_metric: "kube_daemonset_labels"
-            to_metrics: "kube_daemonset_"
-            match_by:
-              - namespace
-              - daemonset
-          - from_metric: "kube_statefulset_labels"
-            to_metrics: "kube_statefulset_"
-            match_by:
-              - namespace
-              - statefulset
-          - from_metric: "kube_endpoint_labels"
-            to_metrics: "kube_endpoint_"
-            match_by:
-              - namespace
-              - endpoint
-          - from_metric: "kube_service_labels"
-            to_metrics: "kube_service_"
-            match_by:
-              - namespace
-              - service
-          - from_metric: "kube_node_labels"
-            to_metrics: "kube_node_"
-            match_by:
-              - namespace
-              - node
+    # transformations:
+    #   - description: "General processing rules"
+    #     rename_attributes:
+    #       - metric_prefix: ""
+    #         attributes:
+    #           container_name: "containerName"
+    #           pod_name: "podName"
+    #           namespace: "namespaceName"
+    #           node: "nodeName"
+    #           container: "containerName"
+    #           pod: "podName"
+    #           deployment: "deploymentName"
+    #     ignore_metrics:
+    #       # Ignore all the metrics except the ones listed below.
+    #       # This is a list that complements the data retrieved by the New
+    #       # Relic Kubernetes Integration, that's why Pods and containers are
+    #       # not included, because they are already collected by the
+    #       # Kubernetes Integration.
+    #       - except:
+    #         - kube_hpa_
+    #         - kube_daemonset_
+    #         - kube_statefulset_
+    #         - kube_endpoint_
+    #         - kube_service_
+    #         - kube_limitrange
+    #         - kube_node_
+    #         - kube_poddisruptionbudget_
+    #         - kube_resourcequota
+    #         - nr_stats
+    #     copy_attributes:
+    #       # Copy all the labels from the timeseries with metric name
+    #       # `kube_hpa_labels` into every timeseries with a metric name that
+    #       # starts with `kube_hpa_` only if they share the same `namespace`
+    #       # and `hpa` labels.
+    #       - from_metric: "kube_hpa_labels"
+    #         to_metrics: "kube_hpa_"
+    #         match_by:
+    #           - namespace
+    #           - hpa
+    #       - from_metric: "kube_daemonset_labels"
+    #         to_metrics: "kube_daemonset_"
+    #         match_by:
+    #           - namespace
+    #           - daemonset
+    #       - from_metric: "kube_statefulset_labels"
+    #         to_metrics: "kube_statefulset_"
+    #         match_by:
+    #           - namespace
+    #           - statefulset
+    #       - from_metric: "kube_endpoint_labels"
+    #         to_metrics: "kube_endpoint_"
+    #         match_by:
+    #           - namespace
+    #           - endpoint
+    #       - from_metric: "kube_service_labels"
+    #         to_metrics: "kube_service_"
+    #         match_by:
+    #           - namespace
+    #           - service
+    #       - from_metric: "kube_node_labels"
+    #         to_metrics: "kube_node_"
+    #         match_by:
+    #           - namespace
+    #           - node
 kind: ConfigMap
 metadata:
   name: nri-prometheus-cfg
