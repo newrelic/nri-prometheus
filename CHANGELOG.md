@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   troubleshooting, if the license key is used in any kind of to string, print
   or log statement the symbol `****` will be returned.
 
+### Changed
+- The transformation located in the `nri-prometheus-cfg` config map of the
+  deploy manifest template is commented by default. It's left in the manifest
+  as an example on how to use transformations. Installing with the new manifest
+  will not filter metrics and everything will be sent to the New Relic platform.
+
 ## 1.2.1
 ### Fixed
 - Skip the check for the `emitter_ca_file` if it's empty.
