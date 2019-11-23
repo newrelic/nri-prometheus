@@ -9,6 +9,8 @@ Fetch metrics in the Prometheus metrics inside or outside Kubernetes and send th
 
 For documentation about how to use it please refer to [New Relic's documentation website](https://docs.newrelic.com/docs/new-relic-prometheus-openmetrics-integration-kubernetes).
 
+Find out more about Prometheus and New Relic in [this blog post](https://blog.newrelic.com/product-news/how-to-monitor-prometheus-metrics/). 
+
 ## Development
 
 This integration requires having a Kubernetes cluster available to deploy & run
