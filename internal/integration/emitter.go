@@ -190,17 +190,31 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 	for _, metric := range metrics {
 		switch metric.metricType {
 		case metricType_GAUGE:
+			v, ok := metric.value.(float64)
+			if !ok {
+				continue
+			}
+			if !validNRValue(v) {
+				continue
+			}
 			te.harvester.RecordMetric(telemetry.Gauge{
 				Name:       metric.name,
 				Attributes: metric.attributes,
-				Value:      metric.value.(float64),
+				Value:      v,
 				Timestamp:  now,
 			})
 		case metricType_COUNTER:
+			v, ok := metric.value.(float64)
+			if !ok {
+				continue
+			}
+			if !validNRValue(v) {
+				continue
+			}
 			m, ok := te.deltaCalculator.CountMetric(
 				metric.name,
 				metric.attributes,
-				metric.value.(float64),
+				v,
 				now,
 			)
 			if ok {

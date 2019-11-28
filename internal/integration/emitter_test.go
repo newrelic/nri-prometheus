@@ -177,6 +177,28 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			value:      summary,
 			attributes: labels.Set{},
 		},
+		{
+			name:       "nan-gauge",
+			metricType: metricType_GAUGE,
+			value:      float64(math.NaN()),
+			attributes: labels.Set{
+				"name":           "nan-gauge",
+				"targetName":     "target-e",
+				"nrMetricType":   "gauge",
+				"promMetricType": "gauge",
+			},
+		},
+		{
+			name:       "nan-counter",
+			metricType: metricType_COUNTER,
+			value:      float64(math.NaN()),
+			attributes: labels.Set{
+				"name":           "nan-counter",
+				"targetName":     "target-f",
+				"nrMetricType":   "count",
+				"promMetricType": "counter",
+			},
+		},
 	}
 
 	var rawMetrics []interface{}
