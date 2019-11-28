@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Fixed
+- Check gauges and counter values for NaN or Inf, before emitting them with the
+  telemetry sdk. There is an issue with the telemetry sdk were sending NaN
+  values produces an invalid json https://github.com/newrelic/go-telemetry-sdk/issues/2
+
 ## 1.2.2
 ### Added
 - Obfuscate the license key when logging the configuration. Running on debug
