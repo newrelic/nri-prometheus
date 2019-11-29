@@ -3,7 +3,8 @@
 [![Build Status](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=master)](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=master)
 [![CLA assistant](https://cla-assistant.io/readme/badge/newrelic/nri-prometheus)](https://cla-assistant.io/newrelic/nri-prometheus)
 
-Fetch metrics in the Prometheus metrics inside or outside Kubernetes and send them to the New Relic Metrics platform.
+Fetch metrics in the Prometheus metrics format, inside or outside Kubernetes,
+and send them to the New Relic Metrics platform.
 
 ## How to use it?
 
