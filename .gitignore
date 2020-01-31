@@ -3,11 +3,6 @@
 *.log
 tmp/
 vendor/*/
-!vendor/github.com/
-vendor/github.com/*/
-!vendor/github.com/newrelic/
-vendor/github.com/newrelic/*/
-!vendor/github.com/newrelic/go-telemetry-sdk/
 bin/
 deploy/local*.yaml
 dist/

@@ -12,7 +12,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/newrelic/go-telemetry-sdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -244,7 +244,12 @@ func Run(cfg *Config) error {
 				Percentiles:   cfg.Percentiles,
 				HarvesterOpts: harvesterOpts,
 			}
-			emitters = append(emitters, integration.NewTelemetryEmitter(c))
+
+			emitter, err := integration.NewTelemetryEmitter(c)
+			if err != nil {
+				return err
+			}
+			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
 			continue

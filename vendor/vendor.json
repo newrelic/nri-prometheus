@@ -237,38 +237,6 @@
 			"revisionTime": "2018-07-18T01:23:57Z"
 		},
 		{
-			"checksumSHA1": "mKCHYPwX7mTxRBTlwlYBUn9QDDc=",
-			"path": "github.com/newrelic/go-telemetry-sdk/cumulative",
-			"revision": "42866549b5d0688e98b8f37ee071446c6aa0a782",
-			"revisionTime": "2019-06-19T20:43:02Z",
-			"version": "master",
-			"versionExact": "master"
-		},
-		{
-			"checksumSHA1": "L3Z0y1K3kRs71Nsd1LHW7AOnJ7g=",
-			"path": "github.com/newrelic/go-telemetry-sdk/internal",
-			"revision": "42866549b5d0688e98b8f37ee071446c6aa0a782",
-			"revisionTime": "2019-06-19T20:43:02Z",
-			"version": "master",
-			"versionExact": "master"
-		},
-		{
-			"checksumSHA1": "W1C+4VspdD1UgzXxFhdfg7z/3o8=",
-			"path": "github.com/newrelic/go-telemetry-sdk/internal/jsonx",
-			"revision": "42866549b5d0688e98b8f37ee071446c6aa0a782",
-			"revisionTime": "2019-06-19T20:43:02Z",
-			"version": "master",
-			"versionExact": "master"
-		},
-		{
-			"checksumSHA1": "Ailk35r1fyKnnFtdhd/iNNq7qYY=",
-			"path": "github.com/newrelic/go-telemetry-sdk/telemetry",
-			"revision": "42866549b5d0688e98b8f37ee071446c6aa0a782",
-			"revisionTime": "2019-06-19T20:43:02Z",
-			"version": "master",
-			"versionExact": "master"
-		},
-		{
 			"checksumSHA1": "ZfId5ZYn7jmL0xTxooHcxrLlXoA=",
 			"path": "github.com/newrelic/infra-integrations-sdk/args",
 			"revision": "6f4ebe6787cd347d5a038104407a39456577caf0",
@@ -323,6 +291,30 @@
 			"revisionTime": "2019-06-20T15:21:02Z",
 			"version": "v3.3.1",
 			"versionExact": "v3.3.1"
+		},
+		{
+			"checksumSHA1": "M+zjdsTy/wwN6ADwgULWcQvrSDw=",
+			"path": "github.com/newrelic/newrelic-telemetry-sdk-go/cumulative",
+			"revision": "790ff853d12b16f5be4d55e0c8f0f5c6d02f1808",
+			"revisionTime": "2020-01-16T22:44:29Z"
+		},
+		{
+			"checksumSHA1": "jtO36ovM9ym+PzFaEefUx4ZDnqM=",
+			"path": "github.com/newrelic/newrelic-telemetry-sdk-go/internal",
+			"revision": "790ff853d12b16f5be4d55e0c8f0f5c6d02f1808",
+			"revisionTime": "2020-01-16T22:44:29Z"
+		},
+		{
+			"checksumSHA1": "YCAebHsw0flhMo1vDFRNYpkeIrM=",
+			"path": "github.com/newrelic/newrelic-telemetry-sdk-go/internal/jsonx",
+			"revision": "790ff853d12b16f5be4d55e0c8f0f5c6d02f1808",
+			"revisionTime": "2020-01-16T22:44:29Z"
+		},
+		{
+			"checksumSHA1": "LfELF431N1EWtkNLvWI5XfCrMTs=",
+			"path": "github.com/newrelic/newrelic-telemetry-sdk-go/telemetry",
+			"revision": "790ff853d12b16f5be4d55e0c8f0f5c6d02f1808",
+			"revisionTime": "2020-01-16T22:44:29Z"
 		},
 		{
 			"checksumSHA1": "NzzMfGmmPoTGVwLZDkj3FXXDvCA=",
@@ -467,6 +459,18 @@
 			"path": "github.com/stretchr/objx",
 			"revision": "9e1dfc121bca96d392da5d00591953bdb54ab306",
 			"revisionTime": "2018-06-26T19:55:58Z"
+		},
+		{
+			"checksumSHA1": "mCZlyemHWuVUdQpnAk7fOzOKLIA=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "518a1491c71301fe87e8db87ee5a2aa07757c7ff",
+			"revisionTime": "2018-10-05T20:37:33Z"
+		},
+		{
+			"checksumSHA1": "zeMUWi7jlOpBF2nw1IHTz+aV5vs=",
+			"path": "github.com/stretchr/testify/mock",
+			"revision": "518a1491c71301fe87e8db87ee5a2aa07757c7ff",
+			"revisionTime": "2018-10-05T20:37:33Z"
 		},
 		{
 			"checksumSHA1": "O2YLSEYMatcGYVCIAny/iMi2aLc=",

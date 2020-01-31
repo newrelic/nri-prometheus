@@ -12,8 +12,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/newrelic/go-telemetry-sdk/cumulative"
-	"github.com/newrelic/go-telemetry-sdk/telemetry"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/histogram"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
@@ -143,7 +143,7 @@ func TelemetryHarvesterWithProxy(proxyURL *url.URL) TelemetryHarvesterOpt {
 }
 
 // NewTelemetryEmitter returns a new TelemetryEmitter.
-func NewTelemetryEmitter(cfg TelemetryEmitterConfig) *TelemetryEmitter {
+func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) {
 	dc := cumulative.NewDeltaCalculator()
 
 	if cfg.DeltaExpirationAge != 0 {
@@ -166,12 +166,17 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) *TelemetryEmitter {
 		cfg.DeltaExpirationAge,
 	)
 
+	harvester, err := telemetry.NewHarvester(cfg.HarvesterOpts...)
+	if err != nil {
+		return nil, err
+	}
+
 	return &TelemetryEmitter{
 		name:            "telemetry",
-		harvester:       telemetry.NewHarvester(cfg.HarvesterOpts...),
+		harvester:       harvester,
 		percentiles:     cfg.Percentiles,
 		deltaCalculator: dc,
-	}
+	}, nil
 }
 
 // Name returns the emitter name.
