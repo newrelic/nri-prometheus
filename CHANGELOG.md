@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+- Upgrade the Go Telemetry SDK to version 0.2.0 to fix an issue with NaN values.
+
 ## 1.2.2
 ### Added
 - Obfuscate the license key when logging the configuration. Running on debug
