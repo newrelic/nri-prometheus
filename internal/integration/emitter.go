@@ -266,23 +266,12 @@ func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) erro
 			continue
 		}
 
-		v := q.GetValue()
-		if !validNRValue(v) {
-			err := fmt.Errorf("invalid percentile value for %s: %g", metric.name, v)
-			if results == nil {
-				results = err
-			} else {
-				results = fmt.Errorf("%v: %w", err, results)
-			}
-			continue
-		}
-
 		percentileAttrs := copyAttrs(metric.attributes)
 		percentileAttrs["percentile"] = p
 		te.harvester.RecordMetric(telemetry.Gauge{
 			Name:       metricName,
 			Attributes: percentileAttrs,
-			Value:      v,
+			Value:      q.GetValue(),
 			Timestamp:  timestamp,
 		})
 	}
@@ -299,10 +288,8 @@ func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) er
 		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
 	}
 
-	if validNRValue(hist.GetSampleSum()) {
-		if m, ok := te.deltaCalculator.CountMetric(metric.name+".sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
-			te.harvester.RecordMetric(m)
-		}
+	if m, ok := te.deltaCalculator.CountMetric(metric.name+".sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
+		te.harvester.RecordMetric(m)
 	}
 
 	metricName := metric.name + ".buckets"
@@ -310,7 +297,7 @@ func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) er
 	for _, b := range hist.GetBucket() {
 		upperBound := b.GetUpperBound()
 		count := float64(b.GetCumulativeCount())
-		if !math.IsInf(upperBound, 1) && validNRValue(count) {
+		if !math.IsInf(upperBound, 1) {
 			bucketAttrs := copyAttrs(metric.attributes)
 			bucketAttrs["histogram.bucket.upperBound"] = upperBound
 			if m, ok := te.deltaCalculator.CountMetric(metricName, bucketAttrs, count, timestamp); ok {
@@ -339,16 +326,6 @@ func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) er
 			continue
 		}
 
-		if !validNRValue(v) {
-			err := fmt.Errorf("invalid percentile value for %s: %g", metric.name, v)
-			if results == nil {
-				results = err
-			} else {
-				results = fmt.Errorf("%v: %w", err, results)
-			}
-			continue
-		}
-
 		percentileAttrs := copyAttrs(metric.attributes)
 		percentileAttrs["percentile"] = p
 		te.harvester.RecordMetric(telemetry.Gauge{
@@ -369,11 +346,6 @@ func copyAttrs(attrs map[string]interface{}) map[string]interface{} {
 		duplicate[k] = v
 	}
 	return duplicate
-}
-
-// validNRValue returns if v is a New Relic metric supported float64.
-func validNRValue(v float64) bool {
-	return !math.IsInf(v, 0) && !math.IsNaN(v)
 }
 
 // StdoutEmitter emits metrics to stdout.
