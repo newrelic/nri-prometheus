@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 )
@@ -247,7 +248,7 @@ func Run(cfg *Config) error {
 
 			emitter, err := integration.NewTelemetryEmitter(c)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "could not create new TelemetryEmitter")
 			}
 			emitters = append(emitters, emitter)
 		default:

@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/histogram"
+	"github.com/pkg/errors"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
@@ -168,7 +169,7 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 
 	harvester, err := telemetry.NewHarvester(cfg.HarvesterOpts...)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "could not create new Harvester")
 	}
 
 	return &TelemetryEmitter{
