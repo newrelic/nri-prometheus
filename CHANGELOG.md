@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 1.3.0
 ### Changed
 - Upgrade the Go Telemetry SDK to version 0.2.0 to fix an issue with NaN values.
 
