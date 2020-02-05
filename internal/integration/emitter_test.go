@@ -5,6 +5,7 @@ package integration
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
@@ -17,7 +18,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/newrelic/go-telemetry-sdk/telemetry"
 	"github.com/pkg/errors"
 	dto "github.com/prometheus/client_model/go"
 	mpb "github.com/prometheus/client_model/go"
@@ -25,6 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	"github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
 )
@@ -67,11 +68,12 @@ func BenchmarkTelemetrySDKEmitter(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		emitter := NewTelemetryEmitter(c)
+		emitter, err := NewTelemetryEmitter(c)
+		assert.NoError(b, err)
 		err = emitter.Emit(superMetrics)
 		assert.NoError(b, err)
 		// Need to trigger a manual harvest here otherwise the benchmark is useless.
-		emitter.harvester.HarvestNow()
+		emitter.harvester.HarvestNow(context.Background())
 	}
 }
 
@@ -217,11 +219,12 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 		Percentiles: []float64{50.0},
 	}
 
-	e := NewTelemetryEmitter(c)
+	e, err := NewTelemetryEmitter(c)
+	assert.NoError(t, err)
 
 	// Emit and force a harvest to clear.
 	assert.NoError(t, e.Emit(metrics))
-	e.harvester.HarvestNow()
+	e.harvester.HarvestNow(context.Background())
 
 	// Set new histogram values so counts will be non-zero.
 	hist2, err := newHistogram([]int64{1, 2, 10})
@@ -232,7 +235,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 
 	// Run twice so delta counts are sent.
 	assert.NoError(t, e.Emit(metrics))
-	e.harvester.HarvestNow()
+	e.harvester.HarvestNow(context.Background())
 	purgeTimestamps(rawMetrics)
 
 	expectedMetrics := []interface{}{

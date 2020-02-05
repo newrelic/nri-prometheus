@@ -8,10 +8,10 @@ type licenseKeyRoundTripper struct {
 	rt         http.RoundTripper
 }
 
-// RoundTrip wraps the `RoundTrip` method removing the "X-Insert-Key"
+// RoundTrip wraps the `RoundTrip` method removing the "Api-Key"
 // replacing it with "X-License-Key".
 func (t licenseKeyRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Del("X-Insert-Key")
+	req.Header.Del("Api-Key")
 	req.Header.Add("X-License-Key", t.licenseKey)
 	return t.rt.RoundTrip(req)
 }
