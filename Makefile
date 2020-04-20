@@ -55,7 +55,7 @@ deps-only:
 validate: deps
 	@echo "=== $(INTEGRATION) === [ validate ]: Validating source code running golangci-lint..."
 	@golangci-lint --version
-	@golangci-lint run
+	@golangci-lint run --timeout=30m
 
 compile: deps
 	@echo "=== $(INTEGRATION) === [ compile ]: Building $(BINARY_NAME)..."
