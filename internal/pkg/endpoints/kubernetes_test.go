@@ -53,7 +53,7 @@ func TestWatch_Services(t *testing.T) {
 		if target.Name != "my-service" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics" {
+		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics/federate?format=prometheus" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -91,7 +91,7 @@ func TestWatch_Pods(t *testing.T) {
 		if target.Name != "my-pod" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://10.10.10.1:8080/metrics" {
+		if target.URL.String() != "http://10.10.10.1:8080/metrics/federate?format=prometheus" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -440,6 +440,7 @@ func populateFakePodData(clientset *fake.Clientset) error {
 			Name: "my-pod",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "metrics/federate?format=prometheus",
 				"app":                  "pod-my-app",
 			},
 		},
@@ -503,6 +504,7 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 			Name: "my-service",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "/metrics/federate?format=prometheus",
 				"app":                  "my-app",
 			},
 		},

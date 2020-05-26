@@ -40,6 +40,12 @@ func TestFromURL(t *testing.T) {
 			expectedURL:  "http://somehost:8080/path",
 		},
 		{
+			testName:     "with URL params",
+			input:        "somehost:8080/path/with/params?format=prometheus(123)",
+			expectedName: "somehost:8080",
+			expectedURL:  "http://somehost:8080/path/with/params?format=prometheus(123)",
+		},
+		{
 			testName:     "provided all",
 			input:        "https://somehost:8080/path",
 			expectedName: "somehost:8080",

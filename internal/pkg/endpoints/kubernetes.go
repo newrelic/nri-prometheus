@@ -178,17 +178,14 @@ func objectTargets(object metav1.Object) []Target {
 func serviceTarget(s *apiv1.Service, port, path string) Target {
 	lbls := labels.Set{}
 	hostname := fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace)
-	addr := url.URL{
-		Scheme: "http",
-		Host:   net.JoinHostPort(hostname, port),
-		Path:   path,
-	}
+	hostAndPort := net.JoinHostPort(hostname, port)
+	addr, _ := url.Parse(fmt.Sprintf("http://%s%s", hostAndPort, path))
 	for lk, lv := range s.Labels {
 		lbls["label."+lk] = lv
 	}
 	lbls["serviceName"] = s.Name
 	lbls["namespaceName"] = s.Namespace
-	return New(s.Name, addr, Object{Name: s.Name, Kind: "service", Labels: lbls})
+	return New(s.Name, *addr, Object{Name: s.Name, Kind: "service", Labels: lbls})
 }
 
 // returns all the possible targets for a service (1 target per port)
@@ -201,6 +198,10 @@ func serviceTargets(s *apiv1.Service) []Target {
 			path = defaultScrapePath
 		}
 	}
+	if path[0] != '/' {
+		path = "/" + path
+	}
+
 	port, ok := s.Annotations[defaultScrapePortLabel]
 	if !ok {
 		port, ok = s.Labels[defaultScrapePortLabel]
@@ -246,11 +247,8 @@ func getPodDeployment(p *apiv1.Pod) string {
 
 func podTarget(p *apiv1.Pod, port, path string) Target {
 	lbls := labels.Set{}
-	addr := url.URL{
-		Scheme: "http",
-		Host:   net.JoinHostPort(p.Status.PodIP, port),
-		Path:   path,
-	}
+	hostAndPort := net.JoinHostPort(p.Status.PodIP, port)
+	addr, _ := url.Parse(fmt.Sprintf("http://%s%s", hostAndPort, path))
 	for lk, lv := range p.Labels {
 		lbls["label."+lk] = lv
 	}
@@ -258,11 +256,10 @@ func podTarget(p *apiv1.Pod, port, path string) Target {
 	lbls["namespaceName"] = p.Namespace
 	lbls["nodeName"] = p.Spec.NodeName
 	lbls["deploymentName"] = getPodDeployment(p)
-	return New(p.Name, addr, Object{Name: p.Name, Kind: "pod", Labels: lbls})
+	return New(p.Name, *addr, Object{Name: p.Name, Kind: "pod", Labels: lbls})
 }
 
 func podTargets(p *apiv1.Pod) []Target {
-
 	//if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
 	// the pod is not yet scrapable.
 	if p.Status.PodIP == "" {
@@ -276,6 +273,9 @@ func podTargets(p *apiv1.Pod) []Target {
 		if !ok {
 			path = defaultScrapePath
 		}
+	}
+	if path[0] != '/' {
+		path = "/" + path
 	}
 
 	// Annotations take precedence over labels.
