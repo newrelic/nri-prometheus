@@ -727,6 +727,43 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 	)
 }
 
+func TestPodTargetsInvalidURL(t *testing.T) {
+	assert.Empty(
+		t,
+		podTargets(&apiv1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/port":   "foobar",
+				},
+			},
+			Spec: apiv1.PodSpec{
+				NodeName: "node-a",
+				Containers: []apiv1.Container{
+					{
+						Name: "app",
+						Ports: []apiv1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+							{
+								Name:          "http-metrics",
+								ContainerPort: 8080,
+							},
+						},
+					},
+				},
+			},
+			Status: apiv1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+	)
+}
+
 func TestPodTargetsPortLabels(t *testing.T) {
 	assert.ElementsMatch(
 		t,
@@ -880,6 +917,34 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 				},
 			},
 		},
+	)
+}
+
+func TestServiceTargetsInvalidURL(t *testing.T) {
+	assert.Empty(
+		t,
+		serviceTargets(&apiv1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/port":   "foobar",
+				},
+			},
+			Spec: apiv1.ServiceSpec{
+				Ports: []apiv1.ServicePort{
+					{
+						Name: "http-app",
+						Port: 80,
+					},
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
 	)
 }
 
