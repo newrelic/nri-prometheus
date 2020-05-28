@@ -175,20 +175,23 @@ func objectTargets(object metav1.Object) []Target {
 	return nil
 }
 
-func serviceTarget(s *apiv1.Service, port, path string) Target {
+func serviceTarget(s *apiv1.Service, port, path string) *Target {
 	lbls := labels.Set{}
 	hostname := fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace)
-	addr := url.URL{
-		Scheme: "http",
-		Host:   net.JoinHostPort(hostname, port),
-		Path:   path,
+	hostAndPort := net.JoinHostPort(hostname, port)
+	fullServiceURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
+	addr, err := url.Parse(fullServiceURL)
+	if err != nil {
+		klog.WithError(err).WithField("service", s.Name).Errorf("couldn't parse service url, skipping: %s", fullServiceURL)
+		return nil
 	}
 	for lk, lv := range s.Labels {
 		lbls["label."+lk] = lv
 	}
 	lbls["serviceName"] = s.Name
 	lbls["namespaceName"] = s.Namespace
-	return New(s.Name, addr, Object{Name: s.Name, Kind: "service", Labels: lbls})
+	target := New(s.Name, *addr, Object{Name: s.Name, Kind: "service", Labels: lbls})
+	return &target
 }
 
 // returns all the possible targets for a service (1 target per port)
@@ -201,6 +204,10 @@ func serviceTargets(s *apiv1.Service) []Target {
 			path = defaultScrapePath
 		}
 	}
+	if path[0] != '/' {
+		path = "/" + path
+	}
+
 	port, ok := s.Annotations[defaultScrapePortLabel]
 	if !ok {
 		port, ok = s.Labels[defaultScrapePortLabel]
@@ -208,13 +215,20 @@ func serviceTargets(s *apiv1.Service) []Target {
 
 	// Only return a target for the specified port.
 	if ok {
-		return []Target{serviceTarget(s, port, path)}
+		target := serviceTarget(s, port, path)
+		if target != nil {
+			return []Target{*target}
+		}
+		return []Target{}
 	}
 
 	// No port specified so return a target for each Port defined for the Service.
 	targets := make([]Target, 0, len(s.Spec.Ports))
 	for _, port := range s.Spec.Ports {
-		targets = append(targets, serviceTarget(s, strconv.FormatInt(int64(port.Port), 10), path))
+		target := serviceTarget(s, strconv.FormatInt(int64(port.Port), 10), path)
+		if target != nil {
+			targets = append(targets, *target)
+		}
 	}
 	return targets
 }
@@ -244,12 +258,14 @@ func getPodDeployment(p *apiv1.Pod) string {
 	return deploymentName
 }
 
-func podTarget(p *apiv1.Pod, port, path string) Target {
+func podTarget(p *apiv1.Pod, port, path string) *Target {
 	lbls := labels.Set{}
-	addr := url.URL{
-		Scheme: "http",
-		Host:   net.JoinHostPort(p.Status.PodIP, port),
-		Path:   path,
+	hostAndPort := net.JoinHostPort(p.Status.PodIP, port)
+	fullPodURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
+	addr, err := url.Parse(fullPodURL)
+	if err != nil {
+		klog.WithError(err).WithField("pod", p.Name).Errorf("couldn't parse pod url, skipping: %s", fullPodURL)
+		return nil
 	}
 	for lk, lv := range p.Labels {
 		lbls["label."+lk] = lv
@@ -258,11 +274,11 @@ func podTarget(p *apiv1.Pod, port, path string) Target {
 	lbls["namespaceName"] = p.Namespace
 	lbls["nodeName"] = p.Spec.NodeName
 	lbls["deploymentName"] = getPodDeployment(p)
-	return New(p.Name, addr, Object{Name: p.Name, Kind: "pod", Labels: lbls})
+	target := New(p.Name, *addr, Object{Name: p.Name, Kind: "pod", Labels: lbls})
+	return &target
 }
 
 func podTargets(p *apiv1.Pod) []Target {
-
 	//if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
 	// the pod is not yet scrapable.
 	if p.Status.PodIP == "" {
@@ -277,6 +293,9 @@ func podTargets(p *apiv1.Pod) []Target {
 			path = defaultScrapePath
 		}
 	}
+	if path[0] != '/' {
+		path = "/" + path
+	}
 
 	// Annotations take precedence over labels.
 	port, ok := p.Annotations[defaultScrapePortLabel]
@@ -286,14 +305,21 @@ func podTargets(p *apiv1.Pod) []Target {
 
 	// Only return a target for the specified port.
 	if ok {
-		return []Target{podTarget(p, port, path)}
+		target := podTarget(p, port, path)
+		if target != nil {
+			return []Target{*target}
+		}
+		return []Target{}
 	}
 
 	// No port specified so return a target for each ContainerPort defined for the pod.
 	targets := make([]Target, 0, len(p.Spec.Containers))
 	for _, c := range p.Spec.Containers {
 		for _, port := range c.Ports {
-			targets = append(targets, podTarget(p, strconv.FormatInt(int64(port.ContainerPort), 10), path))
+			target := podTarget(p, strconv.FormatInt(int64(port.ContainerPort), 10), path)
+			if target != nil {
+				targets = append(targets, *target)
+			}
 		}
 	}
 	return targets

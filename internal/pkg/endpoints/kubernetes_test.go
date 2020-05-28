@@ -53,7 +53,7 @@ func TestWatch_Services(t *testing.T) {
 		if target.Name != "my-service" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics" {
+		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics/federate?format=prometheus" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -91,7 +91,7 @@ func TestWatch_Pods(t *testing.T) {
 		if target.Name != "my-pod" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://10.10.10.1:8080/metrics" {
+		if target.URL.String() != "http://10.10.10.1:8080/metrics/federate?format=prometheus" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -440,6 +440,7 @@ func populateFakePodData(clientset *fake.Clientset) error {
 			Name: "my-pod",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "metrics/federate?format=prometheus",
 				"app":                  "pod-my-app",
 			},
 		},
@@ -503,6 +504,7 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 			Name: "my-service",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "/metrics/federate?format=prometheus",
 				"app":                  "my-app",
 			},
 		},
@@ -725,6 +727,43 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 	)
 }
 
+func TestPodTargetsInvalidURL(t *testing.T) {
+	assert.Empty(
+		t,
+		podTargets(&apiv1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/port":   "foobar",
+				},
+			},
+			Spec: apiv1.PodSpec{
+				NodeName: "node-a",
+				Containers: []apiv1.Container{
+					{
+						Name: "app",
+						Ports: []apiv1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+							{
+								Name:          "http-metrics",
+								ContainerPort: 8080,
+							},
+						},
+					},
+				},
+			},
+			Status: apiv1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+	)
+}
+
 func TestPodTargetsPortLabels(t *testing.T) {
 	assert.ElementsMatch(
 		t,
@@ -878,6 +917,34 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 				},
 			},
 		},
+	)
+}
+
+func TestServiceTargetsInvalidURL(t *testing.T) {
+	assert.Empty(
+		t,
+		serviceTargets(&apiv1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/port":   "foobar",
+				},
+			},
+			Spec: apiv1.ServiceSpec{
+				Ports: []apiv1.ServicePort{
+					{
+						Name: "http-app",
+						Port: 80,
+					},
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
 	)
 }
 
