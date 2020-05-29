@@ -40,8 +40,8 @@ type Target struct {
 func (t *Target) Metadata() labels.Set {
 	if t.metadata == nil {
 		metadata := labels.Set{}
-		if t.URL.String() != "" {
-			metadata["scrapedTargetURL"] = t.URL.String()
+		if targetURL := redactedURLString(&t.URL); targetURL != "" {
+			metadata["scrapedTargetURL"] = targetURL
 		}
 		if t.Object.Name != "" {
 			metadata["scrapedTargetName"] = t.Object.Name
@@ -52,6 +52,20 @@ func (t *Target) Metadata() labels.Set {
 		t.metadata = metadata
 	}
 	return t.metadata
+}
+
+// redactedURLString returns the string representation of the URL object while redacting the password that could be present.
+// This code is copied from this commit https://github.com/golang/go/commit/e3323f57df1f4a44093a2d25fee33513325cbb86.
+// The feature is supposed to be added to the net/url.URL type in Golang 1.15.
+func redactedURLString(u *url.URL) string {
+	if u == nil {
+		return ""
+	}
+	ru := *u
+	if _, has := ru.User.Password(); has {
+		ru.User = url.UserPassword(ru.User.Username(), "xxxxx")
+	}
+	return ru.String()
 }
 
 // New returns a Target from the discovered information
