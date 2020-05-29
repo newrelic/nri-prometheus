@@ -365,7 +365,7 @@ func TestDecorate(t *testing.T) {
 	se := []TargetMetrics{{
 		Target: endpoints.Target{
 			Name: "a_simple_target",
-			URL: *targetURL,
+			URL:  *targetURL,
 			Object: endpoints.Object{
 				Labels: labels.Set{
 					"hello": "friend",
