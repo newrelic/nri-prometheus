@@ -5,6 +5,7 @@ package integration
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -360,9 +361,11 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 }
 
 func TestDecorate(t *testing.T) {
+	targetURL, _ := url.Parse("https://user:password@newrelic.com")
 	se := []TargetMetrics{{
 		Target: endpoints.Target{
 			Name: "a_simple_target",
+			URL:  *targetURL,
 			Object: endpoints.Object{
 				Labels: labels.Set{
 					"hello": "friend",
@@ -378,8 +381,8 @@ func TestDecorate(t *testing.T) {
 
 	Decorate(&se[0], []DecorateRule{})
 
-	assert.Equal(t, se[0].Metrics[0].attributes, labels.Set{"hello": "friend", "bye": "boy", "md1": "v1", "md2": "v2", "attr1": "val1"})
-	assert.Equal(t, se[0].Metrics[1].attributes, labels.Set{"hello": "friend", "bye": "boy", "md3": "v3", "md4": "v4", "attr2": "val2"})
+	assert.Equal(t, se[0].Metrics[0].attributes, labels.Set{"hello": "friend", "bye": "boy", "md1": "v1", "md2": "v2", "attr1": "val1", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
+	assert.Equal(t, se[0].Metrics[1].attributes, labels.Set{"hello": "friend", "bye": "boy", "md3": "v3", "md4": "v4", "attr2": "val2", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
 
 }
 
