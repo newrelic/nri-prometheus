@@ -396,17 +396,17 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.Core().Pods("test-ns").Create(p)
+	_, err := clientset.CoreV1().Pods("test-ns").Create(p)
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.Core().Pods("test-ns").Create(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(p2)
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.Core().Pods("test-ns").Create(p3)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(p3)
 	if err != nil {
 		return err
 	}
@@ -415,17 +415,17 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 	p2.ObjectMeta.Labels["prometheus.io/scrape"] = "true"
 	delete(p3.ObjectMeta.Labels, "prometheus.io/scrape")
 
-	_, err = clientset.Core().Pods("test-ns").Update(p)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(p)
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.Core().Pods("test-ns").Update(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(p2)
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.Core().Pods("test-ns").Update(p3)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(p3)
 	if err != nil {
 		return err
 	}
@@ -485,12 +485,12 @@ func populateFakePodData(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.Core().Pods("test-ns").Create(p)
+	_, err := clientset.CoreV1().Pods("test-ns").Create(p)
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.Core().Pods("test-ns").Create(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(p2)
 	if err != nil {
 		return err
 	}
@@ -526,11 +526,11 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.Core().Services("test-ns").Create(s)
+	_, err := clientset.CoreV1().Services("test-ns").Create(s)
 	if err != nil {
 		return err
 	}
-	_, err = clientset.Core().Services("test-ns").Create(s2)
+	_, err = clientset.CoreV1().Services("test-ns").Create(s2)
 	if err != nil {
 		return err
 	}
