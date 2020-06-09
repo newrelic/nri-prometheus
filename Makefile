@@ -11,8 +11,7 @@ GORELEASER_VERSION := v0.118.0
 GORELEASER_SHA256 := 4ff50937727f5dc6bb1c63a224dff05034b530862734593f10eca887b5f0125e
 GORELEASER_BIN ?= $(GOPATH)/bin/goreleaser
 GO_PKGS      := $(shell go list ./... | grep -v "/vendor/")
-GOTOOLS       = github.com/kardianos/govendor \
-		github.com/stretchr/testify/assert \
+GOTOOLS       = github.com/stretchr/testify/assert
 
 all: build
 
@@ -50,7 +49,7 @@ deps: tools deps-only
 
 deps-only:
 	@echo "=== $(INTEGRATION) === [ deps ]: Installing package dependencies required by the project..."
-	@govendor sync
+	@go mod download
 
 validate: deps
 	@echo "=== $(INTEGRATION) === [ validate ]: Validating source code running golangci-lint..."
