@@ -44,9 +44,11 @@ type Config struct {
 	DecorateFile                      bool
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
-	EmitterProxyURL           *url.URL
-	EmitterCAFile             string `mapstructure:"emitter_ca_file"`
-	EmitterInsecureSkipVerify bool   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	EmitterProxyURL                              *url.URL
+	EmitterCAFile                                string        `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
+	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
 }
 
 const maskedLicenseKey = "****"
@@ -108,9 +110,6 @@ func validateConfig(cfg *Config) error {
 // RunWithEmitters runs the scraper with preselected emitters.
 func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
-	if cfg.Verbose {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
 	logrus.Debugf("Config: %#v", cfg)
 
 	if len(emitters) == 0 {
@@ -185,6 +184,9 @@ func Run(cfg *Config) error {
 	if err != nil {
 		return fmt.Errorf("while getting configuration options: %w", err)
 	}
+	if cfg.Verbose {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
 
 	var emitters []integration.Emitter
 	for _, e := range cfg.Emitters {
@@ -242,8 +244,10 @@ func Run(cfg *Config) error {
 			}
 
 			c := integration.TelemetryEmitterConfig{
-				Percentiles:   cfg.Percentiles,
-				HarvesterOpts: harvesterOpts,
+				Percentiles:                   cfg.Percentiles,
+				HarvesterOpts:                 harvesterOpts,
+				DeltaExpirationAge:            cfg.TelemetryEmitterDeltaExpirationAge,
+				DeltaExpirationCheckInternval: cfg.TelemetryEmitterDeltaExpirationCheckInterval,
 			}
 
 			emitter, err := integration.NewTelemetryEmitter(c)

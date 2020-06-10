@@ -89,6 +89,14 @@ data:
     # The HTTP client timeout when fetching data from endpoints. Defaults to 5s.
     # scrape_timeout: "5s"
 
+    # How old must the entries used for calculating the counters delta be
+    # before the telemetry emitter expires them. Defaults to 5m.
+    # telemetry_emitter_delta_expiration_age: "5m"
+
+    # How often must the telemetry emitter check for expired delta entries.
+    # Defaults to 5m.
+    # telemetry_emitter_delta_expiration_check_interval: "5m"
+
     # Wether the integration should run in verbose mode or not. Defaults to false.
     verbose: false
 
