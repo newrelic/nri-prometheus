@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## NEXT RELEASE
+### Changed
+- Change the default for the New Relic telemetry emitter delta calculator 
+  expiration age and expiration check interval to 5 minutes. These values can 
+  now be configured with the following options
+  `telemetry_emitter_delta_expiration_age` and
+  `telemetry_emitter_delta_expiration_check_interval`. This solves the issue
+  with missing counters when the scrape interval takes more than the hard-coded
+  30 minutes values that we had previously.
+- Use go modules instead of govendor for managing project dependencies.
+
 ## 1.4.0
 ### Changed
 - Redact the password from URLs using simple authentication when storing target metadata.

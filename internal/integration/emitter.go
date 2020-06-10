@@ -21,9 +21,8 @@ import (
 )
 
 const (
-	// Ideally these 2 values should be configurable as integer multiples of the scrape interval.
-	defaultDeltaExpirationAge           = 30 * time.Second
-	defaultDeltaExpirationCheckInterval = 30 * time.Second
+	defaultDeltaExpirationAge           = 5 * time.Minute
+	defaultDeltaExpirationCheckInterval = 5 * time.Minute
 )
 
 // Emitter is an interface representing the ability to emit metrics.
@@ -147,24 +146,24 @@ func TelemetryHarvesterWithProxy(proxyURL *url.URL) TelemetryHarvesterOpt {
 func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) {
 	dc := cumulative.NewDeltaCalculator()
 
+	deltaExpirationAge := defaultDeltaExpirationAge
 	if cfg.DeltaExpirationAge != 0 {
-		dc.SetExpirationAge(cfg.DeltaExpirationAge)
-	} else {
-		dc.SetExpirationAge(defaultDeltaExpirationAge)
+		deltaExpirationAge = cfg.DeltaExpirationAge
 	}
+	dc.SetExpirationAge(deltaExpirationAge)
 	logrus.Debugf(
 		"telemetry emitter configured with delta counter expiration age: %s",
-		cfg.DeltaExpirationAge,
+		deltaExpirationAge,
 	)
 
+	deltaExpirationCheckInterval := defaultDeltaExpirationCheckInterval
 	if cfg.DeltaExpirationCheckInternval != 0 {
-		dc.SetExpirationCheckInterval(cfg.DeltaExpirationCheckInternval)
-	} else {
-		dc.SetExpirationCheckInterval(defaultDeltaExpirationCheckInterval)
+		deltaExpirationCheckInterval = cfg.DeltaExpirationCheckInternval
 	}
+	dc.SetExpirationCheckInterval(deltaExpirationCheckInterval)
 	logrus.Debugf(
 		"telemetry emitter configured with delta counter expiration check interval: %s",
-		cfg.DeltaExpirationAge,
+		deltaExpirationCheckInterval,
 	)
 
 	harvester, err := telemetry.NewHarvester(cfg.HarvesterOpts...)
