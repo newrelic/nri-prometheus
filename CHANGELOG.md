@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## NEXT RELEASE
+## 1.5.0
 ### Changed
 - Change the default for the New Relic telemetry emitter delta calculator 
   expiration age and expiration check interval to 5 minutes. These values can 
