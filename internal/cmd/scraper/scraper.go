@@ -40,7 +40,6 @@ type Config struct {
 	BearerTokenFile                   string                       `mapstructure:"bearer_token_file"`
 	InsecureSkipVerify                bool                         `mapstructure:"insecure_skip_verify" default:"false"`
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
-	Percentiles                       []float64                    `mapstructure:"percentiles"`
 	DecorateFile                      bool
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
@@ -79,14 +78,6 @@ func validateConfig(cfg *Config) error {
 	}
 	if cfg.LicenseKey == "" {
 		return fmt.Errorf(requiredMsg, "license_key")
-	}
-	for _, p := range cfg.Percentiles {
-		if p < 0.0 {
-			return fmt.Errorf("percentiles must be greater than or equal to 0.0, got %f", p)
-		}
-		if p > 100.0 {
-			return fmt.Errorf("percentiles must be less than or equal to 100.0, got %f", p)
-		}
 	}
 
 	if cfg.EmitterProxy != "" {
@@ -244,7 +235,6 @@ func Run(cfg *Config) error {
 			}
 
 			c := integration.TelemetryEmitterConfig{
-				Percentiles:                   cfg.Percentiles,
 				HarvesterOpts:                 harvesterOpts,
 				DeltaExpirationAge:            cfg.TelemetryEmitterDeltaExpirationAge,
 				DeltaExpirationCheckInternval: cfg.TelemetryEmitterDeltaExpirationCheckInterval,
