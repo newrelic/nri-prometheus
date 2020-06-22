@@ -12,7 +12,7 @@ builds:
       - linux
       - darwin
     hooks:
-      pre: env MAJOR_VERSION={{ .Major }}.{{ .Minor }} env MINOR_VERSION={{ .Major }}.{{ .Minor }}.{{ .Patch }} go generate ./...
+      pre: env MAJOR_MINOR_VERSION={{ .Major }}.{{ .Minor }} env PRE_RELEASE_VERSION={{ .Prerelease }} env FULL_VERSION={{ .Version }} go generate ./...
     ignore:
       - goarch: 386
 archives:
@@ -29,7 +29,12 @@ dockers:
       - nri-prometheus
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}.{{ .Patch }}'
+    skip_push: auto
+  - dockerfile: Dockerfile.release
+    binaries:
+      - nri-prometheus
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Version }}'
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
