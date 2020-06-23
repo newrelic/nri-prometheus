@@ -14,7 +14,6 @@ import (
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
-	"github.com/newrelic/nri-prometheus/internal/histogram"
 	"github.com/pkg/errors"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
@@ -34,7 +33,6 @@ type Emitter interface {
 // TelemetryEmitter emits metrics using the go-telemetry-sdk.
 type TelemetryEmitter struct {
 	name            string
-	percentiles     []float64
 	harvester       *telemetry.Harvester
 	deltaCalculator *cumulative.DeltaCalculator
 }
@@ -42,9 +40,6 @@ type TelemetryEmitter struct {
 // TelemetryEmitterConfig is the configuration required for the
 // `TelemetryEmitter`
 type TelemetryEmitterConfig struct {
-	// Percentile values to calculate for every Prometheus metrics of histogram type.
-	Percentiles []float64
-
 	// HarvesterOpts configuration functions for the telemetry Harvester.
 	HarvesterOpts []TelemetryHarvesterOpt
 
@@ -174,7 +169,6 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 	return &TelemetryEmitter{
 		name:            "telemetry",
 		harvester:       harvester,
-		percentiles:     cfg.Percentiles,
 		deltaCalculator: dc,
 	}, nil
 }
@@ -240,103 +234,79 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 	return results
 }
 
-// emitSummary sends all quantiles included with the summary as percentiles to New Relic.
-//
-// Related specification:
-// https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#percentiles
 func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) error {
 	summary, ok := metric.value.(*dto.Summary)
 	if !ok {
 		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
 	}
 
-	var results error
-	metricName := metric.name + ".percentiles"
+	te.harvester.RecordMetric(telemetry.Summary{
+		Name:       metric.name + "_sum",
+		Attributes: metric.attributes,
+		Count:      1,
+		Sum:        summary.GetSampleSum(),
+		Min:        math.NaN(),
+		Max:        math.NaN(),
+		Timestamp:  timestamp,
+	})
+
+	if count, ok := te.deltaCalculator.CountMetric(metric.name+"_count", metric.attributes, float64(summary.GetSampleCount()), timestamp); ok {
+		te.harvester.RecordMetric(count)
+	}
+
 	quantiles := summary.GetQuantile()
 	for _, q := range quantiles {
-		// translate to percentiles
-		p := q.GetQuantile() * 100.0
-		if p < 0.0 || p > 100.0 {
-			err := fmt.Errorf("invalid percentile `%g` for %s: must be in range [0.0, 100.0]", p, metric.name)
-			if results == nil {
-				results = err
-			} else {
-				results = fmt.Errorf("%v: %w", err, results)
-			}
-			continue
-		}
-
-		percentileAttrs := copyAttrs(metric.attributes)
-		percentileAttrs["percentile"] = p
+		quantileAttrs := copyAttrs(metric.attributes)
+		quantileAttrs["quantile"] = fmt.Sprintf("%g", q.GetQuantile())
 		te.harvester.RecordMetric(telemetry.Gauge{
-			Name:       metricName,
-			Attributes: percentileAttrs,
+			Name:       metric.name,
+			Attributes: quantileAttrs,
 			Value:      q.GetValue(),
 			Timestamp:  timestamp,
 		})
 	}
-	return results
+	return nil
 }
 
-// emitHistogram sends histogram data and curated percentiles to New Relic.
-//
-// Related specification:
-// https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md#histograms
 func (te *TelemetryEmitter) emitHistogram(metric Metric, timestamp time.Time) error {
 	hist, ok := metric.value.(*dto.Histogram)
 	if !ok {
 		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
 	}
 
-	if m, ok := te.deltaCalculator.CountMetric(metric.name+".sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
-		te.harvester.RecordMetric(m)
-	}
-
-	metricName := metric.name + ".buckets"
-	buckets := make(histogram.Buckets, 0, len(hist.Bucket))
-	for _, b := range hist.GetBucket() {
-		upperBound := b.GetUpperBound()
-		count := float64(b.GetCumulativeCount())
-		if !math.IsInf(upperBound, 1) {
-			bucketAttrs := copyAttrs(metric.attributes)
-			bucketAttrs["histogram.bucket.upperBound"] = upperBound
-			if m, ok := te.deltaCalculator.CountMetric(metricName, bucketAttrs, count, timestamp); ok {
-				te.harvester.RecordMetric(m)
-			}
-		}
-		buckets = append(
-			buckets,
-			histogram.Bucket{
-				UpperBound: upperBound,
-				Count:      count,
-			},
-		)
-	}
-
-	var results error
-	metricName = metric.name + ".percentiles"
-	for _, p := range te.percentiles {
-		v, err := histogram.Percentile(p, buckets)
-		if err != nil {
-			if results == nil {
-				results = err
-			} else {
-				results = fmt.Errorf("%v: %w", err, results)
-			}
-			continue
-		}
-
-		percentileAttrs := copyAttrs(metric.attributes)
-		percentileAttrs["percentile"] = p
-		te.harvester.RecordMetric(telemetry.Gauge{
-			Name:       metricName,
-			Attributes: percentileAttrs,
-			Value:      v,
+	if sumCount, ok := te.deltaCalculator.CountMetric(metric.name+"_sum", metric.attributes, float64(hist.GetSampleSum()), timestamp); ok {
+		te.harvester.RecordMetric(telemetry.Summary{
+			Name:       metric.name + "_sum",
+			Attributes: metric.attributes,
+			Count:      1,
+			Sum:        sumCount.Value,
+			Min:        math.NaN(),
+			Max:        math.NaN(),
 			Timestamp:  timestamp,
 		})
 	}
 
-	return results
+	if count, ok := te.deltaCalculator.CountMetric(metric.name+"_count", metric.attributes, float64(hist.GetSampleCount()), timestamp); ok {
+		te.harvester.RecordMetric(count)
+	}
+
+	metricName := metric.name + "_bucket"
+	for _, b := range hist.GetBucket() {
+		bucketAttrs := copyAttrs(metric.attributes)
+		bucketAttrs["le"] = fmt.Sprintf("%g", b.GetUpperBound())
+
+		bucketCount, ok := te.deltaCalculator.CountMetric(
+			metricName,
+			bucketAttrs,
+			float64(b.GetCumulativeCount()),
+			timestamp,
+		)
+		if ok {
+			te.harvester.RecordMetric(bucketCount)
+		}
+	}
+
+	return nil
 }
 
 // copyAttrs returns a (shallow) copy of the passed attrs.
