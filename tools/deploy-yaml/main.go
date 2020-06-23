@@ -15,8 +15,9 @@ import (
 )
 
 var (
-	majorVersion = "dev"
-	minorVersion = "dev"
+	majorMinorVersion = "dev"
+	preReleaseVersion = ""
+	fullVersion       = "dev"
 )
 
 func main() {
@@ -29,9 +30,13 @@ func main() {
 	if nil != err {
 		log.Fatal(err)
 	}
-	writeTemplate(tmpl, majorVersion, majorVersion)
-	writeTemplate(tmpl, minorVersion, minorVersion)
-	writeTemplate(tmpl, minorVersion, "latest")
+
+	writeTemplate(tmpl, fullVersion, fullVersion)
+	if preReleaseVersion != "" {
+		return
+	}
+	writeTemplate(tmpl, majorMinorVersion, majorMinorVersion)
+	writeTemplate(tmpl, fullVersion, "latest")
 }
 
 func writeTemplate(tmpl *template.Template, version string, yamlVersion string) {
