@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.0
+### Breaking change
+
+The way how Summary and Histogram metric types has been changed, they are sent
+as they come from Prometheus, without adding custom suffixes or calculating
+percentiles from the integration side:
+
+- xxx_bucket is ingested as a Counter (converted to a delta rather than
+  accumulative). Metrics containing dimension "le" == '+Inf' are also sent, we
+  don't omit them.
+- xxx_count is passed through as a Counter (converted to a delta rather than
+  accumulative).
+- xxx_total passed through as a Counter (converted to a delta rather than
+  accumulative).
+- xxx_sum is passed through as a NR Summary converted to a delta rather than
+  accumulative, Min and Max here should be NaN. Its value can be negative.  The
+  count field of the summary should be 1.
+- For Prometheus summary metrics, we report the quantile as a dimension and we
+  don't add a "percentile" dimension.
+
 ## 1.5.0
 ### Changed
 - Change the default for the New Relic telemetry emitter delta calculator 
