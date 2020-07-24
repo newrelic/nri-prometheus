@@ -1,6 +1,8 @@
+[![Community Project header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Community_Project.png)](https://opensource.newrelic.com/oss-category/#community-project)
+
 # New Relic Prometheus OpenMetrics Integration
 
-[![Build Status](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=master)](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=master)
+[![Build Status](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=main)](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=main)
 [![CLA assistant](https://cla-assistant.io/readme/badge/newrelic/nri-prometheus)](https://cla-assistant.io/newrelic/nri-prometheus)
 
 Fetch metrics in the Prometheus metrics format, inside or outside Kubernetes,
