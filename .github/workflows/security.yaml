@@ -1,7 +1,11 @@
 name: Security Scan
-
-on: [push, pull_request]
-
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - main
+  pull_request:
 jobs:
   security:
     runs-on: ubuntu-latest
