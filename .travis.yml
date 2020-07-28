@@ -4,8 +4,6 @@ go:
   - "1.13"
 script:
   - make
-  - 'if [ "$SNYK_TOKEN" != "" ]; then npm install -g snyk; fi'
-  - 'if [ "$SNYK_TOKEN" != "" ]; then make snyk; fi'
 services:
   - docker
 before_deploy:
