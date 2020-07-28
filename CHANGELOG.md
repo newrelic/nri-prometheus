@@ -75,7 +75,7 @@ percentiles from the integration side:
   `emitter_proxy`, `emitter_ca_file` and `emitter_insecure_skip_verify`.
 - Reconnect support when resource watcher connection is dropped.
 - Add support for Histograms and Summaries following
-  [New Relic's guidelines for higher-level metric abstractions](https://github.com/newrelic/newrelic-exporter-specs/blob/master/Guidelines.md).
+  [New Relic's guidelines for higher-level metric abstractions](https://github.com/newrelic/newrelic-exporter-specs/blob/main/Guidelines.md).
 
 ### Changed
 - Fix and refactor self describing metrics
