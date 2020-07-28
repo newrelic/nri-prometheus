@@ -224,7 +224,7 @@ the dest match with the original scraped instead of the renamed one.
 - Watch Kubernetes objects
 
 ### Removed
-- New Relic Infrastructure Agent dependency
+- New Relic infrastructure agent dependency
 
 ## 0.1.0 - 2019-02-13
 ### Added
