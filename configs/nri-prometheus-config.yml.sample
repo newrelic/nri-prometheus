@@ -1,0 +1,20 @@
+integrations:
+  - name: com.newrelic.prometheus
+    exec:
+      - /var/db/newrelic-infra/newrelic-integrations/bin/nri-prometheus
+    config:
+      # The name of your cluster. It's important to match other New Relic products to relate the data.
+      cluster_name: "mq_exporter"
+
+      # Points to the exporter launched in docker-compose
+      targets:
+        - description: "mq exporter"
+          urls: ["http://127.0.0.1:8115"]
+      verbose: true
+      insecure_skip_verify: true
+      metric_api_url: https://staging-metric-api.newrelic.com/metric/v1/infra
+
+      stand_alone: false
+    timeout: 10s
+
+
