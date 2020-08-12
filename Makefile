@@ -6,7 +6,7 @@ INTEGRATION  := nri-prometheus
 BINARY_NAME   = $(INTEGRATION)
 IMAGE_NAME   ?= newrelic/nri-prometheus
 GOPATH := $(shell go env GOPATH)
-GOLANGCI_LINT_VERSION := v1.29.0# also set in .github/workflows/test.yaml
+GOLANGCI_LINT_VERSION := v1.29.0
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
 GORELEASER_VERSION := v0.138.0
 GORELEASER_SHA256 := 60cd594e1413483e5728398f861e34834530e0fb1de842312d62ba9ccd57e5f8
@@ -49,7 +49,7 @@ tools-golangci-lint: $(GOLANGCI_LINT_BIN)
 
 lint: tools-golangci-lint
 	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
-	@golangci-lint run --verbose
+	@$(GOLANGCI_LINT_BIN) run --verbose
 
 
 deps: tools deps-only
