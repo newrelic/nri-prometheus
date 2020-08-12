@@ -6,6 +6,7 @@ INTEGRATION  := nri-prometheus
 BINARY_NAME   = $(INTEGRATION)
 IMAGE_NAME   ?= newrelic/nri-prometheus
 GOPATH := $(shell go env GOPATH)
+GOLANGCI_LINT_VERSION := v1.29.0
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
 GORELEASER_VERSION := v0.138.0
 GORELEASER_SHA256 := 60cd594e1413483e5728398f861e34834530e0fb1de842312d62ba9ccd57e5f8
@@ -40,10 +41,14 @@ tools-update: check-version
 	@go get -u $(GOTOOLS)
 
 $(GOLANGCI_LINT_BIN):
-	@echo "installing GolangCI lint"
-	@(curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin)
+	@echo "installing GolangCI version $(GOLANGCI_LINT_VERSION)"
+	@(curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin $(GOLANGCI_LINT_VERSION))
 
 tools-golangci-lint: $(GOLANGCI_LINT_BIN)
+
+lint: tools-golangci-lint
+	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
+	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 60s
 
 deps: tools deps-only
 
