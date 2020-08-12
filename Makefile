@@ -41,7 +41,6 @@ tools-update: check-version
 	@go get -u $(GOTOOLS)
 
 $(GOLANGCI_LINT_BIN):
-	# find out the golangci-lint version from the github workflow
 	@echo "installing GolangCI version $(GOLANGCI_LINT_VERSION)"
 	@(curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin $(GOLANGCI_LINT_VERSION))
 
@@ -49,8 +48,7 @@ tools-golangci-lint: $(GOLANGCI_LINT_BIN)
 
 lint: tools-golangci-lint
 	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
-	@$(GOLANGCI_LINT_BIN) run --verbose
-
+	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 60s
 
 deps: tools deps-only
 
