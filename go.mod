@@ -3,7 +3,6 @@ module github.com/newrelic/nri-prometheus
 go 1.13
 
 require (
-	github.com/coreos/etcd v3.3.13+incompatible
 	github.com/fsnotify/fsnotify v1.4.8-0.20190312181446-1485a34d5d57 // indirect
 	github.com/googleapis/gnostic v0.2.3-0.20181019180348-e2aafd60c944 // indirect
 	github.com/hashicorp/hcl v1.0.1-0.20190611123218-cf7d376da96d // indirect
@@ -23,9 +22,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/objx v0.1.2-0.20180626195558-9e1dfc121bca // indirect
 	github.com/stretchr/testify v1.6.1
-	github.com/subosito/gotenv v1.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975 // indirect
-	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45 // indirect
 	k8s.io/api v0.16.10
 	k8s.io/apimachinery v0.16.10
 	k8s.io/client-go v0.15.12

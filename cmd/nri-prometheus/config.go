@@ -18,7 +18,7 @@ import (
 
 // ArgumentList Available Arguments
 type ArgumentList struct {
-	ConfigPath string `default:"test" help:"Path to the config file"`
+	ConfigPath string `default:"" help:"Path to the config file"`
 }
 
 func loadConfig() (*scraper.Config, error) {
@@ -75,7 +75,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("emitter_harvest_period", "1s")
 	viper.SetDefault("auto_decorate", false)
 	viper.SetDefault("insecure_skip_verify", false)
-	viper.SetDefault("stand_alone", true)
+	viper.SetDefault("standalone", false)
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 }
 
