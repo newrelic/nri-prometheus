@@ -14,7 +14,7 @@ func main() {
 		logrus.WithError(err).Fatal("while loading configuration")
 	}
 
-	if cfg.StandAlone {
+	if cfg.Standalone {
 		err = scraper.Run(cfg)
 		if err != nil {
 			logrus.WithError(err).Fatal("error occurred while running scraper")
