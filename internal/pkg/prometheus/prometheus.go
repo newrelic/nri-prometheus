@@ -4,6 +4,7 @@
 package prometheus
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -58,6 +59,10 @@ func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
 	defer func() {
 		_ = resp.Body.Close()
 	}()
+
+	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+		return nil, fmt.Errorf("status code returned by the prometheus exporter indicates an error occurred: %d", resp.StatusCode)
+	}
 
 	countedBody := &countReadCloser{innerReadCloser: resp.Body}
 	d := expfmt.NewDecoder(countedBody, expfmt.FmtText)

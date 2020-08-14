@@ -74,10 +74,10 @@ const queueLength = 100
 
 func validateConfig(cfg *Config) error {
 	requiredMsg := "%s is required and can't be empty"
-	if cfg.ClusterName == "" {
+	if cfg.ClusterName == "" && cfg.Standalone {
 		return fmt.Errorf(requiredMsg, "cluster_name")
 	}
-	if cfg.LicenseKey == "" {
+	if cfg.LicenseKey == "" && cfg.Standalone {
 		return fmt.Errorf(requiredMsg, "license_key")
 	}
 
@@ -168,6 +168,71 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	}
 	return http.ListenAndServe(":8080", r)
+}
+
+// RunOnceWithEmitters runs the scraper with preselected emitters once.
+func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
+	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
+	logrus.Debugf("Config: %#v", cfg)
+
+	if len(emitters) == 0 {
+		return fmt.Errorf("you need to configure at least one valid emitter")
+	}
+
+	var retrievers []endpoints.TargetRetriever
+	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
+	if err != nil {
+		return fmt.Errorf("while parsing provided endpoints: %w", err)
+	}
+	retrievers = append(retrievers, fixedRetriever)
+
+	defaultTransformations := integration.ProcessingRule{
+		Description: "Default transformation rules",
+		AddAttributes: []integration.AddAttributesRule{
+			{
+				MetricPrefix: "",
+				Attributes: map[string]interface{}{
+					"integrationVersion": integration.Version,
+					"integrationName":    integration.Name,
+				},
+			},
+		},
+	}
+	processingRules := append(cfg.ProcessingRules, defaultTransformations)
+
+	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
+	if err != nil {
+		return fmt.Errorf(
+			"parsing scrape_duration value (%v): %w",
+			cfg.ScrapeDuration,
+			err,
+		)
+	}
+
+	//fetch duration is hardcoded to 1 since the target is scraped only once
+	integration.ExecuteOnce(
+		retrievers,
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, maxTargetConnections, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.RuleProcessor(processingRules, queueLength),
+		emitters)
+
+	return nil
+}
+
+// RunOnce runs the scraper only once
+func RunOnce(cfg *Config) error {
+	err := validateConfig(cfg)
+	if err != nil {
+		return fmt.Errorf("while getting configuration options: %w", err)
+	}
+	if cfg.Verbose {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+	var emitters []integration.Emitter
+	//todo Implement an actual emitter we are currently ignoring cfg.Emitters
+	emitters = append(emitters, integration.NewStdoutEmitter())
+
+	return RunOnceWithEmitters(cfg, emitters)
 }
 
 // Run runs the scraper

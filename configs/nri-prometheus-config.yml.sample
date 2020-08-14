@@ -1,10 +1,9 @@
 integrations:
   - name: nri-prometheus
-    inventory_source: integration/com.newrelic.prometheus
     config:
       # The name of your cluster. It's important to match other New Relic products to relate the data.
       cluster_name: "my_exporter"
-      
+
       #targets:
       #  - description: Secure etcd example
       #    urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
@@ -18,6 +17,9 @@ integrations:
 
       # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
       # scrape_timeout: "30s"
+
+      # Length in time to distribute the scraping from the endpoints.
+      scrape_duration: "5s"
 
       # Wether the integration should skip TLS verification or not. Defaults to false.
       insecure_skip_verify: false
