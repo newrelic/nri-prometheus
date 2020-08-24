@@ -9,7 +9,7 @@ github.com/fsnotify/fsnotify
 # github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
 github.com/gogo/protobuf/proto
 github.com/gogo/protobuf/sortkeys
-# github.com/golang/protobuf v1.3.1
+# github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
 github.com/golang/protobuf/ptypes
 github.com/golang/protobuf/ptypes/any
@@ -48,14 +48,16 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/newrelic/newrelic-telemetry-sdk-go v0.3.0
+# github.com/newrelic/infra-integrations-sdk v3.6.4+incompatible
+github.com/newrelic/infra-integrations-sdk/args
+# github.com/newrelic/newrelic-telemetry-sdk-go v0.4.0
 github.com/newrelic/newrelic-telemetry-sdk-go/cumulative
 github.com/newrelic/newrelic-telemetry-sdk-go/internal
 github.com/newrelic/newrelic-telemetry-sdk-go/internal/jsonx
 github.com/newrelic/newrelic-telemetry-sdk-go/telemetry
 # github.com/pelletier/go-toml v1.2.1-0.20181124002727-27c6b39a135b
 github.com/pelletier/go-toml
-# github.com/pkg/errors v0.8.1-0.20180311214515-816c9085562c
+# github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -83,7 +85,7 @@ github.com/spf13/cast
 github.com/spf13/jwalterweatherman
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/spf13/viper v1.4.1-0.20190729163700-33bf76add3b7
+# github.com/spf13/viper v1.7.1
 github.com/spf13/viper
 # github.com/stretchr/objx v0.1.2-0.20180626195558-9e1dfc121bca
 github.com/stretchr/objx
@@ -115,7 +117,7 @@ golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
 # golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
 golang.org/x/time/rate
-# google.golang.org/appengine v1.5.0
+# google.golang.org/appengine v1.6.1
 google.golang.org/appengine/internal
 google.golang.org/appengine/internal/base
 google.golang.org/appengine/internal/datastore
@@ -125,6 +127,8 @@ google.golang.org/appengine/internal/urlfetch
 google.golang.org/appengine/urlfetch
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
+# gopkg.in/ini.v1 v1.51.0
+gopkg.in/ini.v1
 # gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
 # gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c

@@ -4,25 +4,46 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
 	"time"
 
+	"github.com/newrelic/infra-integrations-sdk/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
+// ArgumentList Available Arguments
+type ArgumentList struct {
+	ConfigPath string `default:"" help:"Path to the config file"`
+}
+
 func loadConfig() (*scraper.Config, error) {
+
+	c := ArgumentList{}
+	err := args.SetupArgs(&c)
+	if err != nil {
+		return nil, err
+	}
+
 	cfg := viper.New()
-	cfg.SetConfigName("config")
 	cfg.SetConfigType("yaml")
-	cfg.AddConfigPath("/etc/nri-prometheus/")
-	cfg.AddConfigPath(".")
+
+	if c.ConfigPath != "" {
+		cfg.AddConfigPath(filepath.Dir(c.ConfigPath))
+		cfg.SetConfigName(filepath.Base(c.ConfigPath))
+	} else {
+		cfg.SetConfigName("config")
+		cfg.AddConfigPath("/etc/nri-prometheus/")
+		cfg.AddConfigPath(".")
+	}
+
 	setViperDefaults(cfg)
 
-	err := cfg.ReadInConfig()
+	err = cfg.ReadInConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not read configuration")
 	}
@@ -54,6 +75,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("emitter_harvest_period", "1s")
 	viper.SetDefault("auto_decorate", false)
 	viper.SetDefault("insecure_skip_verify", false)
+	viper.SetDefault("standalone", false)
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 }
 

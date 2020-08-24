@@ -1,0 +1,27 @@
+integrations:
+  - name: nri-prometheus
+    inventory_source: integration/com.newrelic.prometheus
+    config:
+      # The name of your cluster. It's important to match other New Relic products to relate the data.
+      cluster_name: "my_exporter"
+      
+      #targets:
+      #  - description: Secure etcd example
+      #    urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
+      #    tls_config:
+      #      ca_file_path: "/etc/etcd/etcd-client-ca.crt"
+      #      cert_file_path: "/etc/etcd/etcd-client.crt"
+      #      key_file_path: "/etc/etcd/etcd-client.key"
+
+      # Wether the integration should run in verbose mode or not. Defaults to false.
+      verbose: false
+
+      # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
+      # scrape_timeout: "30s"
+
+      # Wether the integration should skip TLS verification or not. Defaults to false.
+      insecure_skip_verify: false
+
+    timeout: 10s
+
+

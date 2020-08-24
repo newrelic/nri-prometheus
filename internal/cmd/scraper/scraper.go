@@ -32,6 +32,7 @@ type Config struct {
 	ScrapeEnabledLabel                string                       `mapstructure:"scrape_enabled_label"`
 	RequireScrapeEnabledLabelForNodes bool                         `mapstructure:"require_scrape_enabled_label_for_nodes"`
 	ScrapeTimeout                     time.Duration                `mapstructure:"scrape_timeout"`
+	Standalone                        bool                         `mapstructure:"standalone"`
 	ScrapeDuration                    string                       `mapstructure:"scrape_duration"`
 	EmitterHarvestPeriod              string                       `mapstructure:"emitter_harvest_period"`
 	TargetConfigs                     []endpoints.TargetConfig     `mapstructure:"targets"`
