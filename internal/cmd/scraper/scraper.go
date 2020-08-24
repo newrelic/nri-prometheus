@@ -313,6 +313,9 @@ func Run(cfg *Config) error {
 				return errors.Wrap(err, "could not create new TelemetryEmitter")
 			}
 			emitters = append(emitters, emitter)
+		case "infra-sdk":
+			emitter, _ := integration.NewInfraSdkEmitter()
+			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
 			continue
