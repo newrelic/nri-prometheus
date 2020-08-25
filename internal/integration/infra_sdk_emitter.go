@@ -13,10 +13,12 @@ import (
 	dto "github.com/prometheus/client_model/go"
 )
 
+// InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
 	deltaCalculator *cumulative.DeltaCalculator
 }
 
+// NewInfraSdkEmitter creates a new Infra SDK emitter
 func NewInfraSdkEmitter() (*InfraSdkEmitter, error) {
 	return &InfraSdkEmitter{
 		// perhaps allow configuration..
@@ -29,6 +31,7 @@ func (e *InfraSdkEmitter) Name() string {
 	return "infra-sdk"
 }
 
+// Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	i, err := integration.New("test", "1.0.0")
 	if err != nil {
