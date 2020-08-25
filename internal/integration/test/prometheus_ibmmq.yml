@@ -1,0 +1,18 @@
+provider: prometheus
+service: ibmmq
+display_name: IBM MQ
+entities:
+  - name: qmgr
+    display_name: Queue Manager
+    properties:
+      dimensions: [ qmgr, platform ]
+    metrics:
+      - provider_name: ibmmq_qmgr_alter_durable_subscription_count
+        description: Alter durable subscription count
+        unit: Count
+      - provider_name: ibmmq_qmgr_channel_initiator_status
+        description: Channel Initiator Status
+        unit: Gauge
+      - provider_name: ibmmq_qmgr_commit_count
+        description: Commit count
+        unit: Count

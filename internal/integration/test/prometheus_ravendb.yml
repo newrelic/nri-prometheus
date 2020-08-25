@@ -1,0 +1,27 @@
+provider: prometheus
+service: ravendb
+display_name: Raven Db
+entities:
+  - name: database
+    display_name: Database
+    properties:
+      dimensions: [ database ]
+    metrics:
+      - provider_name: ravendb_database_document_put_bytes_total
+        description: Database document put bytes
+        unit: Count
+      - provider_name: ravendb_database_document_put_total
+        description: Database document puts count
+        unit: Count
+  - name: testentity
+    display_name: testEntity
+    properties:
+      dimensions: [ dim1, dim2 ]
+    metrics:
+      - provider_name: ravendb_testentity_document_put_bytes_total
+        description: Database document put bytes
+        unit: Count
+      - provider_name: ravendb_testentity_document_put_total
+        description: Database document puts count
+        unit: Count
+
