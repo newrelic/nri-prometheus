@@ -9,8 +9,8 @@ import (
 	"github.com/newrelic/infra-integrations-sdk/integration"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
-
 	dto "github.com/prometheus/client_model/go"
+	"github.com/sirupsen/logrus"
 )
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
@@ -33,7 +33,8 @@ func (e *InfraSdkEmitter) Name() string {
 
 // Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
-	i, err := integration.New("test", "1.0.0")
+	//TODO this may be moved to the main package. waiting on the ohi-ified version
+	i, err := integration.New("com.newrelic.prometheus", "1.0.0")
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 		}
 
 		if err != nil {
-			fmt.Println(fmt.Sprintf("failed to create metric from '%s'", me.name))
+			logrus.WithError(err).Errorf("failed to create metric from '%s'", me.name)
 		}
 	}
 
@@ -174,7 +175,7 @@ func addDimensions(m metric.Metric, attributes labels.Set) {
 	for k, v := range attributes {
 		err = m.AddDimension(k, v.(string))
 		if err != nil {
-			fmt.Println(fmt.Sprintf("failed to add attribute %v(%v) as dimension to metric", k, v))
+			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
 		}
 	}
 }
