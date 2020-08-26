@@ -4,4 +4,7 @@ RUN apk add --no-cache ca-certificates
 USER nobody
 ADD bin/nri-prometheus /bin/
 
+# When standalone is set to true nri-prometheus does not require an infrastructure agent to work and send data
+ENV STANDALONE=TRUE
+
 ENTRYPOINT ["/bin/nri-prometheus"]
