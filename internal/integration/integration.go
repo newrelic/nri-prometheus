@@ -61,6 +61,22 @@ func Execute(
 	}
 }
 
+// ExecuteOnce executes the integration once. The pipeline fetches
+// metrics from the registered targets, transforms them according to a set
+// of rules and emits them.
+func ExecuteOnce(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor Processor, emitters []Emitter) {
+	for _, retriever := range retrievers {
+		err := retriever.Watch()
+		if err != nil {
+			ilog.WithError(err).WithField("retriever", retriever.Name()).Error("while getting the initial list of targets")
+		}
+	}
+
+	for _, retriever := range retrievers {
+		processWithoutTelemetry(retriever, fetcher, processor, emitters)
+	}
+}
+
 // processWithoutTelemetry processes a target retriever without doing any
 // kind of telemetry calculation.
 func processWithoutTelemetry(

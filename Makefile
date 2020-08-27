@@ -48,7 +48,7 @@ tools-golangci-lint: $(GOLANGCI_LINT_BIN)
 
 lint: tools-golangci-lint
 	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
-	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 60s
+	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 90s
 
 deps: tools deps-only
 

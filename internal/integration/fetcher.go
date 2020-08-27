@@ -202,6 +202,8 @@ func (pf *prometheusFetcher) work(targets <-chan endpoints.Target, wg *sync.Wait
 				Metrics: convertPromMetrics(pf.log, target.Name, mfs),
 				Target:  target,
 			}
+		} else {
+			pf.log.WithError(err).Warn("error while scraping target")
 		}
 		wg.Done()
 	}

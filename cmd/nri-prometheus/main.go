@@ -20,6 +20,11 @@ func main() {
 			logrus.WithError(err).Fatal("error occurred while running scraper")
 		}
 	} else {
-		logrus.Info("New behaviour!")
+		// todo create a proper emitter that add metrics to an integration and prints them to stdout once scraping and processing is performed
+		cfg.Emitters = []string{"integrationSDK4"}
+		err = scraper.RunOnce(cfg)
+		if err != nil {
+			logrus.WithError(err).Fatal("error occurred while running scraper")
+		}
 	}
 }
