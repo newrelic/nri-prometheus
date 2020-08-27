@@ -1,6 +1,9 @@
 integrations:
   - name: nri-prometheus
     config:
+      # When standalone is set to false nri-prometheus requires an infrastructure agent to work and send data. Defaults to true
+      standalone: false
+
       # The name of your cluster. It's important to match other New Relic products to relate the data.
       cluster_name: "my_exporter"
 
