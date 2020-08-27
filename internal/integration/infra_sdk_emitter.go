@@ -98,7 +98,7 @@ func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metri
 	if sumDelta, ok := e.deltaCalculator.CountMetric(metric.name+"_sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
 		m, err := integration.Summary(timestamp, metric.name+"_sum",
 			1,
-			math.NaN(), // can we calc average here?
+			math.NaN(),
 			sumDelta.Value,
 			math.NaN(),
 			math.NaN(),
@@ -139,8 +139,8 @@ func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric,
 
 	m, err := integration.Summary(timestamp, metric.name+"_sum",
 		1,
-		math.NaN(),             // can we calc average here?
-		summary.GetSampleSum(), // not sure the delta gets calculated in the agent for summary metrics
+		math.NaN(),
+		summary.GetSampleSum(),
 		math.NaN(),
 		math.NaN(),
 	)
