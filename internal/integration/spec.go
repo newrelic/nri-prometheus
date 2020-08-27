@@ -15,7 +15,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const fileNameMatcher = `^prometheus_.*\.yml$`
+const fileNameMatcher = `^prometheus_.*\.ya?ml$`
 
 // Specs contains all the services specs mapped with the service name
 type Specs struct {
