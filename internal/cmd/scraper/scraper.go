@@ -22,7 +22,6 @@ import (
 
 // Config is the config struct for the scraper.
 type Config struct {
-	ConfigFile                        string
 	MetricAPIURL                      string                       `mapstructure:"metric_api_url"`
 	LicenseKey                        LicenseKey                   `mapstructure:"license_key"`
 	ClusterName                       string                       `mapstructure:"cluster_name"`
