@@ -16,3 +16,6 @@ entities:
       - provider_name: ibmmq_qmgr_commit_count
         description: Commit count
         unit: Count
+      - provider_name: go_goroutines
+        description: Number of goroutines that currently exist.
+        unit: gauge

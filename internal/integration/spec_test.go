@@ -28,7 +28,7 @@ func TestSpecs_getEntity(t *testing.T) {
 	assert.Contains(t, specs.SpecsByName, "ravendb")
 
 	type fields struct {
-		SpecsByName map[string]Spec
+		SpecsByName map[string]SpecDef
 	}
 	type args struct {
 		m Metric
@@ -51,8 +51,20 @@ func TestSpecs_getEntity(t *testing.T) {
 						"database": "test",
 					},
 				}},
-			wantEntityName: "test",
-			wantEntityType: "database",
+			wantEntityName: "database:test",
+			wantEntityType: "prometheusravendbdatabase",
+			wantErr:        false,
+		},
+		{
+			name:   "matchEntityWithoutDimensions",
+			fields: fields{specs.SpecsByName},
+			args: args{
+				Metric{
+					name:       "ravendb_document_put_bytes_total",
+					attributes: labels.Set{},
+				}},
+			wantEntityName: "node",
+			wantEntityType: "prometheusravendbnode",
 			wantErr:        false,
 		},
 		{
@@ -66,8 +78,8 @@ func TestSpecs_getEntity(t *testing.T) {
 						"dim2": "second",
 					},
 				}},
-			wantEntityName: "first:second",
-			wantEntityType: "testentity",
+			wantEntityName: "testentity:first:second",
+			wantEntityType: "prometheusravendbtestentity",
 			wantErr:        false,
 		},
 		{
@@ -80,6 +92,12 @@ func TestSpecs_getEntity(t *testing.T) {
 			name:    "serviceNotDefined",
 			fields:  fields{specs.SpecsByName},
 			args:    args{Metric{name: "service_metric_undefined"}},
+			wantErr: true,
+		},
+		{
+			name:    "metricNotDefined",
+			fields:  fields{specs.SpecsByName},
+			args:    args{Metric{name: "ravendb_metric_undefined"}},
 			wantErr: true,
 		},
 		{
