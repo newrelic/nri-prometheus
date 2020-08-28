@@ -93,6 +93,9 @@ data:
     insecure_skip_verify: false
     # The label used to identify scrapable targets. Defaults to "prometheus.io/scrape".
     scrape_enabled_label: "prometheus.io/scrape"
+    # Set to false in order to stop autodiscovery in the k8s cluster. It can be useful when running the Pod with a service account
+    # having limited privileges
+    # enable_autodiscovery: true
     # Wether k8s nodes needs to be labelled to be scraped or not. Defaults to false.
     require_scrape_enabled_label_for_nodes: true
     #targets:

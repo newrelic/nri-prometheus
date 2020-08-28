@@ -33,6 +33,7 @@ type Config struct {
 	RequireScrapeEnabledLabelForNodes bool                         `mapstructure:"require_scrape_enabled_label_for_nodes"`
 	ScrapeTimeout                     time.Duration                `mapstructure:"scrape_timeout"`
 	Standalone                        bool                         `mapstructure:"standalone"`
+	EnableAutodiscovery               bool                         `mapstructure:"enable_autodiscovery"`
 	ScrapeDuration                    string                       `mapstructure:"scrape_duration"`
 	EmitterHarvestPeriod              string                       `mapstructure:"emitter_harvest_period"`
 	TargetConfigs                     []endpoints.TargetConfig     `mapstructure:"targets"`
@@ -119,11 +120,13 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 	retrievers = append(retrievers, fixedRetriever)
 
-	kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes, endpoints.WithInClusterConfig())
-	if err != nil {
-		logrus.WithError(err).Errorf("not possible to get a Kubernetes client. If you aren't running this integration in a Kubernetes cluster, you can ignore this error")
-	} else {
-		retrievers = append(retrievers, kubernetesRetriever)
+	if cfg.EnableAutodiscovery {
+		kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes, endpoints.WithInClusterConfig())
+		if err != nil {
+			logrus.WithError(err).Errorf("not possible to get a Kubernetes client. If you aren't running this integration in a Kubernetes cluster, you can ignore this error")
+		} else {
+			retrievers = append(retrievers, kubernetesRetriever)
+		}
 	}
 	defaultTransformations := integration.ProcessingRule{
 		Description: "Default transformation rules",

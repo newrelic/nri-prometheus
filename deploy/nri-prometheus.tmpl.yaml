@@ -132,6 +132,10 @@ data:
     # If left empty, TLS uses the host's root CA set.
     # emitter_ca_file: "/path/to/cert/server.pem"
 
+    # Set to false in order to stop autodiscovery in the k8s cluster. It can be useful when running the Pod with a service account
+    # having limited privileges
+    # enable_autodiscovery: true
+
     # Whether the emitter should skip TLS verification when submitting data.
     # Defaults to false.
     # emitter_insecure_skip_verify: false
