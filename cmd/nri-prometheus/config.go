@@ -19,6 +19,7 @@ import (
 // ArgumentList Available Arguments
 type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
+	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
 }
 
 func loadConfig() (*scraper.Config, error) {
@@ -31,6 +32,10 @@ func loadConfig() (*scraper.Config, error) {
 
 	cfg := viper.New()
 	cfg.SetConfigType("yaml")
+
+	if c.Configfile != "" && c.ConfigPath == "" {
+		c.ConfigPath = c.Configfile
+	}
 
 	if c.ConfigPath != "" {
 		cfg.AddConfigPath(filepath.Dir(c.ConfigPath))

@@ -58,7 +58,7 @@ spec:
       - name: nri-prometheus
         image: quay.io/newrelic/nri-prometheus
         args:
-          - "--configfile=/etc/nri-prometheus/config.yaml"
+          - "--config_path=/etc/nri-prometheus/config.yaml"
         ports:
           - containerPort: 8080
         volumeMounts:
