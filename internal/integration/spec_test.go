@@ -52,7 +52,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantEntityName: "database:test",
-			wantEntityType: "prometheusravendbdatabase",
+			wantEntityType: "PrometheusRavendbDatabase",
 			wantErr:        false,
 		},
 		{
@@ -64,7 +64,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantEntityName: "node",
-			wantEntityType: "prometheusravendbnode",
+			wantEntityType: "PrometheusRavendbNode",
 			wantErr:        false,
 		},
 		{
@@ -79,7 +79,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantEntityName: "testentity:first:second",
-			wantEntityType: "prometheusravendbtestentity",
+			wantEntityType: "PrometheusRavendbTestentity",
 			wantErr:        false,
 		},
 		{

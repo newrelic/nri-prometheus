@@ -98,7 +98,7 @@ func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err e
 		return "", "", fmt.Errorf("metric: %s is not defined in service:%s", m.name, spec.Service)
 	}
 
-	entityType = spec.Provider + spec.Service + e.Type
+	entityType = strings.Title(spec.Provider) + strings.Title(spec.Service) + strings.Title(e.Type)
 
 	entityName = e.Type
 
