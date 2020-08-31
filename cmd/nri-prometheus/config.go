@@ -81,6 +81,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("auto_decorate", false)
 	viper.SetDefault("insecure_skip_verify", false)
 	viper.SetDefault("standalone", true)
+	viper.SetDefault("disable_autodiscovery", false)
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 }
 
