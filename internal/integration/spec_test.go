@@ -14,6 +14,7 @@ func TestLoadSpecFilesOk(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, specs.SpecsByName, "ibmmq")
 	assert.Contains(t, specs.SpecsByName, "ravendb")
+	assert.Contains(t, specs.SpecsByName, "redis")
 }
 func TestLoadSpecFilesNoFiles(t *testing.T) {
 	specs, err := LoadSpecFiles(".")
@@ -25,7 +26,6 @@ func TestSpecs_getEntity(t *testing.T) {
 
 	specs, err := LoadSpecFiles("./test/")
 	assert.NoError(t, err)
-	assert.Contains(t, specs.SpecsByName, "ravendb")
 
 	type fields struct {
 		SpecsByName map[string]SpecDef
@@ -80,6 +80,30 @@ func TestSpecs_getEntity(t *testing.T) {
 				}},
 			wantEntityName: "testentity:first:second",
 			wantEntityType: "PrometheusRavendbTestentity",
+			wantErr:        false,
+		},
+		{
+			name:   "redisEntityMetric1",
+			fields: fields{specs.SpecsByName},
+			args: args{
+				Metric{
+					name:       "redis_commands_duration_seconds_total",
+					attributes: labels.Set{},
+				}},
+			wantEntityName: "instance",
+			wantEntityType: "PrometheusRedisInstance",
+			wantErr:        false,
+		},
+		{
+			name:   "redisEntityMetric2",
+			fields: fields{specs.SpecsByName},
+			args: args{
+				Metric{
+					name:       "redis_repl_backlog_is_active",
+					attributes: labels.Set{},
+				}},
+			wantEntityName: "instance",
+			wantEntityType: "PrometheusRedisInstance",
 			wantErr:        false,
 		},
 		{
