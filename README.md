@@ -86,14 +86,6 @@ At the moment, tests are totally isolated and you don't need a cluster to run th
 
 Should you need assistance with New Relic products, you are in good hands with several support diagnostic tools and support channels.
 
-> This [troubleshooting framework](https://discuss.newrelic.com/t/troubleshooting-frameworks/108787) steps you through common troubleshooting questions.
-> New Relic offers NRDiag, [a client-side diagnostic utility](https://docs.newrelic.com/docs/using-new-relic/cross-product-functions/troubleshooting/new-relic-diagnostics) that automatically detects common problems with New Relic agents. If NRDiag detects a problem, it suggests troubleshooting steps. NRDiag can also automatically attach troubleshooting data to a New Relic Support ticket.
-If the issue has been confirmed as a bug or is a Feature request, please file a Github issue.
-
-## Support
-
-Should you need assistance with New Relic products, you are in good hands with several support diagnostic tools and support channels.
-
 > New Relic offers NRDiag, [a client-side diagnostic utility](https://docs.newrelic.com/docs/using-new-relic/cross-product-functions/troubleshooting/new-relic-diagnostics) that automatically detects common problems with New Relic agents. If NRDiag detects a problem, it suggests troubleshooting steps. NRDiag can also automatically attach troubleshooting data to a New Relic Support ticket.
 
 If the issue has been confirmed as a bug or is a Feature request, please file a Github issue.
