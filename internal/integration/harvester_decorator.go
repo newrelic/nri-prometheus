@@ -32,14 +32,15 @@ func (ha harvesterDecorator) HarvestNow(ctx context.Context) {
 }
 
 func (ha harvesterDecorator) processMetric(f float64, m telemetry.Metric) {
-	if isNaNOrInfinity(f) {
+	if math.IsNaN(f) {
 		logrus.Debugf("Ignoring NaN float value for metric: %v", m)
 		return
 	}
 
-	ha.innerHarvester.RecordMetric(m)
-}
+	if math.IsInf(f, 0) {
+		logrus.Debugf("Ignoring Infinite float value for metric: %v", m)
+		return
+	}
 
-func isNaNOrInfinity(f float64) bool {
-	return math.IsInf(f, 0) || math.IsNaN(f)
+	ha.innerHarvester.RecordMetric(m)
 }
