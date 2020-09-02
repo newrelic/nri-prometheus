@@ -52,7 +52,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantEntityName: "database:test",
-			wantEntityType: "PrometheusRavendbDatabase",
+			wantEntityType: "RavendbDatabase",
 			wantErr:        false,
 		},
 		{
@@ -64,7 +64,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantEntityName: "node",
-			wantEntityType: "PrometheusRavendbNode",
+			wantEntityType: "RavendbNode",
 			wantErr:        false,
 		},
 		{
@@ -79,7 +79,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantEntityName: "testentity:first:second",
-			wantEntityType: "PrometheusRavendbTestentity",
+			wantEntityType: "RavendbTestentity",
 			wantErr:        false,
 		},
 		{
@@ -91,7 +91,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantEntityName: "instance",
-			wantEntityType: "PrometheusRedisInstance",
+			wantEntityType: "RedisInstance",
 			wantErr:        false,
 		},
 		{
@@ -103,7 +103,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantEntityName: "instance",
-			wantEntityType: "PrometheusRedisInstance",
+			wantEntityType: "RedisInstance",
 			wantErr:        false,
 		},
 		{

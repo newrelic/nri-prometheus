@@ -1,4 +1,3 @@
-provider: prometheus
 service: redis
 display_name: Redis
 entities:
