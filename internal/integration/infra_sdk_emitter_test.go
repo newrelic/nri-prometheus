@@ -49,8 +49,13 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 			name:         "CanEmitSummary",
 			args:         args{getSummary(t)},
 			wantEntities: 1,
-			// why 7? we convert each of the "summary" values into a distinct metric instead of aggregating in our own summary
-			wantMetrics: 7,
+			wantMetrics:  1,
+		},
+		{
+			name:         "CanEmitHistogram",
+			args:         args{getHistogram(t)},
+			wantEntities: 1,
+			wantMetrics:  1,
 		},
 	}
 	for _, tt := range tests {
@@ -132,13 +137,69 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 	assert.NotEmpty(t, result.Metadata.Version)
 	assert.Len(t, result.Entities, 1)
 	for _, e := range result.Entities {
-		assert.Len(t, e.Metrics, 7)
+		assert.Len(t, e.Metrics, 1)
 		for _, m := range e.Metrics {
 			assert.NotZero(t, m.Timestamp)
 			assert.NotEmpty(t, m.Name)
 			assert.NotEmpty(t, m.Dimensions)
 			assert.Contains(t, m.Dimensions, "hostname")
 			assert.Contains(t, m.Dimensions, "env")
+			// in "prod" we do not include +Inf so it would have been 5
+			assert.Len(t, m.Buckets, 5)
+			assert.Equal(t, float64(6), m.SampleSum, "sampleSum")
+			assert.Equal(t, uint64(3), m.SampleCount, "sampleCount")
+		}
+	}
+}
+
+func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
+	e, _ := NewInfraSdkEmitter()
+
+	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
+	metrics := getSummary(t)
+
+	rescueStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	// when
+	err := e.Emit(metrics)
+	_ = w.Close()
+
+	//then
+	assert.NoError(t, err)
+	bytes, _ := ioutil.ReadAll(r)
+	assert.NotEmpty(t, bytes)
+	os.Stdout = rescueStdout
+
+	// print json for debug purposes
+	t.Log(string(bytes))
+
+	// convert the json into a similar metric structure so we can assert more easily
+	var result Result
+	err = json.Unmarshal(bytes, &result)
+	assert.NoError(t, err)
+
+	assert.NotEmpty(t, result.ProtocolVersion)
+	assert.NotNil(t, result.Metadata)
+	assert.NotEmpty(t, result.Metadata.Name)
+	assert.NotEmpty(t, result.Metadata.Version)
+	assert.Len(t, result.Entities, 1)
+	for _, e := range result.Entities {
+		assert.Len(t, e.Metrics, 1)
+		for _, m := range e.Metrics {
+			assert.NotZero(t, m.Timestamp)
+			assert.NotEmpty(t, m.Name)
+			assert.NotEmpty(t, m.Dimensions)
+			assert.Contains(t, m.Dimensions, "hostname")
+			assert.Contains(t, m.Dimensions, "env")
+			assert.Equal(t, 0.0009405, m.SampleSum, "sampleSum")
+			assert.Equal(t, uint64(7), m.SampleCount, "sampleCount")
+			assert.Len(t, m.Quantiles, 5)
+			for _, q := range m.Quantiles {
+				assert.NotNil(t, q.Value)
+				assert.NotNil(t, q.Quantile)
+			}
 		}
 	}
 }
@@ -241,10 +302,24 @@ type entityMetadata struct {
 
 type common struct{}
 
+type quant struct {
+	Quantile *float64 `json:"quantile,omitempty"`
+	Value    *float64 `json:"value,omitempty"`
+}
+
+type bucket struct {
+	CumulativeCount *uint64  `json:"cumulative_count,omitempty"`
+	UpperBound      *float64 `json:"upper_bound,omitempty"`
+}
+
 type metricData struct {
-	Timestamp  int64             `json:"timestamp"`
-	Name       string            `json:"name"`
-	Dimensions map[string]string `json:"attributes"`
+	Timestamp   int64             `json:"timestamp"`
+	Name        string            `json:"name"`
+	Dimensions  map[string]string `json:"attributes"`
+	SampleCount uint64            `json:"sample_count,omitempty"`
+	SampleSum   float64           `json:"sample_sum,omitempty"`
+	Quantiles   []quant           `json:"quantiles,omitempty"`
+	Buckets     []bucket          `json:"buckets,omitempty"`
 }
 
 type entity struct {

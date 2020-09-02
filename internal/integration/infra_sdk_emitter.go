@@ -2,10 +2,9 @@ package integration
 
 import (
 	"fmt"
-	"math"
 	"time"
 
-	"github.com/newrelic/infra-integrations-sdk/data/metric"
+	metrics "github.com/newrelic/infra-integrations-sdk/data/metric"
 	"github.com/newrelic/infra-integrations-sdk/integration"
 	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
@@ -95,82 +94,45 @@ func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metri
 		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
 	}
 
-	if sumDelta, ok := e.deltaCalculator.CountMetric(metric.name+"_sum", metric.attributes, hist.GetSampleSum(), timestamp); ok {
-		m, err := integration.Summary(timestamp, metric.name+"_sum",
-			1,
-			math.NaN(),
-			sumDelta.Value,
-			math.NaN(),
-			math.NaN(),
-		)
-		if err != nil {
-			return err
-		}
-		addDimensions(m, metric.attributes)
-		i.HostEntity.AddMetric(m)
-	}
-
-	m, err := integration.Count(timestamp, metric.name+"_count", float64(hist.GetSampleCount()))
+	ph, err := metrics.NewPrometheusHistogram(timestamp, metric.name, *hist.SampleCount, *hist.SampleSum)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create histogram metric for %q", metric.name)
 	}
-	addDimensions(m, metric.attributes)
-	i.HostEntity.AddMetric(m)
+	addDimensions(ph, metric.attributes)
 
-	metricName := metric.name + "_bucket"
-	for _, b := range hist.GetBucket() {
-		m, err = integration.Count(timestamp, metricName, float64(b.GetCumulativeCount()))
-		if err != nil {
-			return err
-		}
-		addDimensions(m, metric.attributes)
-		_ = m.AddDimension("le", fmt.Sprintf("%g", b.GetUpperBound()))
-
-		i.HostEntity.AddMetric(m)
+	buckets := hist.Bucket
+	for _, b := range buckets {
+		ph.AddBucket(*b.CumulativeCount, *b.UpperBound)
 	}
+
+	i.HostEntity.AddMetric(ph)
+
 	return nil
 }
 
-func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric, timestamp time.Time) (err error) {
+func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric, timestamp time.Time) error {
 	summary, ok := metric.value.(*dto.Summary)
 	if !ok {
 		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
 	}
 
-	m, err := integration.Summary(timestamp, metric.name+"_sum",
-		1,
-		math.NaN(),
-		summary.GetSampleSum(),
-		math.NaN(),
-		math.NaN(),
-	)
+	ps, err := metrics.NewPrometheusSummary(timestamp, metric.name, *summary.SampleCount, *summary.SampleSum)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create summary metric for %q", metric.name)
 	}
-	addDimensions(m, metric.attributes)
-	i.HostEntity.AddMetric(m)
-	// we use count here to let the agent calculate the delta, so in effect it will be send to NR as a delta
-	m, err = integration.Count(timestamp, metric.name+"_count", float64(summary.GetSampleCount()))
-	if err != nil {
-		return err
-	}
-	addDimensions(m, metric.attributes)
-	i.HostEntity.AddMetric(m)
+	addDimensions(ps, metric.attributes)
 
 	quantiles := summary.GetQuantile()
 	for _, q := range quantiles {
-		m, err := integration.Gauge(timestamp, metric.name, q.GetValue())
-		if err != nil {
-			return err
-		}
-		addDimensions(m, metric.attributes)
-		_ = m.AddDimension("quantile", fmt.Sprintf("%g", q.GetQuantile()))
-		i.HostEntity.AddMetric(m)
+		ps.AddQuantile(*q.Quantile, *q.Value)
 	}
+
+	i.HostEntity.AddMetric(ps)
+
 	return nil
 }
 
-func addDimensions(m metric.Metric, attributes labels.Set) {
+func addDimensions(m metrics.Metric, attributes labels.Set) {
 	var err error
 	for k, v := range attributes {
 		err = m.AddDimension(k, v.(string))
