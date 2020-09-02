@@ -1,0 +1,13 @@
+service: redis
+display_name: Redis
+entities:
+  - name: instance
+    display_name: Redis Instance
+    metrics:
+      - provider_name: redis_commands_duration_seconds_total
+        description: Total amount of time in seconds spent per command 
+        unit: Counter
+      - provider_name: redis_repl_backlog_is_active 
+        description: repl_backlog_is_active metric
+        unit: Gauge
+
