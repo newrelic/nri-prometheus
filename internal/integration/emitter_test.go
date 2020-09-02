@@ -179,6 +179,12 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			value:      summary,
 			attributes: labels.Set{},
 		},
+		{
+			name:       "not a number, NAN",
+			metricType: metricType_COUNTER,
+			value:      math.NaN(),
+			attributes: labels.Set{},
+		},
 	}
 
 	var rawMetrics []interface{}
