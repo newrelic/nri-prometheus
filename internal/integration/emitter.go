@@ -12,6 +12,8 @@ import (
 const (
 	defaultDeltaExpirationAge           = 5 * time.Minute
 	defaultDeltaExpirationCheckInterval = 5 * time.Minute
+	instrumentationName                 = "nri-prometheus"
+	instrumentationVersion              = "2.0.1"
 )
 
 // Emitter is an interface representing the ability to emit metrics.
@@ -47,6 +49,7 @@ func (se *StdoutEmitter) Name() string {
 }
 
 // Emit prints the metrics into stdout.
+// Note: histograms not supported due json not supporting Inf values which are present in the last bucket
 func (se *StdoutEmitter) Emit(metrics []Metric) error {
 	b, err := json.Marshal(metrics)
 	if err != nil {

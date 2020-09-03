@@ -11,8 +11,8 @@ import (
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
 	// given
-	e, err := NewInfraSdkEmitter()
-	assert.NoError(t, err)
+	e := NewInfraSdkEmitter()
+	assert.NotNil(t, e)
 
 	// when
 	actual := e.Name()
@@ -61,7 +61,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e, _ := NewInfraSdkEmitter()
+			e := NewInfraSdkEmitter()
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -104,7 +104,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e, _ := NewInfraSdkEmitter()
+	e := NewInfraSdkEmitter()
 
 	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -153,7 +153,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
-	e, _ := NewInfraSdkEmitter()
+	e := NewInfraSdkEmitter()
 
 	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)

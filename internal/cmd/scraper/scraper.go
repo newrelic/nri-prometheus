@@ -293,7 +293,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			emitter, _ := integration.NewInfraSdkEmitter()
+			emitter := integration.NewInfraSdkEmitter()
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
