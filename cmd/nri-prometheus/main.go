@@ -4,6 +4,7 @@ package main
 
 import (
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
+	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,17 +15,11 @@ func main() {
 		logrus.WithError(err).Fatal("while loading configuration")
 	}
 
-	if cfg.Standalone {
-		err = scraper.Run(cfg)
-		if err != nil {
-			logrus.WithError(err).Fatal("error occurred while running scraper")
-		}
-	} else {
-		// todo create a proper emitter that add metrics to an integration and prints them to stdout once scraping and processing is performed
-		cfg.Emitters = []string{"integrationSDK4"}
-		err = scraper.RunOnce(cfg)
-		if err != nil {
-			logrus.WithError(err).Fatal("error occurred while running scraper")
-		}
+	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
+	logrus.Debugf("Config: %#v", cfg)
+
+	err = scraper.Run(cfg)
+	if err != nil {
+		logrus.WithError(err).Fatal("error occurred while running scraper")
 	}
 }

@@ -115,11 +115,10 @@ func TestRunIntegrationOnce(t *testing.T) {
 		Verbose:        true,
 		ScrapeDuration: "500ms",
 	}
-	err = RunOnce(c)
+	err = Run(c)
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
 
-	//todo once the emitter works properly we should test that the scraped data is the expected one
 }
 
 func TestScrapingAnsweringWithError(t *testing.T) {
@@ -144,7 +143,7 @@ func TestScrapingAnsweringWithError(t *testing.T) {
 		Verbose:        true,
 		ScrapeDuration: "500ms",
 	}
-	err := RunOnce(c)
+	err := Run(c)
 	// Currently no error is returned in case a scraper does not return any data / err status code
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
@@ -173,7 +172,7 @@ func TestScrapingAnsweringUnexpectedData(t *testing.T) {
 		Verbose:        true,
 		ScrapeDuration: "500ms",
 	}
-	err := RunOnce(c)
+	err := Run(c)
 	// Currently no error is returned in case a scraper does not return any data / err status code
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
@@ -194,8 +193,11 @@ func TestScrapingNotAnswering(t *testing.T) {
 		ScrapeDuration: "500ms",
 		ScrapeTimeout:  time.Duration(500) * time.Millisecond,
 	}
-	err := RunOnce(c)
-	// Currently no error is returned in case a scraper does not return any data / err status code
+
+	// when
+	err := Run(c)
+
+	//then
 	require.NoError(t, err)
 
 }
