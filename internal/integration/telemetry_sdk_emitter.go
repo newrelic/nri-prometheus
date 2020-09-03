@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"math"
@@ -15,10 +16,16 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Harvester aggregates and reports metrics and spans
+type harvester interface {
+	RecordMetric(m telemetry.Metric)
+	HarvestNow(ct context.Context)
+}
+
 // TelemetryEmitter emits metrics using the go-telemetry-sdk.
 type TelemetryEmitter struct {
 	name            string
-	harvester       *telemetry.Harvester
+	harvester       harvester
 	deltaCalculator *cumulative.DeltaCalculator
 }
 
@@ -146,14 +153,19 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 		deltaExpirationCheckInterval,
 	)
 
-	harvester, err := telemetry.NewHarvester(cfg.HarvesterOpts...)
+	var h harvester
+	h, err := telemetry.NewHarvester(cfg.HarvesterOpts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create new Harvester")
 	}
 
+	// Wrap the harvester so we can filter out invalid float values: NaN and Infinity.
+	// If we do send them, the harvester will always output these as errors
+	h = harvesterDecorator{h}
+
 	return &TelemetryEmitter{
 		name:            "telemetry",
-		harvester:       harvester,
+		harvester:       h,
 		deltaCalculator: dc,
 	}, nil
 }
@@ -172,6 +184,7 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 	// the measurement that already took place.
 	now := time.Now()
 	for _, metric := range metrics {
+
 		switch metric.metricType {
 		case metricType_GAUGE:
 			te.harvester.RecordMetric(telemetry.Gauge{
