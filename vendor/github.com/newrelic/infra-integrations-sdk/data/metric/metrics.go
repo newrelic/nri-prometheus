@@ -215,7 +215,6 @@ func NewPrometheusHistogram(timestamp time.Time, name string, sampleCount uint64
 			Type:       SourcesTypeToName[PROMETHEUS_HISTOGRAM],
 			Dimensions: Dimensions{},
 		},
-		// TODO make sure we make we don't allow NaN
 		SampleCount: &sampleCount,
 		SampleSum:   asFloatPtr(sampleSum),
 	}, nil
@@ -224,13 +223,13 @@ func NewPrometheusHistogram(timestamp time.Time, name string, sampleCount uint64
 // AddBucket adds a new bucket to the histogram.
 // Note that no attempt is made to keep buckets ordered, it's on the caller to guarantee the buckets are added
 // in the correct order.
-func (ph *PrometheusHistogram) AddBucket(value uint64, upperBound float64) {
+func (ph *PrometheusHistogram) AddBucket(cumulativeCount uint64, upperBound float64) {
 	// ignore +Inf buckets
 	if math.IsNaN(upperBound) || math.IsInf(upperBound, 0) {
 		return
 	}
 	ph.Buckets = append(ph.Buckets, &bucket{
-		CumulativeCount: &value,
+		CumulativeCount: &cumulativeCount,
 		UpperBound:      asFloatPtr(upperBound),
 	})
 }
@@ -244,7 +243,6 @@ func NewPrometheusSummary(timestamp time.Time, name string, sampleCount uint64, 
 			Type:       SourcesTypeToName[PROMETHEUS_SUMMARY],
 			Dimensions: Dimensions{},
 		},
-		// TODO make sure we make we don't allow NaN
 		SampleCount: &sampleCount,
 		SampleSum:   asFloatPtr(sampleSum),
 	}, nil

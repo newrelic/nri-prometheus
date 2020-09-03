@@ -48,7 +48,7 @@ github.com/mitchellh/mapstructure
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
 github.com/modern-go/reflect2
-# github.com/newrelic/infra-integrations-sdk v1.0.1-0.20200825100331-6e4855b842ea => /Users/adias/projects/forks/infra-integrations-sdk
+# github.com/newrelic/infra-integrations-sdk v1.0.1-0.20200903141127-7191d0d048a1
 github.com/newrelic/infra-integrations-sdk/args
 github.com/newrelic/infra-integrations-sdk/data/errors
 github.com/newrelic/infra-integrations-sdk/data/event
