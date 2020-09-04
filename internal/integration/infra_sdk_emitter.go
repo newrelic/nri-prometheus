@@ -13,11 +13,12 @@ import (
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
+	definitions Specs
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter() *InfraSdkEmitter {
-	return &InfraSdkEmitter{}
+func NewInfraSdkEmitter(specs Specs) *InfraSdkEmitter {
+	return &InfraSdkEmitter{definitions: specs}
 }
 
 // Name is the InfraSdkEmitter name.
@@ -57,8 +58,7 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 		}
 	}
 
-	err = i.Publish()
-	return err
+	return i.Publish()
 }
 
 func (e *InfraSdkEmitter) emitGauge(i *integration.Integration, metric Metric, timestamp time.Time) error {
@@ -67,9 +67,8 @@ func (e *InfraSdkEmitter) emitGauge(i *integration.Integration, metric Metric, t
 		return err
 	}
 	addDimensions(m, metric.attributes)
-	i.HostEntity.AddMetric(m)
 
-	return nil
+	return e.addMetricToEntity(i, metric, m)
 }
 
 func (e *InfraSdkEmitter) emitCounter(i *integration.Integration, metric Metric, timestamp time.Time) error {
@@ -78,9 +77,8 @@ func (e *InfraSdkEmitter) emitCounter(i *integration.Integration, metric Metric,
 		return err
 	}
 	addDimensions(m, metric.attributes)
-	i.HostEntity.AddMetric(m)
 
-	return nil
+	return e.addMetricToEntity(i, metric, m)
 }
 
 func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metric, timestamp time.Time) error {
@@ -100,9 +98,7 @@ func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metri
 		ph.AddBucket(*b.CumulativeCount, *b.UpperBound)
 	}
 
-	i.HostEntity.AddMetric(ph)
-
-	return nil
+	return e.addMetricToEntity(i, metric, ph)
 }
 
 func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric, timestamp time.Time) error {
@@ -122,8 +118,30 @@ func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric,
 		ps.AddQuantile(*q.Quantile, *q.Value)
 	}
 
-	i.HostEntity.AddMetric(ps)
+	return e.addMetricToEntity(i, metric, ps)
+}
 
+func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric Metric, m metrics.Metric) error {
+	entityName, entityType, err := e.definitions.getEntity(metric)
+	// if we can't find an entity for the metric, add it to the "host" entity
+	if err != nil {
+		i.HostEntity.AddMetric(m)
+		return nil
+	}
+
+	// try to find the entity and add the metric to it
+	// if there's no entity with the same name yet, create it and add it to the integration
+	entity, ok := i.FindEntity(entityName)
+	if !ok {
+		entity, err = i.NewEntity(entityName, entityType, entityName)
+		if err != nil {
+			logrus.WithError(err).Errorf("failed to create entity %v", entityName)
+			return err
+		}
+		i.AddEntity(entity)
+	}
+
+	entity.AddMetric(m)
 	return nil
 }
 

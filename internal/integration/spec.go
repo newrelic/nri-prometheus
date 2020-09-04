@@ -24,8 +24,9 @@ type Specs struct {
 
 // SpecDef contains the rules to group metrics into entities
 type SpecDef struct {
-	Service  string      `yaml:"service"`
-	Entities []EntityDef `yaml:"entities"`
+	Service       string      `yaml:"service"`
+	Entities      []EntityDef `yaml:"entities"`
+	DefaultEntity string      `yaml:"default_entity"`
 }
 
 // EntityDef has info related to each entity
@@ -94,7 +95,16 @@ func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err e
 
 	e, ok := spec.findEntity(m.name)
 	if !ok {
-		return "", "", fmt.Errorf("metric: %s is not defined in service:%s", m.name, spec.Service)
+		logrus.Debugf("could not map entity from metric '%v'", m.name)
+		if spec.DefaultEntity != "" {
+			e, ok = spec.findEntityByName(spec.DefaultEntity)
+			if !ok {
+				logrus.Debugf("could not find default entity '%v'", spec.DefaultEntity)
+				return "", "", fmt.Errorf("could not find default entity")
+			}
+		} else {
+			return "", "", fmt.Errorf("metric: %s is not defined in service:%s", m.name, spec.Service)
+		}
 	}
 
 	entityType = strings.Title(spec.Service) + strings.Title(e.Type)
@@ -140,6 +150,15 @@ func (s *SpecDef) findEntity(metricName string) (EntityDef, bool) {
 			if metricName == em.Name {
 				return e, true
 			}
+		}
+	}
+	return EntityDef{}, false
+}
+
+func (s *SpecDef) findEntityByName(entityName string) (EntityDef, bool) {
+	for _, e := range s.Entities {
+		if e.Type == entityName {
+			return e, true
 		}
 	}
 	return EntityDef{}, false

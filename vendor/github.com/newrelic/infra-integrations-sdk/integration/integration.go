@@ -176,6 +176,19 @@ func (i *Integration) Logger() log.Logger {
 	return i.logger
 }
 
+func (i *Integration) FindEntity(name string) (*Entity, bool) {
+	for _, e := range i.Entities {
+		if e.Metadata == nil {
+			return &Entity{}, false
+		}
+
+		if e.Metadata.Name == name {
+			return e, true
+		}
+	}
+	return &Entity{}, false
+}
+
 // Gauge creates a metric of type gauge
 func Gauge(timestamp time.Time, metricName string, value float64) (metric.Metric, error) {
 	return metric.NewGauge(timestamp, metricName, value)

@@ -49,6 +49,7 @@ type Config struct {
 	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	DefinitionFilesPath                          string        `mapstructure:"definitions_file_path"`
 }
 
 const maskedLicenseKey = "****"
@@ -293,7 +294,11 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			emitter := integration.NewInfraSdkEmitter()
+			specs, err := integration.LoadSpecFiles(cfg.DefinitionFilesPath)
+			if err != nil {
+				return err
+			}
+			emitter := integration.NewInfraSdkEmitter(specs)
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
