@@ -12,8 +12,6 @@ import (
 const (
 	defaultDeltaExpirationAge           = 5 * time.Minute
 	defaultDeltaExpirationCheckInterval = 5 * time.Minute
-	instrumentationName                 = "nri-prometheus"
-	instrumentationVersion              = "2.0.1"
 )
 
 // Emitter is an interface representing the ability to emit metrics.

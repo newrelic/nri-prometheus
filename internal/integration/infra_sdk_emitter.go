@@ -28,7 +28,7 @@ func (e *InfraSdkEmitter) Name() string {
 // Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	// instrumentation name and version
-	i, err := integration.New(instrumentationName, instrumentationVersion)
+	i, err := integration.New(Name, Version)
 	if err != nil {
 		return err
 	}
