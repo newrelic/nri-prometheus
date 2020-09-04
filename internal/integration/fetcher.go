@@ -6,6 +6,7 @@ package integration
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -365,4 +366,19 @@ func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.Met
 		}
 	}
 	return metrics
+}
+
+// MarshalJSON marshals a metric to json
+func (m *Metric) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Name       string      `json:"name"`
+		Value      metricValue `json:"value"`
+		Type       metricType  `json:"type"`
+		Attributes labels.Set  `json:"attributes"`
+	}{
+		Name:       m.name,
+		Value:      m.value,
+		Type:       m.metricType,
+		Attributes: m.attributes,
+	})
 }

@@ -47,6 +47,7 @@ func (se *StdoutEmitter) Name() string {
 }
 
 // Emit prints the metrics into stdout.
+// Note: histograms not supported due json not supporting Inf values which are present in the last bucket
 func (se *StdoutEmitter) Emit(metrics []Metric) error {
 	b, err := json.Marshal(metrics)
 	if err != nil {

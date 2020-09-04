@@ -6,7 +6,6 @@ import (
 
 	metrics "github.com/newrelic/infra-integrations-sdk/data/metric"
 	"github.com/newrelic/infra-integrations-sdk/integration"
-	"github.com/newrelic/newrelic-telemetry-sdk-go/cumulative"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
@@ -14,15 +13,11 @@ import (
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	deltaCalculator *cumulative.DeltaCalculator
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter() (*InfraSdkEmitter, error) {
-	return &InfraSdkEmitter{
-		// perhaps allow configuration..
-		deltaCalculator: cumulative.NewDeltaCalculator(),
-	}, nil
+func NewInfraSdkEmitter() *InfraSdkEmitter {
+	return &InfraSdkEmitter{}
 }
 
 // Name is the InfraSdkEmitter name.
@@ -32,8 +27,8 @@ func (e *InfraSdkEmitter) Name() string {
 
 // Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
-	//TODO this may be moved to the main package. waiting on the ohi-ified version
-	i, err := integration.New("com.newrelic.prometheus", "1.0.0")
+	// instrumentation name and version
+	i, err := integration.New(Name, Version)
 	if err != nil {
 		return err
 	}
