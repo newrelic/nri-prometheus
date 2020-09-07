@@ -176,10 +176,15 @@ func (i *Integration) Logger() log.Logger {
 	return i.logger
 }
 
+// FindEntity finds ad return an entity by name. returns false if entity does not exist in the integration
 func (i *Integration) FindEntity(name string) (*Entity, bool) {
+	if i.Entities == nil {
+		return &Entity{}, false
+	}
 	for _, e := range i.Entities {
-		if e.Metadata == nil {
-			return &Entity{}, false
+		// nil metadata usually means the "host" entity, so keep searching
+		if e == nil || e.Metadata == nil {
+			continue
 		}
 
 		if e.Metadata.Name == name {
