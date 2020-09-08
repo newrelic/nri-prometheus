@@ -126,6 +126,7 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric M
 	baseEntityName, entityType, err := e.definitions.getEntity(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if err != nil {
+		logrus.WithError(err).Debugf("failed to map metric to entity. using 'host' entity")
 		i.HostEntity.AddMetric(m)
 		return nil
 	}

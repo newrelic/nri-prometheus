@@ -4,6 +4,7 @@
 package integration
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"path"
@@ -95,15 +96,18 @@ func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err e
 
 	e, ok := spec.findEntity(m.name)
 	if !ok {
-		logrus.Debugf("could not map entity from metric '%v'", m.name)
 		if spec.DefaultEntity != "" {
 			e, ok = spec.findEntityByName(spec.DefaultEntity)
 			if !ok {
-				logrus.Debugf("could not find default entity '%v'", spec.DefaultEntity)
-				return "", "", fmt.Errorf("could not find default entity")
+				msg := fmt.Sprintf("could not find default entity '%v' for metric '%v'", spec.DefaultEntity, m.name)
+				return "", "", errors.New(msg)
+			}
+			if len(e.Properties.Dimensions) > 0 {
+				return "", "", errors.New("default entity must not have dimensions")
 			}
 		} else {
-			return "", "", fmt.Errorf("metric: %s is not defined in service:%s", m.name, spec.Service)
+			return "", "",
+				fmt.Errorf("metric: %s is not defined in service:%s and no default entity is defined", m.name, spec.Service)
 		}
 	}
 
