@@ -31,7 +31,7 @@ type SpecDef struct {
 
 // EntityDef has info related to each entity
 type EntityDef struct {
-	Type       string        `yaml:"name"`
+	Name       string        `yaml:"name"`
 	Properties PropertiesDef `yaml:"properties"`
 	Metrics    []MetricDef   `yaml:"metrics"`
 }
@@ -107,9 +107,9 @@ func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err e
 		}
 	}
 
-	entityType = strings.Title(spec.Service) + strings.Title(e.Type)
+	entityType = strings.Title(spec.Service) + strings.Title(e.Name)
 
-	entityName = e.Type
+	entityName = e.Name
 
 	for _, d := range e.Properties.Dimensions {
 		var val interface{}
@@ -157,7 +157,7 @@ func (s *SpecDef) findEntity(metricName string) (EntityDef, bool) {
 
 func (s *SpecDef) findEntityByName(entityName string) (EntityDef, bool) {
 	for _, e := range s.Entities {
-		if e.Type == entityName {
+		if e.Name == entityName {
 			return e, true
 		}
 	}

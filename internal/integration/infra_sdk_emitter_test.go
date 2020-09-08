@@ -212,7 +212,7 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 				Service: "redis",
 				Entities: []EntityDef{
 					{
-						Type:       "instance",
+						Name:       "instance",
 						Properties: PropertiesDef{},
 						Metrics: []MetricDef{
 							{Name: "metric1"},
@@ -220,7 +220,7 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 						},
 					},
 					{
-						Type:       "database",
+						Name:       "database",
 						Properties: PropertiesDef{},
 						Metrics: []MetricDef{
 							{Name: "redis_database_metric3"},

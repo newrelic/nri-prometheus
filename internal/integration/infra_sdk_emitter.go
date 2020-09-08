@@ -2,6 +2,7 @@ package integration
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 
 	metrics "github.com/newrelic/infra-integrations-sdk/data/metric"
@@ -122,13 +123,13 @@ func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric,
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric Metric, m metrics.Metric) error {
-	entityName, entityType, err := e.definitions.getEntity(metric)
+	baseEntityName, entityType, err := e.definitions.getEntity(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if err != nil {
 		i.HostEntity.AddMetric(m)
 		return nil
 	}
-
+	entityName := buildEntityName(baseEntityName, m)
 	// try to find the entity and add the metric to it
 	// if there's no entity with the same name yet, create it and add it to the integration
 	entity, ok := i.FindEntity(entityName)
@@ -143,6 +144,22 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric M
 
 	entity.AddMetric(m)
 	return nil
+}
+
+// adds target host as part of the name in order to differentiate between instances of the "same" entity
+// for example in a cluster scenario, each "node" would have the same metrics but will be a distinct entity so
+// so we need the ip/hostname to be able to make them distinct
+func buildEntityName(baseEntityName string, m metrics.Metric) string {
+	tn := m.Dimension("scrapedTargetURL")
+	if tn != "" {
+		u, err := url.Parse(tn)
+		if err != nil {
+			logrus.WithError(err).Warnf("'scrapedTargetURL' metric dimension is not a proper URL")
+			return baseEntityName
+		}
+		return baseEntityName + ":" + u.Host
+	}
+	return baseEntityName
 }
 
 func addDimensions(m metrics.Metric, attributes labels.Set) {
