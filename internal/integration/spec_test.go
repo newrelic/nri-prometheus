@@ -34,12 +34,11 @@ func TestSpecs_getEntity(t *testing.T) {
 		m Metric
 	}
 	tests := []struct {
-		name           string
-		fields         fields
-		args           args
-		wantEntityName string
-		wantEntityType string
-		wantErr        bool
+		name      string
+		fields    fields
+		args      args
+		wantProps entityNameProps
+		wantErr   bool
 	}{
 		{
 			name:   "matchEntity",
@@ -51,9 +50,9 @@ func TestSpecs_getEntity(t *testing.T) {
 						"database": "test",
 					},
 				}},
-			wantEntityName: "database:test",
-			wantEntityType: "RavendbDatabase",
-			wantErr:        false,
+			wantProps: entityNameProps{Service: "ravendb", Name: "database", DisplayName: "Database", Type: "RavendbDatabase",
+				Dimensions: map[string]string{"database": "test"}},
+			wantErr: false,
 		},
 		{
 			name:   "matchEntityWithoutDimensions",
@@ -63,9 +62,8 @@ func TestSpecs_getEntity(t *testing.T) {
 					name:       "ravendb_document_put_bytes_total",
 					attributes: labels.Set{},
 				}},
-			wantEntityName: "node",
-			wantEntityType: "RavendbNode",
-			wantErr:        false,
+			wantProps: entityNameProps{Service: "ravendb", Name: "node", DisplayName: "RavenDb Node", Type: "RavendbNode", Dimensions: map[string]string{}},
+			wantErr:   false,
 		},
 		{
 			name:   "matchEntityConcatenatedName",
@@ -78,9 +76,9 @@ func TestSpecs_getEntity(t *testing.T) {
 						"dim2": "second",
 					},
 				}},
-			wantEntityName: "testentity:first:second",
-			wantEntityType: "RavendbTestentity",
-			wantErr:        false,
+			wantProps: entityNameProps{Service: "ravendb", Name: "testentity", DisplayName: "testEntity", Type: "RavendbTestentity",
+				Dimensions: map[string]string{"dim1": "first", "dim2": "second"}},
+			wantErr: false,
 		},
 		{
 			name:   "redisEntityMetric1",
@@ -90,9 +88,9 @@ func TestSpecs_getEntity(t *testing.T) {
 					name:       "redis_commands_duration_seconds_total",
 					attributes: labels.Set{},
 				}},
-			wantEntityName: "instance",
-			wantEntityType: "RedisInstance",
-			wantErr:        false,
+			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "RedisInstance",
+				Dimensions: map[string]string{}},
+			wantErr: false,
 		},
 		{
 			name:   "redisEntityMetric2",
@@ -102,9 +100,9 @@ func TestSpecs_getEntity(t *testing.T) {
 					name:       "redis_repl_backlog_is_active",
 					attributes: labels.Set{},
 				}},
-			wantEntityName: "instance",
-			wantEntityType: "RedisInstance",
-			wantErr:        false,
+			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "RedisInstance",
+				Dimensions: map[string]string{}},
+			wantErr: false,
 		},
 		{
 			name:    "missingDimentions",
@@ -136,17 +134,12 @@ func TestSpecs_getEntity(t *testing.T) {
 			s := &Specs{
 				SpecsByName: tt.fields.SpecsByName,
 			}
-			gotEntityName, gotEntityType, err := s.getEntity(tt.args.m)
+			props, err := s.getEntity(tt.args.m)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Specs.getEntity() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotEntityName != tt.wantEntityName {
-				t.Errorf("Specs.getEntity() gotEntityName = %v, want %v", gotEntityName, tt.wantEntityName)
-			}
-			if gotEntityType != tt.wantEntityType {
-				t.Errorf("Specs.getEntity() gotEntityType = %v, want %v", gotEntityType, tt.wantEntityType)
-			}
+			assert.EqualValues(t, tt.wantProps, props)
 		})
 	}
 }

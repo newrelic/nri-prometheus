@@ -32,9 +32,10 @@ type SpecDef struct {
 
 // EntityDef has info related to each entity
 type EntityDef struct {
-	Name       string        `yaml:"name"`
-	Properties PropertiesDef `yaml:"properties"`
-	Metrics    []MetricDef   `yaml:"metrics"`
+	Name        string        `yaml:"name"`
+	DisplayName string        `yaml:"display_name"`
+	Properties  PropertiesDef `yaml:"properties"`
+	Metrics     []MetricDef   `yaml:"metrics"`
 }
 
 // PropertiesDef defines the dimension used to get entity names
@@ -45,6 +46,14 @@ type PropertiesDef struct {
 // MetricDef contains metrics definitions
 type MetricDef struct {
 	Name string `yaml:"provider_name"`
+}
+
+type entityNameProps struct {
+	Name        string
+	DisplayName string
+	Type        string
+	Service     string
+	Dimensions  map[string]string
 }
 
 // LoadSpecFiles loads all service spec files named like "prometheus_*.yml" that are in the filesPath
@@ -88,10 +97,10 @@ func LoadSpecFiles(filesPath string) (Specs, error) {
 //   - metric.name has to be defined in one of the entities of the spec file
 //   - if dimension has been specified for the entity, the metric need to have all of them.
 //   - metrics that belongs to entities with no dimension specified will share the same name
-func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err error) {
+func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 	spec, err := s.findSpec(m.name)
 	if err != nil {
-		return "", "", err
+		return entityNameProps{}, err
 	}
 
 	e, ok := spec.findEntity(m.name)
@@ -100,36 +109,36 @@ func (s *Specs) getEntity(m Metric) (entityName string, entityType string, err e
 			e, ok = spec.findEntityByName(spec.DefaultEntity)
 			if !ok {
 				msg := fmt.Sprintf("could not find default entity '%v' for metric '%v'", spec.DefaultEntity, m.name)
-				return "", "", errors.New(msg)
+				return entityNameProps{}, errors.New(msg)
 			}
 			if len(e.Properties.Dimensions) > 0 {
-				return "", "", errors.New("default entity must not have dimensions")
+				return entityNameProps{}, errors.New("default entity must not have dimensions")
 			}
 		} else {
-			return "", "",
-				fmt.Errorf("metric: %s is not defined in service:%s and no default entity is defined", m.name, spec.Service)
+			return entityNameProps{}, fmt.Errorf("metric: %s is not defined in service:%s and no default entity is defined", m.name, spec.Service)
 		}
 	}
 
-	entityType = strings.Title(spec.Service) + strings.Title(e.Name)
-
-	entityName = e.Name
+	props.Name = e.Name
+	props.DisplayName = e.DisplayName
+	props.Type = strings.Title(spec.Service) + strings.Title(e.Name)
+	props.Service = spec.Service
+	props.Dimensions = map[string]string{}
 
 	for _, d := range e.Properties.Dimensions {
 		var val interface{}
 		var ok bool
 		// the metric needs all the dimensions defined to avoid entity name collision
 		if val, ok = m.attributes[d]; !ok {
-			return "", "", fmt.Errorf("dimension %s not found in metric %s", d, m.name)
+			return entityNameProps{}, fmt.Errorf("dimension %s not found in metric %s", d, m.name)
 		}
-		// entity name will be composed by the value of the dimensions defined for the entity in order
-		entityName = entityName + ":" + fmt.Sprintf("%v", val)
+		props.Dimensions[d] = fmt.Sprintf("%v", val)
 	}
 
-	return entityName, entityType, nil
+	return props, nil
 }
 
-// findSpec parses the metric name to extract the service and resturns the spec definition that matches
+// findSpec parses the metric name to extract the service and returns the spec definition that matches
 func (s *Specs) findSpec(metricName string) (SpecDef, error) {
 	var spec SpecDef
 
