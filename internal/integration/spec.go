@@ -48,6 +48,7 @@ type MetricDef struct {
 	Name string `yaml:"provider_name"`
 }
 
+// entityNameProps contains entity properties required to build the entity name
 type entityNameProps struct {
 	Name        string
 	DisplayName string

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	metrics "github.com/newrelic/infra-integrations-sdk/data/metric"
-	"github.com/newrelic/infra-integrations-sdk/integration"
+	infra "github.com/newrelic/infra-integrations-sdk/data/metric"
+	sdk "github.com/newrelic/infra-integrations-sdk/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
@@ -30,8 +30,8 @@ func (e *InfraSdkEmitter) Name() string {
 
 // Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
-	// instrumentation name and version
-	i, err := integration.New(Name, Version)
+	// create new Infra sdk Integration
+	i, err := sdk.New(Name, Version)
 	if err != nil {
 		return err
 	}
@@ -63,8 +63,8 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	return i.Publish()
 }
 
-func (e *InfraSdkEmitter) emitGauge(i *integration.Integration, metric Metric, timestamp time.Time) error {
-	m, err := integration.Gauge(timestamp, metric.name, metric.value.(float64))
+func (e *InfraSdkEmitter) emitGauge(i *sdk.Integration, metric Metric, timestamp time.Time) error {
+	m, err := sdk.Gauge(timestamp, metric.name, metric.value.(float64))
 	if err != nil {
 		return err
 	}
@@ -73,8 +73,8 @@ func (e *InfraSdkEmitter) emitGauge(i *integration.Integration, metric Metric, t
 	return e.addMetricToEntity(i, metric, m)
 }
 
-func (e *InfraSdkEmitter) emitCounter(i *integration.Integration, metric Metric, timestamp time.Time) error {
-	m, err := integration.Count(timestamp, metric.name, metric.value.(float64))
+func (e *InfraSdkEmitter) emitCounter(i *sdk.Integration, metric Metric, timestamp time.Time) error {
+	m, err := sdk.Count(timestamp, metric.name, metric.value.(float64))
 	if err != nil {
 		return err
 	}
@@ -83,13 +83,13 @@ func (e *InfraSdkEmitter) emitCounter(i *integration.Integration, metric Metric,
 	return e.addMetricToEntity(i, metric, m)
 }
 
-func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metric, timestamp time.Time) error {
+func (e *InfraSdkEmitter) emitHistogram(i *sdk.Integration, metric Metric, timestamp time.Time) error {
 	hist, ok := metric.value.(*dto.Histogram)
 	if !ok {
 		return fmt.Errorf("unknown histogram metric type for %q: %T", metric.name, metric.value)
 	}
 
-	ph, err := metrics.NewPrometheusHistogram(timestamp, metric.name, *hist.SampleCount, *hist.SampleSum)
+	ph, err := infra.NewPrometheusHistogram(timestamp, metric.name, *hist.SampleCount, *hist.SampleSum)
 	if err != nil {
 		return fmt.Errorf("failed to create histogram metric for %q", metric.name)
 	}
@@ -103,13 +103,13 @@ func (e *InfraSdkEmitter) emitHistogram(i *integration.Integration, metric Metri
 	return e.addMetricToEntity(i, metric, ph)
 }
 
-func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric, timestamp time.Time) error {
+func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timestamp time.Time) error {
 	summary, ok := metric.value.(*dto.Summary)
 	if !ok {
 		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
 	}
 
-	ps, err := metrics.NewPrometheusSummary(timestamp, metric.name, *summary.SampleCount, *summary.SampleSum)
+	ps, err := infra.NewPrometheusSummary(timestamp, metric.name, *summary.SampleCount, *summary.SampleSum)
 	if err != nil {
 		return fmt.Errorf("failed to create summary metric for %q", metric.name)
 	}
@@ -123,7 +123,7 @@ func (e *InfraSdkEmitter) emitSummary(i *integration.Integration, metric Metric,
 	return e.addMetricToEntity(i, metric, ps)
 }
 
-func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric Metric, m metrics.Metric) error {
+func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
 	entityProps, err := e.definitions.getEntity(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if err != nil {
@@ -152,7 +152,7 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *integration.Integration, metric M
 // build the entity name based on various properties
 // the format should be as follows:
 //  serviceName:exporterHost:exporterPort:entityName:dimension1:dimension2..
-func buildEntityName(props entityNameProps, m metrics.Metric) string {
+func buildEntityName(props entityNameProps, m infra.Metric) string {
 
 	var sb strings.Builder
 
@@ -180,7 +180,7 @@ func buildEntityName(props entityNameProps, m metrics.Metric) string {
 	return sb.String()
 }
 
-func addDimensions(m metrics.Metric, attributes labels.Set) {
+func addDimensions(m infra.Metric, attributes labels.Set) {
 	var err error
 	for k, v := range attributes {
 		err = m.AddDimension(k, v.(string))
