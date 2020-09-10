@@ -291,8 +291,9 @@ func Test_ResizeToLimit(t *testing.T) {
 	}
 	original := sb.Len()
 
-	resizeToLimit(&sb)
+	resized := resizeToLimit(&sb)
 	// no change
+	assert.False(t, resized)
 	assert.Equal(t, original, sb.Len())
 
 	sb.Reset()
@@ -304,8 +305,9 @@ func Test_ResizeToLimit(t *testing.T) {
 	}
 	original = sb.Len()
 
-	resizeToLimit(&sb)
+	resized = resizeToLimit(&sb)
 	// should have been resized
+	assert.True(t, resized)
 	assert.Less(t, sb.Len(), original)
 
 }

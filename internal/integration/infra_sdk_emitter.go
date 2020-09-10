@@ -176,17 +176,24 @@ func buildEntityName(props entityNameProps, m infra.Metric) string {
 		sb.WriteString(v)
 	}
 
+	original := sb.String()
 	// make sure entity name length is less than 500.
-	resizeToLimit(&sb)
+	resized := resizeToLimit(&sb)
+	if resized {
+		logrus.
+			WithField("original", original).
+			WithField("resized", sb.String()).
+			Warn("entity was over the limit of '500' and has been resized")
+	}
 
 	return sb.String()
 }
 
 // resizeToLimit makes sure that the entity name is lee than the limit of 500
 // it removed "full tokens" from the string so we don't get partial values in the name
-func resizeToLimit(sb *strings.Builder) {
+func resizeToLimit(sb *strings.Builder) (resized bool) {
 	if sb.Len() < 500 {
-		return
+		return false
 	}
 
 	tokens := strings.Split(sb.String(), ":")
@@ -195,12 +202,14 @@ func resizeToLimit(sb *strings.Builder) {
 	// add tokens until we get to the limit
 	sb.WriteString(tokens[0])
 	for _, t := range tokens[1:] {
-		if sb.Len()+len(t)+1 > 500 {
+		if sb.Len()+len(t)+1 >= 500 {
+			resized = true
 			break
 		}
 		sb.WriteRune(':')
 		sb.WriteString(t)
 	}
+	return
 }
 
 func addDimensions(m infra.Metric, attributes labels.Set) {
