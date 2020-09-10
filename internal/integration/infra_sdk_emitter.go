@@ -137,7 +137,7 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m
 	// if there's no entity with the same name yet, create it and add it to the integration
 	entity, ok := i.FindEntity(entityName)
 	if !ok {
-		entity, err = i.NewEntity(entityName, entityProps.Type, entityName)
+		entity, err = i.NewEntity(entityName, entityProps.Type, entityProps.DisplayName)
 		if err != nil {
 			logrus.WithError(err).Errorf("failed to create entity %v", entityName)
 			return err
