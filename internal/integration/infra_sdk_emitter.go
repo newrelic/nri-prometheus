@@ -153,7 +153,6 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m
 // the format should be as follows:
 //  serviceName:exporterHost:exporterPort:entityName:dimension1:dimension2..
 func buildEntityName(props entityNameProps, m infra.Metric) string {
-
 	var sb strings.Builder
 
 	sb.WriteString(props.Service)
@@ -177,7 +176,31 @@ func buildEntityName(props entityNameProps, m infra.Metric) string {
 		sb.WriteString(v)
 	}
 
+	// make sure entity name length is less than 500.
+	resizeToLimit(&sb)
+
 	return sb.String()
+}
+
+// resizeToLimit makes sure that the entity name is lee than the limit of 500
+// it removed "full tokens" from the string so we don't get partial values in the name
+func resizeToLimit(sb *strings.Builder) {
+	if sb.Len() < 500 {
+		return
+	}
+
+	tokens := strings.Split(sb.String(), ":")
+	sb.Reset()
+
+	// add tokens until we get to the limit
+	sb.WriteString(tokens[0])
+	for _, t := range tokens[1:] {
+		if sb.Len()+len(t)+1 > 500 {
+			break
+		}
+		sb.WriteRune(':')
+		sb.WriteString(t)
+	}
 }
 
 func addDimensions(m infra.Metric, attributes labels.Set) {

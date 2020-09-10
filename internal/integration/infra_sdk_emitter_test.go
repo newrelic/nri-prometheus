@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -279,6 +280,34 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 		// for example: go_*
 		assert.NotEmpty(t, e.Metrics)
 	}
+}
+
+func Test_ResizeToLimit(t *testing.T) {
+
+	var sb strings.Builder
+	for i := 0; i < 10; i++ {
+		sb.WriteString("token")
+		sb.WriteRune(':')
+	}
+	original := sb.Len()
+
+	resizeToLimit(&sb)
+	// no change
+	assert.Equal(t, original, sb.Len())
+
+	sb.Reset()
+
+	// going over the limit
+	for i := 0; i < 110; i++ {
+		sb.WriteString("token")
+		sb.WriteRune(':')
+	}
+	original = sb.Len()
+
+	resizeToLimit(&sb)
+	// should have been resized
+	assert.Less(t, sb.Len(), original)
+
 }
 
 func getHistogram(t *testing.T) []Metric {
