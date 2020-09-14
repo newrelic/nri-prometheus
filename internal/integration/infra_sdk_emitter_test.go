@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,7 +12,7 @@ import (
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
 	// given
-	e := NewInfraSdkEmitter()
+	e := NewInfraSdkEmitter(Specs{})
 	assert.NotNil(t, e)
 
 	// when
@@ -61,7 +62,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter()
+			e := NewInfraSdkEmitter(Specs{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -104,7 +105,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter()
+	e := NewInfraSdkEmitter(Specs{})
 
 	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -153,7 +154,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter()
+	e := NewInfraSdkEmitter(Specs{})
 
 	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -202,6 +203,113 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 			}
 		}
 	}
+}
+
+func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
+
+	specs := Specs{
+		SpecsByName: map[string]SpecDef{
+			"redis": {
+				Service: "redis",
+				Entities: []EntityDef{
+					{
+						Name:       "instance",
+						Properties: PropertiesDef{},
+						Metrics: []MetricDef{
+							{Name: "metric1"},
+							{Name: "metric2"},
+						},
+					},
+					{
+						Name:       "database",
+						Properties: PropertiesDef{},
+						Metrics: []MetricDef{
+							{Name: "redis_database_metric3"},
+						},
+					},
+				},
+				DefaultEntity: "instance",
+			},
+		},
+	}
+
+	emitter := NewInfraSdkEmitter(specs)
+
+	gauges := getGauges(t)
+	counters := getCounters(t)
+	metrics := append(gauges, counters...)
+	metrics = append(metrics, Metric{
+		name:       "redis_database_metric3",
+		value:      0.0,
+		metricType: "gauge",
+		attributes: nil,
+	})
+
+	rescueStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	// when
+	err := emitter.Emit(metrics)
+	_ = w.Close()
+
+	//then
+	assert.NoError(t, err)
+	bytes, _ := ioutil.ReadAll(r)
+	assert.NotEmpty(t, bytes)
+	os.Stdout = rescueStdout
+
+	// print json for debug purposes
+	t.Log(string(bytes))
+
+	// convert the json into a similar metric structure so we can assert more easily
+	var result Result
+	err = json.Unmarshal(bytes, &result)
+	assert.NoError(t, err)
+
+	assert.NotEmpty(t, result.ProtocolVersion)
+	assert.NotNil(t, result.Metadata)
+	assert.NotEmpty(t, result.Metadata.Name)
+	assert.NotEmpty(t, result.Metadata.Version)
+	// 2 entities: instance, database, "host"
+	assert.Len(t, result.Entities, 3)
+	for _, e := range result.Entities {
+		assert.NotNil(t, e.Entity)
+		// we cannot assert on the entity name and type being present
+		// some metrics may be associated with the "host" entity because there is no service declared for their prefix.
+		// for example: go_*
+		assert.NotEmpty(t, e.Metrics)
+	}
+}
+
+func Test_ResizeToLimit(t *testing.T) {
+
+	var sb strings.Builder
+	for i := 0; i < 10; i++ {
+		sb.WriteString("token")
+		sb.WriteRune(':')
+	}
+	original := sb.Len()
+
+	resized := resizeToLimit(&sb)
+	// no change
+	assert.False(t, resized)
+	assert.Equal(t, original, sb.Len())
+
+	sb.Reset()
+
+	// going over the limit
+	for i := 0; i < 110; i++ {
+		sb.WriteString("token")
+		sb.WriteRune(':')
+	}
+	original = sb.Len()
+
+	resized = resizeToLimit(&sb)
+	// should have been resized
+	assert.True(t, resized)
+	assert.Less(t, sb.Len(), original)
+
 }
 
 func getHistogram(t *testing.T) []Metric {
@@ -322,10 +430,15 @@ type metricData struct {
 	Buckets     []bucket          `json:"buckets,omitempty"`
 }
 
+type entityDef struct {
+	Name     string         `json:"name"`
+	Type     string         `json:"type"`
+	Metadata entityMetadata `json:"metadata,omitempty"`
+}
 type entity struct {
-	Common   common         `json:"common"`
-	Metadata entityMetadata `json:"entity,omitempty"`
-	Metrics  []metricData   `json:"metrics"`
+	Common  common       `json:"common"`
+	Entity  entityDef    `json:"entity,omitempty"`
+	Metrics []metricData `json:"metrics"`
 }
 
 type Result struct {

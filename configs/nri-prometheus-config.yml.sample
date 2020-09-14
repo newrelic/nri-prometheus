@@ -4,6 +4,9 @@ integrations:
       # When standalone is set to false nri-prometheus requires an infrastructure agent to work and send data. Defaults to true
       standalone: false
 
+      # When running with infrastructure agent emitters will have to include infra-sdk  
+      emitters: infra-sdk
+
       # The name of your cluster. It's important to match other New Relic products to relate the data.
       cluster_name: "my_exporter"
 
@@ -26,6 +29,9 @@ integrations:
 
       # Wether the integration should skip TLS verification or not. Defaults to false.
       insecure_skip_verify: false
+
+      # integration definition files required to map metrics to entities
+      definition_files_path: /etc/newrelic-infra/definition-files
 
     timeout: 10s
 
