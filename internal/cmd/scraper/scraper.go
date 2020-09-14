@@ -49,7 +49,7 @@ type Config struct {
 	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	DefinitionFilesPath                          string        `mapstructure:"definitions_file_path"`
+	DefinitionFilesPath                          string        `mapstructure:"definition_files_path"`
 }
 
 const maskedLicenseKey = "****"
