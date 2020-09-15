@@ -16,4 +16,4 @@ jobs:
         -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
         --request POST \
         --data '{"event_type": "bump-chart-version", "client_payload": { "chart_name": "${chartName}", "chart_version": "", "app_version": "${appVersion:1}"}}' \
-        https://api.github.com/repos/newrelic-experimental/helm-charts/dispatches
+        https://api.github.com/repos/newrelic/helm-charts/dispatches
