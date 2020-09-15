@@ -24,3 +24,6 @@ misspell:
 
 lll:
   line-length: 100
+
+run:
+  timeout: 2m

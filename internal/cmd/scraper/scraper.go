@@ -49,6 +49,7 @@ type Config struct {
 	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	DefinitionFilesPath                          string        `mapstructure:"definition_files_path"`
 }
 
 const maskedLicenseKey = "****"
@@ -101,8 +102,6 @@ func validateConfig(cfg *Config) error {
 
 // RunWithEmitters runs the scraper with preselected emitters.
 func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
-	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
-	logrus.Debugf("Config: %#v", cfg)
 
 	if len(emitters) == 0 {
 		return fmt.Errorf("you need to configure at least one valid emitter")
@@ -174,9 +173,6 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 
 // RunOnceWithEmitters runs the scraper with preselected emitters once.
 func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
-	logrus.Infof("Starting New Relic's Prometheus OpenMetrics Integration version %s", integration.Version)
-	logrus.Debugf("Config: %#v", cfg)
-
 	if len(emitters) == 0 {
 		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
@@ -221,23 +217,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	return nil
 }
 
-// RunOnce runs the scraper only once
-func RunOnce(cfg *Config) error {
-	err := validateConfig(cfg)
-	if err != nil {
-		return fmt.Errorf("while getting configuration options: %w", err)
-	}
-	if cfg.Verbose {
-		logrus.SetLevel(logrus.DebugLevel)
-	}
-	var emitters []integration.Emitter
-	//todo Implement an actual emitter we are currently ignoring cfg.Emitters
-	emitters = append(emitters, integration.NewStdoutEmitter())
-
-	return RunOnceWithEmitters(cfg, emitters)
-}
-
-// Run runs the scraper
+// Run runs the scraper. If Standalone=true it keeps running otherwise runs once and exits
 func Run(cfg *Config) error {
 	err := validateConfig(cfg)
 	if err != nil {
@@ -313,11 +293,25 @@ func Run(cfg *Config) error {
 				return errors.Wrap(err, "could not create new TelemetryEmitter")
 			}
 			emitters = append(emitters, emitter)
+		case "infra-sdk":
+			specs, err := integration.LoadSpecFiles(cfg.DefinitionFilesPath)
+			if err != nil {
+				return err
+			}
+			emitter := integration.NewInfraSdkEmitter(specs)
+			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
 			continue
 		}
 	}
 
-	return RunWithEmitters(cfg, emitters)
+	if cfg.Standalone {
+		logrus.Info("Running in standalone mode...")
+		err = RunWithEmitters(cfg, emitters)
+	} else {
+		logrus.Info("Running in run-once mode...")
+		err = RunOnceWithEmitters(cfg, emitters)
+	}
+	return err
 }
