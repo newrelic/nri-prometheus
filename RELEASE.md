@@ -5,6 +5,7 @@ The releases are triggered by creating a new tag on main.
 On a successful build the job will run [GoReleaser](https://goreleaser.com). 
 This will publish the build artifacts, push the docker image, and to upload the Kubernetes manifest template to download.newrelic.com.
 The build will also fill in the changelog with commits that aren't filtered by the GoReleaser config found [here](.goreleaser.yml).
+The `Update Helm Chart POMI version` GitHub Action will be triggered creating a new PR on https://github.com/newrelic/helm-charts/ with the version specified in the tag. After POMI is released this PR should be merged and released.
 To documentation to change what appears in the changelog can be found [here](https://goreleaser.com/customization/#Release).
  
 To create a new release you need to tag the main branch with the new release version.
