@@ -18,7 +18,7 @@ integrations:
       #      cert_file_path: "/etc/etcd/etcd-client.crt"
       #      key_file_path: "/etc/etcd/etcd-client.key"
 
-      # Wether the integration should run in verbose mode or not. Defaults to false.
+      # Whether the integration should run in verbose mode or not. Defaults to false.
       verbose: false
 
       # The HTTP client timeout when fetching data from endpoints. Defaults to 30s.
@@ -27,7 +27,7 @@ integrations:
       # Length in time to distribute the scraping from the endpoints.
       scrape_duration: "5s"
 
-      # Wether the integration should skip TLS verification or not. Defaults to false.
+      # Whether the integration should skip TLS verification or not. Defaults to false.
       insecure_skip_verify: false
 
       # integration definition files required to map metrics to entities
