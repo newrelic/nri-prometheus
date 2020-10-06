@@ -59,6 +59,8 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 			logrus.WithError(err).Errorf("failed to create metric from '%s'", me.name)
 		}
 	}
+	logrus.Debugf("%d metrics processed", len(metrics))
+	logrus.Debugf("%d metrics not found in definition file and added to the Host Entity", len(i.HostEntity.Metrics))
 
 	return i.Publish()
 }
@@ -127,7 +129,6 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m
 	entityProps, err := e.definitions.getEntity(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if err != nil {
-		logrus.WithError(err).Debugf("failed to map metric to entity. using 'host' entity")
 		i.HostEntity.AddMetric(m)
 		return nil
 	}

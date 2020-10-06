@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"runtime"
 	"strings"
 	"time"
 
@@ -21,6 +22,11 @@ type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
 	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
 }
+
+const (
+	windowsDefinitionPath = "C:\\Program Files\\New Relic\\newrelic-infra\\definition-files"
+	linuxDefinitionPath   = "/etc/newrelic-infra/definition-files"
+)
 
 func loadConfig() (*scraper.Config, error) {
 
@@ -61,6 +67,23 @@ func loadConfig() (*scraper.Config, error) {
 		return nil, errors.Wrap(err, "could not parse configuration file")
 	}
 
+	// Set emitter default according to standalone mode.
+	if len(scraperCfg.Emitters) == 0 {
+		if scraperCfg.Standalone {
+			scraperCfg.Emitters = append(scraperCfg.Emitters, "telemetry")
+		} else {
+			scraperCfg.Emitters = append(scraperCfg.Emitters, "infra-sdk")
+		}
+	}
+
+	if scraperCfg.DefinitionFilesPath == "" {
+		if runtime.GOOS == "windows" {
+			scraperCfg.DefinitionFilesPath = windowsDefinitionPath
+		} else {
+			scraperCfg.DefinitionFilesPath = linuxDefinitionPath
+		}
+	}
+
 	if scraperCfg.MetricAPIURL == "" {
 		scraperCfg.MetricAPIURL = determineMetricAPIURL(string(scraperCfg.LicenseKey))
 	}
@@ -72,7 +95,6 @@ func loadConfig() (*scraper.Config, error) {
 func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("debug", false)
 	viper.SetDefault("verbose", false)
-	viper.SetDefault("emitters", []string{"telemetry"})
 	viper.SetDefault("scrape_enabled_label", "prometheus.io/scrape")
 	viper.SetDefault("require_scrape_enabled_label_for_nodes", true)
 	viper.SetDefault("scrape_timeout", 5*time.Second)
