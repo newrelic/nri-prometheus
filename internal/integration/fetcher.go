@@ -182,6 +182,13 @@ func (pf *prometheusFetcher) Fetch(targets []endpoints.Target) <-chan TargetMetr
 			return
 		}
 
+		// Slowly release the targets for this scrape cycle.
+		// All targets should be added to the targetChan in half the duration of the scrape cycle,
+		// giving slow targets time to finish before the new cycle starts.
+		// E.g.
+		// scrape cycle = 30 seconds, targets = 10
+		// 30 / 2 / 10 = 1.5 seconds
+		// After 15 seconds all targets are added to the queue, with 15 seconds left in the cycle
 		ticker := time.NewTicker((pf.duration / 2) / time.Duration(nTargets))
 		defer ticker.Stop()
 		for _, target := range targets {
