@@ -296,7 +296,7 @@ func Run(cfg *Config) error {
 		case "infra-sdk":
 			specs, err := integration.LoadSpecFiles(cfg.DefinitionFilesPath)
 			if err != nil {
-				return err
+				logrus.Errorf("error loading definition files: %s", err)
 			}
 			emitter := integration.NewInfraSdkEmitter(specs)
 			emitters = append(emitters, emitter)
