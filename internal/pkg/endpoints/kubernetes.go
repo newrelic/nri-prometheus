@@ -490,7 +490,7 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 			"name":   object.GetName(),
 			"uid":    object.GetUID(),
 			"ns":     object.GetNamespace(),
-		}).Debug("kubernetes event received")
+		}).Trace("kubernetes event received")
 	}
 
 	// Please, do not try to reduce the amount of code below or simplify the conditionals.
@@ -563,7 +563,7 @@ func debugLogEvent(log *logrus.Entry, event watch.EventType, action string, obje
 		"event":  event,
 		"name":   object.GetName(),
 		"uid":    object.GetUID(),
-	}).Debug("kubernetes event handled")
+	}).Trace("kubernetes event handled")
 }
 
 // watchResource retrieves the scrapable resources and watches for changes
