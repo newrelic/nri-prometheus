@@ -120,10 +120,6 @@ func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor 
 	pairs := fetcher.Fetch(targets) // fetch metrics from /metrics endpoints
 	processed := processor(pairs)   // apply processing
 
-	timers := map[string]*prometheus.Timer{}
-	for _, e := range emitters {
-		timers[e.Name()] = prometheus.NewTimer(prometheus.ObserverFunc(emitTotalDurationMetric.WithLabelValues(e.Name()).Set))
-	}
 	emittedMetrics := 0
 	for pair := range processed {
 		emittedMetrics += len(pair.Metrics)
@@ -135,9 +131,7 @@ func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor 
 			}
 		}
 	}
-	for _, t := range timers {
-		t.ObserveDuration()
-	}
+
 	duration := ptimer.ObserveDuration()
 
 	logrus.WithFields(logrus.Fields{

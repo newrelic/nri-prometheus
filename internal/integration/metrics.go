@@ -97,16 +97,6 @@ var (
 			"target",
 		},
 	)
-	emitTotalDurationMetric = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "nr_stats",
-		Subsystem: "integration",
-		Name:      "emit_total_duration_seconds",
-		Help:      "The total time in seconds to emit all the metrics",
-	},
-		[]string{
-			"emitter",
-		},
-	)
 	processDurationMetric = prometheus.NewGauge(prometheus.GaugeOpts{
 		Namespace: "nr_stats",
 		Subsystem: "integration",
@@ -132,7 +122,6 @@ func init() {
 	prometheus.MustRegister(totalTimeseriesMetric)
 	prometheus.MustRegister(totalTimeseriesByTargetMetric)
 	prometheus.MustRegister(fetchTargetDurationMetric)
-	prometheus.MustRegister(emitTotalDurationMetric)
 	prometheus.MustRegister(processDurationMetric)
 	prometheus.MustRegister(totalExecutionsMetric)
 }
