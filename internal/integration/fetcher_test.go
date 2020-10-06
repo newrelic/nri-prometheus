@@ -21,15 +21,15 @@ import (
 )
 
 const (
-	fetchDuration  = 1 * time.Millisecond
-	fetchTimeout   = time.Second * 5
-	maxConnections = 4
-	queueLength    = 100
+	fetchDuration = 1 * time.Millisecond
+	fetchTimeout  = time.Second * 5
+	workerThreads = 4
+	queueLength   = 100
 )
 
 func TestFetcher(t *testing.T) {
 	// Given a fetcher
-	fetcher := NewFetcher(fetchDuration, fetchTimeout, maxConnections, "", "", true, queueLength)
+	fetcher := NewFetcher(fetchDuration, fetchTimeout, workerThreads, "", "", true, queueLength)
 	var invokedURL string
 	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string) (names prometheus.MetricFamiliesByName, e error) {
 		invokedURL = url
@@ -60,7 +60,7 @@ func TestFetcher(t *testing.T) {
 
 func TestFetcher_Error(t *testing.T) {
 	// Given a fetcher
-	fetcher := NewFetcher(time.Millisecond, fetchTimeout, maxConnections, "", "", true, queueLength)
+	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
 
 	// That fails retrieving data from one of the metrics endpoint
 	invokedURLs := make([]string, 0)
@@ -102,13 +102,13 @@ func TestFetcher_Error(t *testing.T) {
 }
 
 func TestFetcher_ConcurrencyLimit(t *testing.T) {
-	// This test fetches a lot of targets and verifies that no more than "maxConnections" are executed in
+	// This test fetches a lot of targets and verifies that no more than "workerThreads" are executed in
 	// parallel
 	parallelTasks := int32(0)
 	reportedParallel := make(chan int32, queueLength)
 
 	// Given a Fetcher
-	fetcher := NewFetcher(time.Millisecond, fetchTimeout, maxConnections, "", "", true, queueLength)
+	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
 
 	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string) (names prometheus.MetricFamiliesByName, e error) {
 		defer atomic.AddInt32(&parallelTasks, -1)
@@ -138,9 +138,9 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 			require.Fail(t, "timeout while waiting for the targets output")
 		}
 	}
-	// THEN no more than "maxConnections" are executed in parallel
-	require.True(t, maxParallel == maxConnections,
-		"no more nor less than %v connections should run in parallel. Actually %v", maxConnections, maxParallel)
+	// THEN no more than "workerThreads" are executed in parallel
+	require.True(t, maxParallel == workerThreads,
+		"no more nor less than %v connections should run in parallel. Actually %v", workerThreads, maxParallel)
 }
 
 func TestConvertPromMetrics(t *testing.T) {

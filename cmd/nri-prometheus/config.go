@@ -105,6 +105,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("standalone", true)
 	viper.SetDefault("disable_autodiscovery", false)
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
+	viper.SetDefault("worker_threads", 4)
 }
 
 // bindViperEnv automatically binds the variables in given configuration struct to environment variables.

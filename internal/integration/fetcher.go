@@ -123,29 +123,29 @@ func cloneRequest(r *http.Request) *http.Request {
 }
 
 // NewFetcher returns the default Fetcher implementation
-func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, maxConnections int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
+func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
 	tr, _ := NewRoundTripper(BearerTokenFile, CaFile, InsecureSkipVerify)
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   fetchTimeout,
 	}
 	return &prometheusFetcher{
-		maxConnections: maxConnections,
-		queueLength:    queueLength,
-		httpClient:     client,
-		duration:       fetchDuration,
-		fetchTimeout:   fetchTimeout,
-		getMetrics:     prometheus.Get,
-		log:            logrus.WithField("component", "Fetcher"),
+		workerThreads: workerThreads,
+		queueLength:   queueLength,
+		httpClient:    client,
+		duration:      fetchDuration,
+		fetchTimeout:  fetchTimeout,
+		getMetrics:    prometheus.Get,
+		log:           logrus.WithField("component", "Fetcher"),
 	}
 }
 
 type prometheusFetcher struct {
-	maxConnections int
-	queueLength    int
-	duration       time.Duration
-	fetchTimeout   time.Duration
-	httpClient     prometheus.HTTPDoer
+	workerThreads int
+	queueLength   int
+	duration      time.Duration
+	fetchTimeout  time.Duration
+	httpClient    prometheus.HTTPDoer
 	// Provides IoC for better testability. Its usual value is 'prometheus.Get'.
 	getMetrics func(httpClient prometheus.HTTPDoer, url string) (prometheus.MetricFamiliesByName, error)
 	log        *logrus.Entry
@@ -160,8 +160,13 @@ func (pf *prometheusFetcher) Fetch(targets []endpoints.Target) <-chan TargetMetr
 	prometheus.ResetTotalScrapedPayload()
 
 	targetChan := make(chan endpoints.Target, len(targets))
-	pf.log.WithField("component", "fetcher").Debug("Starting fetch process...")
-	for i := 0; i < pf.maxConnections; i++ {
+
+	pf.log.WithFields(logrus.Fields{
+		"component":    "fetcher",
+		"thread_count": pf.workerThreads,
+	}).Debug("Starting fetch worker threads...")
+
+	for i := 0; i < pf.workerThreads; i++ {
 		go pf.work(targetChan, &finishedTasks, results)
 	}
 
@@ -176,7 +181,15 @@ func (pf *prometheusFetcher) Fetch(targets []endpoints.Target) <-chan TargetMetr
 				Info("Target list for fetching metrics is empty")
 			return
 		}
-		ticker := time.NewTicker(pf.duration / time.Duration(nTargets))
+
+		// Slowly release the targets for this scrape cycle.
+		// All targets should be added to the targetChan in half the duration of the scrape cycle,
+		// giving slow targets time to finish before the new cycle starts.
+		// E.g.
+		// scrape cycle = 30 seconds, targets = 10
+		// 30 / 2 / 10 = 1.5 seconds
+		// After 15 seconds all targets are added to the queue, with 15 seconds left in the cycle
+		ticker := time.NewTicker((pf.duration / 2) / time.Duration(nTargets))
 		defer ticker.Stop()
 		for _, target := range targets {
 			targetChan <- target
@@ -230,7 +243,7 @@ func (pf *prometheusFetcher) fetch(t endpoints.Target) (prometheus.MetricFamilie
 	mfs, err := pf.getMetrics(httpClient, t.URL.String())
 	timer.ObserveDuration()
 	if err != nil {
-		pf.log.WithError(err).Warnf("fetching Prometheus: %s (%s)", t.URL.String(), t.Object.Name)
+		pf.log.WithError(err).Warnf("fetching Prometheus metrics: %s (%s)", t.URL.String(), t.Object.Name)
 		fetchErrorsTotalMetric.WithLabelValues(t.Name).Set(1)
 	}
 	fetchesTotalMetric.WithLabelValues(t.Name).Set(1)
