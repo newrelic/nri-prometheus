@@ -109,6 +109,12 @@ type DecorateRule struct {
 
 // CopyAttributes decorate the labels of an entity
 func CopyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
+
+	// Fast path, quickly exit if there are no rules defined.
+	if len(rules) == 0 {
+		return
+	}
+
 	dc := MatchingDecorate(targetMetrics, rules)
 	for _, metrics := range targetMetrics.Metrics {
 		// Gets the decoration rules where the entity is "destination" of labels
@@ -209,6 +215,12 @@ func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
 
 // Rename apply the given rename rules to the entities metrics
 func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
+
+	// Fast path, quickly exit if there are no rules defined.
+	if len(rules) == 0 {
+		return
+	}
+
 	for mi := range targetMetrics.Metrics {
 		// processing rules into it
 		for _, rr := range rules {
@@ -226,6 +238,12 @@ func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
 // AddAttributes applies the AddAttributeRule. It adds the attributes defined
 // in the rules to the metrics that match.
 func AddAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
+
+	// Fast path, quickly exit if there are no rules defined.
+	if len(rules) == 0 {
+		return
+	}
+
 	for mi := range targetMetrics.Metrics {
 		for _, rr := range rules {
 			if strings.HasPrefix(targetMetrics.Metrics[mi].name, rr.MetricPrefix) {
@@ -265,6 +283,12 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 
 // Filter removes the metrics whose name matches the prefixes in the given ignore rules
 func Filter(targetMetrics *TargetMetrics, rules ignoreRules) {
+
+	// Fast path, quickly exit if there are no rules defined.
+	if len(rules) == 0 {
+		return
+	}
+
 	copied := make([]Metric, 0, len(targetMetrics.Metrics))
 	for _, m := range targetMetrics.Metrics {
 		if !rules.shouldIgnore(m.name) {

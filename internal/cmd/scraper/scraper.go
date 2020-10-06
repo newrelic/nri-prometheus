@@ -50,6 +50,7 @@ type Config struct {
 	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
 	DefinitionFilesPath                          string        `mapstructure:"definition_files_path"`
+	WorkerThreads                                int           `mapstructure:"worker_threads"`
 }
 
 const maskedLicenseKey = "****"
@@ -66,9 +67,6 @@ func (l LicenseKey) String() string {
 func (l LicenseKey) GoString() string {
 	return maskedLicenseKey
 }
-
-// Number of /metrics targets that can be fetched in parallel
-const maxTargetConnections = 4
 
 // channel length for entities
 const queueLength = 100
@@ -95,6 +93,11 @@ func validateConfig(cfg *Config) error {
 		if err != nil {
 			return fmt.Errorf("couldn't read emitter CA file: %w", err)
 		}
+	}
+
+	if cfg.WorkerThreads < 4 {
+		logrus.Infof("Minimum amount of 4 worker threads required, %d given. Setting to 4.", cfg.WorkerThreads)
+		cfg.WorkerThreads = 4
 	}
 
 	return nil
@@ -155,7 +158,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		scrapeDuration,
 		selfRetriever,
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, maxTargetConnections, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(processingRules, queueLength),
 		emitters)
 
@@ -210,7 +213,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	//fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, maxTargetConnections, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(processingRules, queueLength),
 		emitters)
 

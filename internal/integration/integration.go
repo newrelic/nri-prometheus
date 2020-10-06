@@ -124,7 +124,10 @@ func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor 
 	for _, e := range emitters {
 		timers[e.Name()] = prometheus.NewTimer(prometheus.ObserverFunc(emitTotalDurationMetric.WithLabelValues(e.Name()).Set))
 	}
+	emittedMetrics := 0
 	for pair := range processed {
+		emittedMetrics += len(pair.Metrics)
+
 		for _, e := range emitters {
 			err := e.Emit(pair.Metrics)
 			if err != nil {
@@ -135,5 +138,12 @@ func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor 
 	for _, t := range timers {
 		t.ObserveDuration()
 	}
-	ptimer.ObserveDuration()
+	duration := ptimer.ObserveDuration()
+
+	logrus.WithFields(logrus.Fields{
+		"duration":            duration.Round(time.Second),
+		"targetCount":         len(targets),
+		"emitterCount":        len(emitters),
+		"emittedMetricsCount": emittedMetrics,
+	}).Debug("Processing metrics finished.")
 }
