@@ -40,7 +40,7 @@ type EntityDef struct {
 
 // PropertiesDef defines the dimension used to get entity names
 type PropertiesDef struct {
-	Dimensions []string `yaml:"dimensions"`
+	Labels []string `yaml:"labels"`
 }
 
 // MetricDef contains metrics definitions
@@ -54,7 +54,7 @@ type entityNameProps struct {
 	DisplayName string
 	Type        string
 	Service     string
-	Dimensions  map[string]string
+	Labels  map[string]string
 }
 
 // LoadSpecFiles loads all service spec files named like "prometheus_*.yml" that are in the filesPath
@@ -112,8 +112,8 @@ func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 				msg := fmt.Sprintf("could not find default entity '%v' for metric '%v'", spec.DefaultEntity, m.name)
 				return entityNameProps{}, errors.New(msg)
 			}
-			if len(e.Properties.Dimensions) > 0 {
-				return entityNameProps{}, errors.New("default entity must not have dimensions")
+			if len(e.Properties.Labels) > 0 {
+				return entityNameProps{}, errors.New("default entity must not have labels")
 			}
 		} else {
 			return entityNameProps{}, fmt.Errorf("metric: %s is not defined in service:%s and no default entity is defined", m.name, spec.Service)
@@ -124,16 +124,16 @@ func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 	props.DisplayName = e.DisplayName
 	props.Type = strings.Title(spec.Service) + strings.Title(e.Name)
 	props.Service = spec.Service
-	props.Dimensions = map[string]string{}
+	props.Labels = map[string]string{}
 
-	for _, d := range e.Properties.Dimensions {
+	for _, d := range e.Properties.Labels {
 		var val interface{}
 		var ok bool
-		// the metric needs all the dimensions defined to avoid entity name collision
+		// the metric needs all the labels defined to avoid entity name collision
 		if val, ok = m.attributes[d]; !ok {
-			return entityNameProps{}, fmt.Errorf("dimension %s not found in metric %s", d, m.name)
+			return entityNameProps{}, fmt.Errorf("label %s not found in metric %s", d, m.name)
 		}
-		props.Dimensions[d] = fmt.Sprintf("%v", val)
+		props.Labels[d] = fmt.Sprintf("%v", val)
 	}
 
 	return props, nil
