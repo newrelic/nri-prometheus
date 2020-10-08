@@ -423,7 +423,7 @@ type bucket struct {
 type metricData struct {
 	Timestamp   int64             `json:"timestamp"`
 	Name        string            `json:"name"`
-	Labels  map[string]string `json:"attributes"`
+	Labels      map[string]string `json:"attributes"`
 	SampleCount uint64            `json:"sample_count,omitempty"`
 	SampleSum   float64           `json:"sample_sum,omitempty"`
 	Quantiles   []quant           `json:"quantiles,omitempty"`

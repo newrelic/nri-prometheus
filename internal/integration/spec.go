@@ -54,7 +54,7 @@ type entityNameProps struct {
 	DisplayName string
 	Type        string
 	Service     string
-	Labels  map[string]string
+	Labels      map[string]string
 }
 
 // LoadSpecFiles loads all service spec files named like "prometheus_*.yml" that are in the filesPath
