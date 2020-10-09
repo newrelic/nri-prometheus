@@ -54,7 +54,12 @@ type entityNameProps struct {
 	DisplayName string
 	Type        string
 	Service     string
-	Labels      map[string]string
+	Labels      []keyValue
+}
+
+type keyValue struct {
+	Key   string
+	Value string
 }
 
 // LoadSpecFiles loads all service spec files named like "prometheus_*.yml" that are in the filesPath
@@ -124,7 +129,7 @@ func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 	props.DisplayName = e.DisplayName
 	props.Type = strings.Title(spec.Service) + strings.Title(e.Name)
 	props.Service = spec.Service
-	props.Labels = map[string]string{}
+	props.Labels = []keyValue{}
 
 	for _, d := range e.Properties.Labels {
 		var val interface{}
@@ -133,7 +138,7 @@ func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 		if val, ok = m.attributes[d]; !ok {
 			return entityNameProps{}, fmt.Errorf("label %s not found in metric %s", d, m.name)
 		}
-		props.Labels[d] = fmt.Sprintf("%v", val)
+		props.Labels = append(props.Labels, keyValue{fmt.Sprintf("%v", d), fmt.Sprintf("%v", val)})
 	}
 
 	return props, nil
