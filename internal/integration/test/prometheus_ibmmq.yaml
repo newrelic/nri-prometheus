@@ -4,7 +4,7 @@ entities:
   - name: qmgr
     display_name: Queue Manager
     properties:
-      dimensions: [ qmgr, platform ]
+      labels: [ qmgr, platform ]
     metrics:
       - provider_name: ibmmq_qmgr_alter_durable_subscription_count
         description: Alter durable subscription count

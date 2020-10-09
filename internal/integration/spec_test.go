@@ -51,7 +51,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantProps: entityNameProps{Service: "ravendb", Name: "database", DisplayName: "Database", Type: "RavendbDatabase",
-				Dimensions: map[string]string{"database": "test"}},
+				Labels: map[string]string{"database": "test"}},
 			wantErr: false,
 		},
 		{
@@ -62,7 +62,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					name:       "ravendb_document_put_bytes_total",
 					attributes: labels.Set{},
 				}},
-			wantProps: entityNameProps{Service: "ravendb", Name: "node", DisplayName: "RavenDb Node", Type: "RavendbNode", Dimensions: map[string]string{}},
+			wantProps: entityNameProps{Service: "ravendb", Name: "node", DisplayName: "RavenDb Node", Type: "RavendbNode", Labels: map[string]string{}},
 			wantErr:   false,
 		},
 		{
@@ -77,7 +77,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					},
 				}},
 			wantProps: entityNameProps{Service: "ravendb", Name: "testentity", DisplayName: "testEntity", Type: "RavendbTestentity",
-				Dimensions: map[string]string{"dim1": "first", "dim2": "second"}},
+				Labels: map[string]string{"dim1": "first", "dim2": "second"}},
 			wantErr: false,
 		},
 		{
@@ -89,7 +89,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "RedisInstance",
-				Dimensions: map[string]string{}},
+				Labels: map[string]string{}},
 			wantErr: false,
 		},
 		{
@@ -101,7 +101,7 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{},
 				}},
 			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "RedisInstance",
-				Dimensions: map[string]string{}},
+				Labels: map[string]string{}},
 			wantErr: false,
 		},
 		{

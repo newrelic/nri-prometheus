@@ -95,9 +95,9 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 				for _, m := range e.Metrics {
 					assert.NotZero(t, m.Timestamp)
 					assert.NotEmpty(t, m.Name)
-					assert.NotEmpty(t, m.Dimensions)
-					assert.Contains(t, m.Dimensions, "hostname")
-					assert.Contains(t, m.Dimensions, "env")
+					assert.NotEmpty(t, m.Labels)
+					assert.Contains(t, m.Labels, "hostname")
+					assert.Contains(t, m.Labels, "env")
 				}
 			}
 		})
@@ -142,9 +142,9 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 		for _, m := range e.Metrics {
 			assert.NotZero(t, m.Timestamp)
 			assert.NotEmpty(t, m.Name)
-			assert.NotEmpty(t, m.Dimensions)
-			assert.Contains(t, m.Dimensions, "hostname")
-			assert.Contains(t, m.Dimensions, "env")
+			assert.NotEmpty(t, m.Labels)
+			assert.Contains(t, m.Labels, "hostname")
+			assert.Contains(t, m.Labels, "env")
 			// in "prod" we do not include +Inf so it would have been 5
 			assert.Len(t, m.Buckets, 5)
 			assert.Equal(t, float64(6), m.SampleSum, "sampleSum")
@@ -191,9 +191,9 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 		for _, m := range e.Metrics {
 			assert.NotZero(t, m.Timestamp)
 			assert.NotEmpty(t, m.Name)
-			assert.NotEmpty(t, m.Dimensions)
-			assert.Contains(t, m.Dimensions, "hostname")
-			assert.Contains(t, m.Dimensions, "env")
+			assert.NotEmpty(t, m.Labels)
+			assert.Contains(t, m.Labels, "hostname")
+			assert.Contains(t, m.Labels, "env")
 			assert.Equal(t, 0.0009405, m.SampleSum, "sampleSum")
 			assert.Equal(t, uint64(7), m.SampleCount, "sampleCount")
 			assert.Len(t, m.Quantiles, 5)
@@ -423,7 +423,7 @@ type bucket struct {
 type metricData struct {
 	Timestamp   int64             `json:"timestamp"`
 	Name        string            `json:"name"`
-	Dimensions  map[string]string `json:"attributes"`
+	Labels      map[string]string `json:"attributes"`
 	SampleCount uint64            `json:"sample_count,omitempty"`
 	SampleSum   float64           `json:"sample_sum,omitempty"`
 	Quantiles   []quant           `json:"quantiles,omitempty"`

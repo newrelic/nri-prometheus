@@ -13,7 +13,7 @@ entities:
   - name: database
     display_name: Database
     properties:
-      dimensions: [ database ]
+      labels: [ database ]
     metrics:
       - provider_name: ravendb_database_document_put_bytes_total
         description: Database document put bytes
@@ -24,7 +24,7 @@ entities:
   - name: testentity
     display_name: testEntity
     properties:
-      dimensions: [ dim1, dim2 ]
+      labels: [ dim1, dim2 ]
     metrics:
       - provider_name: ravendb_testentity_document_put_bytes_total
         description: Database document put bytes
