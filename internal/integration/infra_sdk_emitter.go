@@ -174,7 +174,7 @@ func buildEntityName(props entityNameProps, m infra.Metric) string {
 
 	for _, v := range props.Labels {
 		sb.WriteRune(':')
-		sb.WriteString(v)
+		sb.WriteString(v.Value)
 	}
 
 	original := sb.String()
