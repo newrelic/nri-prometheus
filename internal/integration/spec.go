@@ -127,7 +127,7 @@ func (s *Specs) getEntity(m Metric) (props entityNameProps, err error) {
 
 	props.Name = e.Name
 	props.DisplayName = e.DisplayName
-	props.Type = strings.Title(spec.Service) + strings.Title(e.Name)
+	props.Type = strings.ToUpper(spec.Service) + "_" + strings.ToUpper(e.Name)
 	props.Service = spec.Service
 	props.Labels = []keyValue{}
 
