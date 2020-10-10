@@ -43,7 +43,10 @@ func NewTLSConfig(CAFile string, InsecureSkipVerify bool) (*tls.Config, error) {
 	tlsConfig := &tls.Config{InsecureSkipVerify: InsecureSkipVerify}
 
 	if len(CAFile) > 0 {
-		caCertPool := x509.NewCertPool()
+		caCertPool, err := x509.SystemCertPool()
+		if err != nil {
+			caCertPool = x509.NewCertPool()
+		}
 		caCert, err := ioutil.ReadFile(CAFile)
 		if err != nil {
 			return nil, fmt.Errorf("unable to use specified CA cert %s: %s", CAFile, err)
