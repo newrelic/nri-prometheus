@@ -91,7 +91,14 @@ func LoadSpecFiles(filesPath string) (Specs, error) {
 			continue
 		}
 		logrus.Debugf("spec file loaded for service:%s", sd.Service)
-		specs.SpecsByName[sd.Service] = sd
+		if spec, ok := specs.SpecsByName[sd.Service]; ok {
+			spec.Entities = append(spec.Entities, sd.Entities...)
+			specs.SpecsByName[sd.Service] = spec
+			//TODO how to manage defaultEntity for each spec?
+		} else {
+			specs.SpecsByName[sd.Service] = sd
+		}
+
 	}
 
 	return specs, nil

@@ -1,0 +1,10 @@
+service: redis
+display_name: Redis
+entities:
+  - name: testbisredis
+    display_name: Redis test bis
+    metrics:
+      - provider_name: redis_metric_bis
+        description: Total amount of time in seconds spent per command 
+        unit: Counter
+
