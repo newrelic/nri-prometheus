@@ -1,106 +1,76 @@
-# Copyright 2019 New Relic Corporation. All rights reserved.
-# SPDX-License-Identifier: Apache-2.0
-NATIVEOS	 := $(shell go version | awk -F '[ /]' '{print $$4}')
-NATIVEARCH	 := $(shell go version | awk -F '[ /]' '{print $$5}')
-INTEGRATION  := nri-prometheus
-BINARY_NAME   = $(INTEGRATION)
-IMAGE_NAME   ?= newrelic/nri-prometheus
-GOPATH := $(shell go env GOPATH)
+INTEGRATION     := prometheus
+BINARY_NAME      = nri-$(INTEGRATION)
+SRC_DIR          = .
+TEST_DEPS        = github.com/axw/gocov/gocov github.com/AlekSi/gocov-xml
+INTEGRATIONS_DIR = /var/db/newrelic-infra/newrelic-integrations/
+CONFIG_DIR       = /etc/newrelic-infra/integrations.d
+GO_FILES        := ./
+BIN_FILES       := ./cmd/nri-prometheus/
+TARGET          := target
 GOLANGCI_LINT_VERSION := v1.30.0
 GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
-GORELEASER_VERSION := v0.138.0
-GORELEASER_SHA256 := 60cd594e1413483e5728398f861e34834530e0fb1de842312d62ba9ccd57e5f8
-GORELEASER_BIN ?= $(GOPATH)/bin/goreleaser
-GO_PKGS      := $(shell go list ./... | grep -v "/vendor/")
-GOTOOLS       = github.com/stretchr/testify/assert
 
 all: build
 
-build: check-version clean validate test compile docker-release
-
-docker-release:
-	@echo "=== $(INTEGRATION) === [ docker-release ]: Building Docker image for release..."
-	@cp Dockerfile.release bin/Dockerfile
-	@docker build -t $(IMAGE_NAME):release bin/
-
-docker-build:
-	@echo "=== $(INTEGRATION) === [ docker-build ]: Building Docker image..."
-	@docker build -t $(IMAGE_NAME) .
+build: clean validate compile test
 
 clean:
-	@echo "=== $(INTEGRATION) === [ clean ]: Removing binaries and coverage file..."
-	@rm -rfv bin
-	@rm -rfv target
+	@echo "=== $(INTEGRATION) === [ clean ]: removing binaries and coverage file..."
+	@rm -rfv bin coverage.xml $(TARGET)
 
-tools: check-version tools-golangci-lint
-	@echo "=== $(INTEGRATION) === [ tools ]: Installing tools required by the project..."
-	@go get $(GOTOOLS)
-
-tools-update: check-version
-	@echo "=== $(INTEGRATION) === [ tools-update ]: Updating tools required by the project..."
-	@go get -u $(GOTOOLS)
 
 $(GOLANGCI_LINT_BIN):
 	@echo "installing GolangCI version $(GOLANGCI_LINT_VERSION)"
 	@(curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin $(GOLANGCI_LINT_VERSION))
 
-tools-golangci-lint: $(GOLANGCI_LINT_BIN)
+validate-deps: $(GOLANGCI_LINT_BIN)
+	@echo "=== $(INTEGRATION) === [ validate-deps ]: installing validation dependencies..."
 
-lint: tools-golangci-lint
+validate-only:
 	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
 	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 90s
 
-deps: tools deps-only
+validate: validate-deps validate-only
 
-deps-only:
-	@echo "=== $(INTEGRATION) === [ deps ]: Installing package dependencies required by the project..."
-	@go mod download
+compile-deps:
+	@echo "=== $(INTEGRATION) === [ compile-deps ]: installing build dependencies..."
+	@go get -v -d -t ./...
 
-validate: deps
-	@echo "=== $(INTEGRATION) === [ validate ]: Validating source code running golangci-lint..."
-	@golangci-lint --version
-	@golangci-lint run --timeout=30m
+bin/$(BINARY_NAME):
+	@echo "=== $(INTEGRATION) === [ compile ]: building $(BINARY_NAME)..."
+	@go build -v -o bin/$(BINARY_NAME) $(BIN_FILES)
 
-compile: deps
-	@echo "=== $(INTEGRATION) === [ compile ]: Building $(BINARY_NAME)..."
-	@go build -o bin/$(BINARY_NAME) ./cmd/nri-prometheus/
+compile: compile-deps bin/$(BINARY_NAME)
 
-compile-only: deps-only
-	@echo "=== $(INTEGRATION) === [ compile ]: Building $(BINARY_NAME)..."
-	@go build -o bin/$(BINARY_NAME) ./cmd/nri-prometheus/
+clean-test:
+	@echo "=== $(INTEGRATION) === [ compile ]: cleanup test dependencies..."
+	@go mod tidy
 
-test: deps
-	@echo "=== $(INTEGRATION) === [ test ]: Running unit tests..."
-	@go test -race $(GO_PKGS)
+test-deps: compile-deps
+	@echo "=== $(INTEGRATION) === [ test-deps ]: installing testing dependencies..."
+	@go get -v $(TEST_DEPS)
 
-check-version:
-ifdef GOOS
-ifneq "$(GOOS)" "$(NATIVEOS)"
-	$(error GOOS is not $(NATIVEOS). Cross-compiling is only allowed for 'clean', 'deps-only' and 'compile-only' targets)
-endif
-endif
-ifdef GOARCH
-ifneq "$(GOARCH)" "$(NATIVEARCH)"
-	$(error GOARCH variable is not $(NATIVEARCH). Cross-compiling is only allowed for 'clean', 'deps-only' and 'compile-only' targets)
-endif
-endif
+test-only:
+	@echo "=== $(INTEGRATION) === [ test ]: running unit tests..."
+	@gocov test ./... | gocov-xml > coverage.xml
 
-$(GORELEASER_BIN):
-	@echo "=== $(INTEGRATION) === [ release/deps ]: Installing goreleaser"
-	@(curl -Ls https://github.com/goreleaser/goreleaser/releases/download/$(GORELEASER_VERSION)/goreleaser_Linux_x86_64.tar.gz --output /tmp/goreleaser.tar.gz)
-	@(echo "$(GORELEASER_SHA256) /tmp/goreleaser.tar.gz" | sha256sum --check)
-	@(tar -xf  /tmp/goreleaser.tar.gz -C $(GOPATH)/bin/)
-	@(rm -f /tmp/goreleaser.tar.gz)
+test: test-deps test-only clean-test
 
-release/deps: $(GORELEASER_BIN)
 
-release: release/deps
-	@echo "=== $(INTEGRATION) === [ release ]: Releasing new version..."
-	@$(GORELEASER_BIN) release
-	@(aws s3 sync ./target/deploy/ ${S3_BUCKET})
+integration-test: test-deps
+	@echo "=== $(INTEGRATION) === [ test ]: running integration tests...[TODO]"
+	#@docker-compose -f tests/integration/docker-compose.yml up -d --build
+	#@go test -tags=integration ./tests/integration/. || (ret=$$?; docker-compose -f tests/integration/docker-compose.yml down && exit $$ret)
+	#@docker-compose -f tests/integration/docker-compose.yml down
 
-release/test: release/deps
-	@echo "=== $(INTEGRATION) === [ release/test ]: Testing releasing new version..."
-	@$(GORELEASER_BIN) release --snapshot --skip-publish --rm-dist
+install: bin/$(BINARY_NAME)
+	@echo "=== $(INTEGRATION) === [ install ]: installing bin/$(BINARY_NAME)..."
+	@sudo install -D --mode=755 --owner=root --strip $(ROOT)bin/$(BINARY_NAME) $(INTEGRATIONS_DIR)/bin/$(BINARY_NAME)
+	@sudo install -D --mode=644 --owner=root $(ROOT)$(INTEGRATION)-definition.yml $(INTEGRATIONS_DIR)/$(INTEGRATION)-definition.yml
+	@sudo install -D --mode=644 --owner=root $(ROOT)$(INTEGRATION)-config.yml.sample $(CONFIG_DIR)/$(INTEGRATION)-config.yml.sample
 
-.PHONY: all build clean tools tools-update deps deps-only validate compile compile-only test check-version tools-golangci-lint docker-build release release/deps release/test docker-release
+# Include thematic Makefiles
+include $(CURDIR)/build/ci.mk
+include $(CURDIR)/build/release.mk
+
+.PHONY: all build clean validate-deps validate-only validate compile-deps compile test-deps test-only test integration-test install
