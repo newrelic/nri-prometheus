@@ -105,6 +105,18 @@ func TestSpecs_getEntity(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:   "redisBisMetric",
+			fields: fields{specs.SpecsByName},
+			args: args{
+				Metric{
+					name:       "redis_metric_bis",
+					attributes: labels.Set{},
+				}},
+			wantProps: entityNameProps{Service: "redis", Name: "testbisredis", DisplayName: "Redis test bis", Type: "REDIS_TESTBISREDIS",
+				Labels: []keyValue{}},
+			wantErr: false,
+		},
+		{
 			name:    "missingDimentions",
 			fields:  fields{specs.SpecsByName},
 			args:    args{Metric{name: "ravendb_database_document_put_bytes_total"}},
