@@ -27,6 +27,7 @@ type Config struct {
 	ClusterName                       string                       `mapstructure:"cluster_name"`
 	Debug                             bool                         `mapstructure:"debug"`
 	Verbose                           bool                         `mapstructure:"verbose"`
+	Audit                             bool                         `mapstructure:"audit"`
 	Emitters                          []string                     `mapstructure:"emitters"`
 	ScrapeEnabledLabel                string                       `mapstructure:"scrape_enabled_label"`
 	RequireScrapeEnabledLabelForNodes bool                         `mapstructure:"require_scrape_enabled_label_for_nodes"`
@@ -283,6 +284,10 @@ func Run(cfg *Config) error {
 
 			if cfg.Verbose {
 				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicDebugLogger(os.Stdout))
+			}
+
+			if cfg.Audit {
+				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicAuditLogger(os.Stdout))
 			}
 
 			c := integration.TelemetryEmitterConfig{
