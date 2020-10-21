@@ -11,4 +11,4 @@ ENTRYPOINT ["/bin/nri-prometheus"]
 # When standalone is set to true nri-prometheus does not require an infrastructure agent to work and send data
 ENV STANDALONE=TRUE
 
-COPY nri-prometheus /bin/nri-prometheus
+COPY ./bin/nri-prometheus /bin/nri-prometheus
