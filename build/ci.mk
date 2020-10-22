@@ -10,7 +10,7 @@ ci/debug-container: ci/deps
 			-v $(CURDIR):/go/src/github.com/newrelic/nri-$(INTEGRATION) \
 			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
 			-e PRERELEASE=true \
-			-e GITHUB_TOKEN=$(GH_TOKEN) \
+			-e GITHUB_TOKEN=$(GITHUB_TOKEN) \
 			-e TAG \
 			-e GPG_MAIL \
 			-e GPG_PASSPHRASE \
@@ -64,7 +64,7 @@ ifdef TAG
 			-e INTEGRATION \
 			-e PRERELEASE=true \
 			-e REPO_FULL_NAME \
-			-e GITHUB_TOKEN=$(GH_TOKEN) \
+			-e GITHUB_TOKEN=$(GITHUB_TOKEN) \
 			-e TAG \
 			-e GPG_MAIL \
 			-e GPG_PASSPHRASE \
