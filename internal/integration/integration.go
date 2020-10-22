@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	nrprom "github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
 )
 
 const (
@@ -50,6 +51,10 @@ func Execute(
 		totalTimeseriesByTargetMetric.Reset()
 		totalTimeseriesByTargetAndTypeMetric.Reset()
 		totalTimeseriesByTypeMetric.Reset()
+		fetchTargetDurationMetric.Reset()
+		fetchesTotalMetric.Reset()
+		fetchErrorsTotalMetric.Reset()
+		nrprom.ResetTargetSize()
 
 		startTime := time.Now()
 		process(retrievers, fetcher, processor, emitters)
