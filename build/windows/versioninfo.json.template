@@ -1,0 +1,44 @@
+{
+	"FixedFileInfo":
+	{
+		"FileVersion": {
+			"Major": {MajorVersion},
+			"Minor": {MinorVersion},
+			"Patch": {PatchVersion},
+			"Build": {BuildVersion}
+		},
+		"ProductVersion": {
+			"Major": {MajorVersion},
+			"Minor": {MinorVersion},
+			"Patch": {PatchVersion},
+			"Build": {BuildVersion}
+		},
+		"FileFlagsMask": "3f",
+		"FileFlags ": "00",
+		"FileOS": "040004",
+		"FileType": "01",
+		"FileSubType": "00"
+	},
+	"StringFileInfo":
+	{
+		"Comments": "(c) {Year} New Relic, Inc.",
+		"CompanyName": "New Relic, Inc.",
+		"FileDescription": "",
+		"FileVersion": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}",
+		"InternalName": "{Integration}",
+		"LegalCopyright": "(c) {Year} New Relic, Inc.",
+		"LegalTrademarks": "",
+		"OriginalFilename": "{IntegrationExe}",
+		"PrivateBuild": "",
+		"ProductName": "New Relic Infrastructure Integration, {Integration}",
+		"ProductVersion": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}",
+		"SpecialBuild": ""
+	},
+	"VarFileInfo":
+	{
+		"Translation": {
+			"LangID": "0409",
+			"CharsetID": "04B0"
+		}
+	}
+}

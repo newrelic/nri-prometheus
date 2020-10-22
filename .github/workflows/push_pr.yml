@@ -1,0 +1,96 @@
+name: Push/PR pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+
+env:
+  TAG: "v0.0.0" # needed for goreleaser windows builds
+  REPO_FULL_NAME: ${{ github.event.repository.full_name }}
+  ORIGINAL_REPO_NAME: "newrelic/nri-prometheus"
+  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  GO_VERSION: '1.13.15'
+
+jobs:
+
+  validate:
+    name: Validate code via linters
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validate code
+        run: make ci/validate
+
+  test-nix:
+    name: Run unit tests on *Nix
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Unit tests
+        run: make ci/test
+
+  test-windows:
+    name: Run unit tests on Windows
+    runs-on: windows-2019
+    env:
+      GOPATH: ${{ github.workspace }}
+    defaults:
+      run:
+        working-directory: src/github.com/${{env.ORIGINAL_REPO_NAME}}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: src/github.com/${{env.ORIGINAL_REPO_NAME}}
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version:  ${{env.GO_VERSION}}
+      - name: Running unit tests
+        shell: pwsh
+        run: |
+          .\build\windows\unit_tests.ps1
+
+  # can't run this step inside of container because of tests specific
+  test-integration-nix:
+    name: Run integration tests on *Nix
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: src/github.com/${{env.ORIGINAL_REPO_NAME}}
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          path: src/github.com/${{env.ORIGINAL_REPO_NAME}}
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{env.GO_VERSION}}
+      - name: Integration test
+        env:
+          GOPATH: "${{ github.workspace }}"
+        run: make integration-test
+
+ # make sure code build in all platforms
+  build:
+    name: Build binary for all platforms:arch
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build all platforms:arch
+        run: make ci/build
+
+  snyk:
+    name: Run security checks via snyk
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan code for vulnerabilities
+        run: make ci/snyk-test
+
+

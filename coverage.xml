@@ -1,0 +1,3161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage line-rate="0.6023993" branch-rate="0" lines-covered="703" lines-valid="1167" branches-covered="0" branches-valid="0" complexity="0" version="" timestamp="1602842203327">
+	<packages>
+		<package name="github.com/newrelic/nri-prometheus/cmd/nri-prometheus" line-rate="0.057142857" branch-rate="0" complexity="0" line-count="70" line-hits="4">
+			<classes>
+				<class name="-" filename="cmd/nri-prometheus/main.go" line-rate="0" branch-rate="0" complexity="0" line-count="8" line-hits="0">
+					<methods>
+						<method name="main" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="13" hits="0"></line>
+								<line number="14" hits="0"></line>
+								<line number="15" hits="0"></line>
+								<line number="18" hits="0"></line>
+								<line number="19" hits="0"></line>
+								<line number="21" hits="0"></line>
+								<line number="22" hits="0"></line>
+								<line number="23" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="13" hits="0"></line>
+						<line number="14" hits="0"></line>
+						<line number="15" hits="0"></line>
+						<line number="18" hits="0"></line>
+						<line number="19" hits="0"></line>
+						<line number="21" hits="0"></line>
+						<line number="22" hits="0"></line>
+						<line number="23" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="cmd/nri-prometheus/config.go" line-rate="0.06451613" branch-rate="0" complexity="0" line-count="62" line-hits="4">
+					<methods>
+						<method name="loadConfig" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="33" hits="0"></line>
+								<line number="34" hits="0"></line>
+								<line number="35" hits="0"></line>
+								<line number="36" hits="0"></line>
+								<line number="39" hits="0"></line>
+								<line number="40" hits="0"></line>
+								<line number="42" hits="0"></line>
+								<line number="43" hits="0"></line>
+								<line number="46" hits="0"></line>
+								<line number="47" hits="0"></line>
+								<line number="48" hits="0"></line>
+								<line number="50" hits="0"></line>
+								<line number="51" hits="0"></line>
+								<line number="52" hits="0"></line>
+								<line number="55" hits="0"></line>
+								<line number="57" hits="0"></line>
+								<line number="58" hits="0"></line>
+								<line number="59" hits="0"></line>
+								<line number="62" hits="0"></line>
+								<line number="63" hits="0"></line>
+								<line number="64" hits="0"></line>
+								<line number="66" hits="0"></line>
+								<line number="67" hits="0"></line>
+								<line number="71" hits="0"></line>
+								<line number="72" hits="0"></line>
+								<line number="73" hits="0"></line>
+								<line number="75" hits="0"></line>
+								<line number="79" hits="0"></line>
+								<line number="80" hits="0"></line>
+								<line number="81" hits="0"></line>
+								<line number="83" hits="0"></line>
+								<line number="87" hits="0"></line>
+								<line number="88" hits="0"></line>
+								<line number="91" hits="0"></line>
+							</lines>
+						</method>
+						<method name="setViperDefaults" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="96" hits="0"></line>
+								<line number="97" hits="0"></line>
+								<line number="98" hits="0"></line>
+								<line number="99" hits="0"></line>
+								<line number="100" hits="0"></line>
+								<line number="101" hits="0"></line>
+								<line number="102" hits="0"></line>
+								<line number="103" hits="0"></line>
+								<line number="104" hits="0"></line>
+								<line number="105" hits="0"></line>
+								<line number="106" hits="0"></line>
+								<line number="107" hits="0"></line>
+								<line number="108" hits="0"></line>
+							</lines>
+						</method>
+						<method name="bindViperEnv" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="117" hits="0"></line>
+								<line number="118" hits="0"></line>
+								<line number="119" hits="0"></line>
+								<line number="120" hits="0"></line>
+								<line number="121" hits="0"></line>
+								<line number="122" hits="0"></line>
+								<line number="123" hits="0"></line>
+								<line number="124" hits="0"></line>
+								<line number="126" hits="0"></line>
+								<line number="128" hits="0"></line>
+								<line number="130" hits="0"></line>
+							</lines>
+						</method>
+						<method name="determineMetricAPIURL" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="145" hits="1"></line>
+								<line number="146" hits="1"></line>
+								<line number="147" hits="1"></line>
+								<line number="150" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="33" hits="0"></line>
+						<line number="34" hits="0"></line>
+						<line number="35" hits="0"></line>
+						<line number="36" hits="0"></line>
+						<line number="39" hits="0"></line>
+						<line number="40" hits="0"></line>
+						<line number="42" hits="0"></line>
+						<line number="43" hits="0"></line>
+						<line number="46" hits="0"></line>
+						<line number="47" hits="0"></line>
+						<line number="48" hits="0"></line>
+						<line number="50" hits="0"></line>
+						<line number="51" hits="0"></line>
+						<line number="52" hits="0"></line>
+						<line number="55" hits="0"></line>
+						<line number="57" hits="0"></line>
+						<line number="58" hits="0"></line>
+						<line number="59" hits="0"></line>
+						<line number="62" hits="0"></line>
+						<line number="63" hits="0"></line>
+						<line number="64" hits="0"></line>
+						<line number="66" hits="0"></line>
+						<line number="67" hits="0"></line>
+						<line number="71" hits="0"></line>
+						<line number="72" hits="0"></line>
+						<line number="73" hits="0"></line>
+						<line number="75" hits="0"></line>
+						<line number="79" hits="0"></line>
+						<line number="80" hits="0"></line>
+						<line number="81" hits="0"></line>
+						<line number="83" hits="0"></line>
+						<line number="87" hits="0"></line>
+						<line number="88" hits="0"></line>
+						<line number="91" hits="0"></line>
+						<line number="96" hits="0"></line>
+						<line number="97" hits="0"></line>
+						<line number="98" hits="0"></line>
+						<line number="99" hits="0"></line>
+						<line number="100" hits="0"></line>
+						<line number="101" hits="0"></line>
+						<line number="102" hits="0"></line>
+						<line number="103" hits="0"></line>
+						<line number="104" hits="0"></line>
+						<line number="105" hits="0"></line>
+						<line number="106" hits="0"></line>
+						<line number="107" hits="0"></line>
+						<line number="108" hits="0"></line>
+						<line number="117" hits="0"></line>
+						<line number="118" hits="0"></line>
+						<line number="119" hits="0"></line>
+						<line number="120" hits="0"></line>
+						<line number="121" hits="0"></line>
+						<line number="122" hits="0"></line>
+						<line number="123" hits="0"></line>
+						<line number="124" hits="0"></line>
+						<line number="126" hits="0"></line>
+						<line number="128" hits="0"></line>
+						<line number="130" hits="0"></line>
+						<line number="145" hits="1"></line>
+						<line number="146" hits="1"></line>
+						<line number="147" hits="1"></line>
+						<line number="150" hits="1"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+		<package name="github.com/newrelic/nri-prometheus/internal/cmd/scraper" line-rate="0.32380953" branch-rate="0" complexity="0" line-count="105" line-hits="34">
+			<classes>
+				<class name="LicenseKey" filename="internal/cmd/scraper/scraper.go" line-rate="1" branch-rate="0" complexity="0" line-count="2" line-hits="2">
+					<methods>
+						<method name="String" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="63" hits="1"></line>
+							</lines>
+						</method>
+						<method name="GoString" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="68" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="63" hits="1"></line>
+						<line number="68" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/cmd/scraper/scraper.go" line-rate="0.3106796" branch-rate="0" complexity="0" line-count="103" line-hits="32">
+					<methods>
+						<method name="validateConfig" signature="" line-rate="0.5" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="75" hits="1"></line>
+								<line number="76" hits="1"></line>
+								<line number="77" hits="0"></line>
+								<line number="79" hits="1"></line>
+								<line number="80" hits="0"></line>
+								<line number="83" hits="1"></line>
+								<line number="84" hits="0"></line>
+								<line number="85" hits="0"></line>
+								<line number="86" hits="0"></line>
+								<line number="88" hits="0"></line>
+								<line number="91" hits="1"></line>
+								<line number="92" hits="0"></line>
+								<line number="93" hits="0"></line>
+								<line number="94" hits="0"></line>
+								<line number="98" hits="1"></line>
+								<line number="99" hits="1"></line>
+								<line number="100" hits="1"></line>
+								<line number="103" hits="1"></line>
+							</lines>
+						</method>
+						<method name="RunWithEmitters" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="109" hits="0"></line>
+								<line number="110" hits="0"></line>
+								<line number="113" hits="0"></line>
+								<line number="114" hits="0"></line>
+								<line number="115" hits="0"></line>
+								<line number="117" hits="0"></line>
+								<line number="118" hits="0"></line>
+								<line number="119" hits="0"></line>
+								<line number="120" hits="0"></line>
+								<line number="122" hits="0"></line>
+								<line number="124" hits="0"></line>
+								<line number="125" hits="0"></line>
+								<line number="126" hits="0"></line>
+								<line number="127" hits="0"></line>
+								<line number="129" hits="0"></line>
+								<line number="132" hits="0"></line>
+								<line number="146" hits="0"></line>
+								<line number="148" hits="0"></line>
+								<line number="149" hits="0"></line>
+								<line number="150" hits="0"></line>
+								<line number="157" hits="0"></line>
+								<line number="165" hits="0"></line>
+								<line number="166" hits="0"></line>
+								<line number="167" hits="0"></line>
+								<line number="168" hits="0"></line>
+								<line number="169" hits="0"></line>
+								<line number="170" hits="0"></line>
+								<line number="171" hits="0"></line>
+								<line number="172" hits="0"></line>
+								<line number="174" hits="0"></line>
+							</lines>
+						</method>
+						<method name="RunOnceWithEmitters" signature="" line-rate="0.78571427" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="179" hits="1"></line>
+								<line number="180" hits="0"></line>
+								<line number="183" hits="1"></line>
+								<line number="184" hits="1"></line>
+								<line number="185" hits="1"></line>
+								<line number="186" hits="0"></line>
+								<line number="188" hits="1"></line>
+								<line number="190" hits="1"></line>
+								<line number="202" hits="1"></line>
+								<line number="204" hits="1"></line>
+								<line number="205" hits="1"></line>
+								<line number="206" hits="0"></line>
+								<line number="214" hits="1"></line>
+								<line number="220" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Run" signature="" line-rate="0.29268292" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="225" hits="1"></line>
+								<line number="226" hits="1"></line>
+								<line number="227" hits="0"></line>
+								<line number="229" hits="1"></line>
+								<line number="230" hits="1"></line>
+								<line number="233" hits="1"></line>
+								<line number="234" hits="1"></line>
+								<line number="235" hits="1"></line>
+								<line number="237" hits="1"></line>
+								<line number="239" hits="0"></line>
+								<line number="240" hits="0"></line>
+								<line number="241" hits="0"></line>
+								<line number="248" hits="0"></line>
+								<line number="255" hits="0"></line>
+								<line number="256" hits="0"></line>
+								<line number="262" hits="0"></line>
+								<line number="263" hits="0"></line>
+								<line number="267" hits="0"></line>
+								<line number="268" hits="0"></line>
+								<line number="270" hits="0"></line>
+								<line number="279" hits="0"></line>
+								<line number="284" hits="0"></line>
+								<line number="285" hits="0"></line>
+								<line number="288" hits="0"></line>
+								<line number="294" hits="0"></line>
+								<line number="295" hits="0"></line>
+								<line number="296" hits="0"></line>
+								<line number="298" hits="0"></line>
+								<line number="300" hits="0"></line>
+								<line number="301" hits="0"></line>
+								<line number="302" hits="0"></line>
+								<line number="304" hits="0"></line>
+								<line number="305" hits="0"></line>
+								<line number="307" hits="0"></line>
+								<line number="308" hits="0"></line>
+								<line number="312" hits="1"></line>
+								<line number="313" hits="0"></line>
+								<line number="314" hits="0"></line>
+								<line number="316" hits="1"></line>
+								<line number="317" hits="1"></line>
+								<line number="319" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="75" hits="1"></line>
+						<line number="76" hits="1"></line>
+						<line number="77" hits="0"></line>
+						<line number="79" hits="1"></line>
+						<line number="80" hits="0"></line>
+						<line number="83" hits="1"></line>
+						<line number="84" hits="0"></line>
+						<line number="85" hits="0"></line>
+						<line number="86" hits="0"></line>
+						<line number="88" hits="0"></line>
+						<line number="91" hits="1"></line>
+						<line number="92" hits="0"></line>
+						<line number="93" hits="0"></line>
+						<line number="94" hits="0"></line>
+						<line number="98" hits="1"></line>
+						<line number="99" hits="1"></line>
+						<line number="100" hits="1"></line>
+						<line number="103" hits="1"></line>
+						<line number="109" hits="0"></line>
+						<line number="110" hits="0"></line>
+						<line number="113" hits="0"></line>
+						<line number="114" hits="0"></line>
+						<line number="115" hits="0"></line>
+						<line number="117" hits="0"></line>
+						<line number="118" hits="0"></line>
+						<line number="119" hits="0"></line>
+						<line number="120" hits="0"></line>
+						<line number="122" hits="0"></line>
+						<line number="124" hits="0"></line>
+						<line number="125" hits="0"></line>
+						<line number="126" hits="0"></line>
+						<line number="127" hits="0"></line>
+						<line number="129" hits="0"></line>
+						<line number="132" hits="0"></line>
+						<line number="146" hits="0"></line>
+						<line number="148" hits="0"></line>
+						<line number="149" hits="0"></line>
+						<line number="150" hits="0"></line>
+						<line number="157" hits="0"></line>
+						<line number="165" hits="0"></line>
+						<line number="166" hits="0"></line>
+						<line number="167" hits="0"></line>
+						<line number="168" hits="0"></line>
+						<line number="169" hits="0"></line>
+						<line number="170" hits="0"></line>
+						<line number="171" hits="0"></line>
+						<line number="172" hits="0"></line>
+						<line number="174" hits="0"></line>
+						<line number="179" hits="1"></line>
+						<line number="180" hits="0"></line>
+						<line number="183" hits="1"></line>
+						<line number="184" hits="1"></line>
+						<line number="185" hits="1"></line>
+						<line number="186" hits="0"></line>
+						<line number="188" hits="1"></line>
+						<line number="190" hits="1"></line>
+						<line number="202" hits="1"></line>
+						<line number="204" hits="1"></line>
+						<line number="205" hits="1"></line>
+						<line number="206" hits="0"></line>
+						<line number="214" hits="1"></line>
+						<line number="220" hits="1"></line>
+						<line number="225" hits="1"></line>
+						<line number="226" hits="1"></line>
+						<line number="227" hits="0"></line>
+						<line number="229" hits="1"></line>
+						<line number="230" hits="1"></line>
+						<line number="233" hits="1"></line>
+						<line number="234" hits="1"></line>
+						<line number="235" hits="1"></line>
+						<line number="237" hits="1"></line>
+						<line number="239" hits="0"></line>
+						<line number="240" hits="0"></line>
+						<line number="241" hits="0"></line>
+						<line number="248" hits="0"></line>
+						<line number="255" hits="0"></line>
+						<line number="256" hits="0"></line>
+						<line number="262" hits="0"></line>
+						<line number="263" hits="0"></line>
+						<line number="267" hits="0"></line>
+						<line number="268" hits="0"></line>
+						<line number="270" hits="0"></line>
+						<line number="279" hits="0"></line>
+						<line number="284" hits="0"></line>
+						<line number="285" hits="0"></line>
+						<line number="288" hits="0"></line>
+						<line number="294" hits="0"></line>
+						<line number="295" hits="0"></line>
+						<line number="296" hits="0"></line>
+						<line number="298" hits="0"></line>
+						<line number="300" hits="0"></line>
+						<line number="301" hits="0"></line>
+						<line number="302" hits="0"></line>
+						<line number="304" hits="0"></line>
+						<line number="305" hits="0"></line>
+						<line number="307" hits="0"></line>
+						<line number="308" hits="0"></line>
+						<line number="312" hits="1"></line>
+						<line number="313" hits="0"></line>
+						<line number="314" hits="0"></line>
+						<line number="316" hits="1"></line>
+						<line number="317" hits="1"></line>
+						<line number="319" hits="1"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+		<package name="github.com/newrelic/nri-prometheus/internal/integration" line-rate="0.6683087" branch-rate="0" complexity="0" line-count="609" line-hits="407">
+			<classes>
+				<class name="licenseKeyRoundTripper" filename="internal/integration/roundtripper.go" line-rate="1" branch-rate="0" complexity="0" line-count="3" line-hits="3">
+					<methods>
+						<method name="RoundTrip" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="14" hits="1"></line>
+								<line number="15" hits="1"></line>
+								<line number="16" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="14" hits="1"></line>
+						<line number="15" hits="1"></line>
+						<line number="16" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/roundtripper.go" line-rate="0.6666667" branch-rate="0" complexity="0" line-count="3" line-hits="2">
+					<methods>
+						<method name="newLicenseKeyRoundTripper" signature="" line-rate="0.6666667" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="26" hits="1"></line>
+								<line number="27" hits="0"></line>
+								<line number="30" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="26" hits="1"></line>
+						<line number="27" hits="0"></line>
+						<line number="30" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/telemetry_sdk_emitter.go" line-rate="0.7659575" branch-rate="0" complexity="0" line-count="47" line-hits="36">
+					<methods>
+						<method name="TelemetryHarvesterWithMetricsURL" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="53" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@53:9" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="54" hits="1"></line>
+							</lines>
+						</method>
+						<method name="TelemetryHarvesterWithHarvestPeriod" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="60" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@60:9" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="61" hits="0"></line>
+							</lines>
+						</method>
+						<method name="TelemetryHarvesterWithLicenseKeyRoundTripper" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="72" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@72:9" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="73" hits="0"></line>
+							</lines>
+						</method>
+						<method name="TelemetryHarvesterWithTLSConfig" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="84" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@84:9" signature="" line-rate="0.8181818" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="85" hits="1"></line>
+								<line number="86" hits="1"></line>
+								<line number="87" hits="1"></line>
+								<line number="90" hits="1"></line>
+								<line number="91" hits="1"></line>
+								<line number="92" hits="0"></line>
+								<line number="96" hits="0"></line>
+								<line number="99" hits="1"></line>
+								<line number="100" hits="1"></line>
+								<line number="101" hits="1"></line>
+								<line number="102" hits="1"></line>
+							</lines>
+						</method>
+						<method name="TelemetryHarvesterWithProxy" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="109" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@109:9" signature="" line-rate="0.8181818" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="110" hits="1"></line>
+								<line number="111" hits="1"></line>
+								<line number="112" hits="1"></line>
+								<line number="115" hits="1"></line>
+								<line number="116" hits="1"></line>
+								<line number="117" hits="0"></line>
+								<line number="122" hits="0"></line>
+								<line number="125" hits="1"></line>
+								<line number="126" hits="1"></line>
+								<line number="127" hits="1"></line>
+								<line number="128" hits="1"></line>
+							</lines>
+						</method>
+						<method name="NewTelemetryEmitter" signature="" line-rate="0.8235294" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="134" hits="1"></line>
+								<line number="136" hits="1"></line>
+								<line number="137" hits="1"></line>
+								<line number="138" hits="0"></line>
+								<line number="140" hits="1"></line>
+								<line number="141" hits="1"></line>
+								<line number="146" hits="1"></line>
+								<line number="147" hits="1"></line>
+								<line number="148" hits="0"></line>
+								<line number="150" hits="1"></line>
+								<line number="151" hits="1"></line>
+								<line number="156" hits="1"></line>
+								<line number="157" hits="1"></line>
+								<line number="158" hits="1"></line>
+								<line number="159" hits="0"></line>
+								<line number="164" hits="1"></line>
+								<line number="166" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="53" hits="1"></line>
+						<line number="54" hits="1"></line>
+						<line number="60" hits="0"></line>
+						<line number="61" hits="0"></line>
+						<line number="72" hits="0"></line>
+						<line number="73" hits="0"></line>
+						<line number="84" hits="1"></line>
+						<line number="85" hits="1"></line>
+						<line number="86" hits="1"></line>
+						<line number="87" hits="1"></line>
+						<line number="90" hits="1"></line>
+						<line number="91" hits="1"></line>
+						<line number="92" hits="0"></line>
+						<line number="96" hits="0"></line>
+						<line number="99" hits="1"></line>
+						<line number="100" hits="1"></line>
+						<line number="101" hits="1"></line>
+						<line number="102" hits="1"></line>
+						<line number="109" hits="1"></line>
+						<line number="110" hits="1"></line>
+						<line number="111" hits="1"></line>
+						<line number="112" hits="1"></line>
+						<line number="115" hits="1"></line>
+						<line number="116" hits="1"></line>
+						<line number="117" hits="0"></line>
+						<line number="122" hits="0"></line>
+						<line number="125" hits="1"></line>
+						<line number="126" hits="1"></line>
+						<line number="127" hits="1"></line>
+						<line number="128" hits="1"></line>
+						<line number="134" hits="1"></line>
+						<line number="136" hits="1"></line>
+						<line number="137" hits="1"></line>
+						<line number="138" hits="0"></line>
+						<line number="140" hits="1"></line>
+						<line number="141" hits="1"></line>
+						<line number="146" hits="1"></line>
+						<line number="147" hits="1"></line>
+						<line number="148" hits="0"></line>
+						<line number="150" hits="1"></line>
+						<line number="151" hits="1"></line>
+						<line number="156" hits="1"></line>
+						<line number="157" hits="1"></line>
+						<line number="158" hits="1"></line>
+						<line number="159" hits="0"></line>
+						<line number="164" hits="1"></line>
+						<line number="166" hits="1"></line>
+					</lines>
+				</class>
+				<class name="TelemetryEmitter" filename="internal/integration/telemetry_sdk_emitter.go" line-rate="0.7346939" branch-rate="0" complexity="0" line-count="49" line-hits="36">
+					<methods>
+						<method name="Name" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="175" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Emit" signature="" line-rate="0.52380955" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="181" hits="1"></line>
+								<line number="185" hits="1"></line>
+								<line number="186" hits="1"></line>
+								<line number="188" hits="1"></line>
+								<line number="190" hits="1"></line>
+								<line number="197" hits="1"></line>
+								<line number="203" hits="1"></line>
+								<line number="204" hits="1"></line>
+								<line number="207" hits="1"></line>
+								<line number="208" hits="0"></line>
+								<line number="209" hits="0"></line>
+								<line number="211" hits="0"></line>
+								<line number="215" hits="1"></line>
+								<line number="216" hits="0"></line>
+								<line number="217" hits="0"></line>
+								<line number="219" hits="0"></line>
+								<line number="223" hits="0"></line>
+								<line number="224" hits="0"></line>
+								<line number="225" hits="0"></line>
+								<line number="227" hits="0"></line>
+								<line number="232" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitSummary" signature="" line-rate="0.9166667" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="236" hits="1"></line>
+								<line number="237" hits="1"></line>
+								<line number="238" hits="0"></line>
+								<line number="241" hits="1"></line>
+								<line number="251" hits="1"></line>
+								<line number="252" hits="1"></line>
+								<line number="255" hits="1"></line>
+								<line number="256" hits="1"></line>
+								<line number="257" hits="1"></line>
+								<line number="258" hits="1"></line>
+								<line number="259" hits="1"></line>
+								<line number="266" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitHistogram" signature="" line-rate="0.93333334" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="270" hits="1"></line>
+								<line number="271" hits="1"></line>
+								<line number="272" hits="0"></line>
+								<line number="275" hits="1"></line>
+								<line number="276" hits="1"></line>
+								<line number="287" hits="1"></line>
+								<line number="288" hits="1"></line>
+								<line number="291" hits="1"></line>
+								<line number="292" hits="1"></line>
+								<line number="293" hits="1"></line>
+								<line number="294" hits="1"></line>
+								<line number="296" hits="1"></line>
+								<line number="302" hits="1"></line>
+								<line number="303" hits="1"></line>
+								<line number="307" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="175" hits="0"></line>
+						<line number="181" hits="1"></line>
+						<line number="185" hits="1"></line>
+						<line number="186" hits="1"></line>
+						<line number="188" hits="1"></line>
+						<line number="190" hits="1"></line>
+						<line number="197" hits="1"></line>
+						<line number="203" hits="1"></line>
+						<line number="204" hits="1"></line>
+						<line number="207" hits="1"></line>
+						<line number="208" hits="0"></line>
+						<line number="209" hits="0"></line>
+						<line number="211" hits="0"></line>
+						<line number="215" hits="1"></line>
+						<line number="216" hits="0"></line>
+						<line number="217" hits="0"></line>
+						<line number="219" hits="0"></line>
+						<line number="223" hits="0"></line>
+						<line number="224" hits="0"></line>
+						<line number="225" hits="0"></line>
+						<line number="227" hits="0"></line>
+						<line number="232" hits="1"></line>
+						<line number="236" hits="1"></line>
+						<line number="237" hits="1"></line>
+						<line number="238" hits="0"></line>
+						<line number="241" hits="1"></line>
+						<line number="251" hits="1"></line>
+						<line number="252" hits="1"></line>
+						<line number="255" hits="1"></line>
+						<line number="256" hits="1"></line>
+						<line number="257" hits="1"></line>
+						<line number="258" hits="1"></line>
+						<line number="259" hits="1"></line>
+						<line number="266" hits="1"></line>
+						<line number="270" hits="1"></line>
+						<line number="271" hits="1"></line>
+						<line number="272" hits="0"></line>
+						<line number="275" hits="1"></line>
+						<line number="276" hits="1"></line>
+						<line number="287" hits="1"></line>
+						<line number="288" hits="1"></line>
+						<line number="291" hits="1"></line>
+						<line number="292" hits="1"></line>
+						<line number="293" hits="1"></line>
+						<line number="294" hits="1"></line>
+						<line number="296" hits="1"></line>
+						<line number="302" hits="1"></line>
+						<line number="303" hits="1"></line>
+						<line number="307" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/emitter.go" line-rate="1" branch-rate="0" complexity="0" line-count="5" line-hits="5">
+					<methods>
+						<method name="copyAttrs" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="25" hits="1"></line>
+								<line number="26" hits="1"></line>
+								<line number="27" hits="1"></line>
+								<line number="29" hits="1"></line>
+							</lines>
+						</method>
+						<method name="NewStdoutEmitter" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="39" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="25" hits="1"></line>
+						<line number="26" hits="1"></line>
+						<line number="27" hits="1"></line>
+						<line number="29" hits="1"></line>
+						<line number="39" hits="1"></line>
+					</lines>
+				</class>
+				<class name="StdoutEmitter" filename="internal/integration/emitter.go" line-rate="0.6666667" branch-rate="0" complexity="0" line-count="6" line-hits="4">
+					<methods>
+						<method name="Name" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="46" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Emit" signature="" line-rate="0.8" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="52" hits="1"></line>
+								<line number="53" hits="1"></line>
+								<line number="54" hits="0"></line>
+								<line number="56" hits="1"></line>
+								<line number="57" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="46" hits="0"></line>
+						<line number="52" hits="1"></line>
+						<line number="53" hits="1"></line>
+						<line number="54" hits="0"></line>
+						<line number="56" hits="1"></line>
+						<line number="57" hits="1"></line>
+					</lines>
+				</class>
+				<class name="InfraSdkEmitter" filename="internal/integration/infra_sdk_emitter.go" line-rate="0.8358209" branch-rate="0" complexity="0" line-count="67" line-hits="56">
+					<methods>
+						<method name="Name" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="28" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Emit" signature="" line-rate="0.85" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="34" hits="1"></line>
+								<line number="35" hits="1"></line>
+								<line number="36" hits="0"></line>
+								<line number="39" hits="1"></line>
+								<line number="40" hits="1"></line>
+								<line number="41" hits="1"></line>
+								<line number="43" hits="1"></line>
+								<line number="44" hits="1"></line>
+								<line number="46" hits="1"></line>
+								<line number="47" hits="1"></line>
+								<line number="49" hits="1"></line>
+								<line number="50" hits="1"></line>
+								<line number="52" hits="1"></line>
+								<line number="53" hits="1"></line>
+								<line number="55" hits="0"></line>
+								<line number="58" hits="1"></line>
+								<line number="59" hits="0"></line>
+								<line number="62" hits="1"></line>
+								<line number="63" hits="1"></line>
+								<line number="65" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitGauge" signature="" line-rate="0.8" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="69" hits="1"></line>
+								<line number="70" hits="1"></line>
+								<line number="71" hits="0"></line>
+								<line number="73" hits="1"></line>
+								<line number="75" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitCounter" signature="" line-rate="0.8" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="79" hits="1"></line>
+								<line number="80" hits="1"></line>
+								<line number="81" hits="0"></line>
+								<line number="83" hits="1"></line>
+								<line number="85" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitHistogram" signature="" line-rate="0.8181818" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="89" hits="1"></line>
+								<line number="90" hits="1"></line>
+								<line number="91" hits="0"></line>
+								<line number="94" hits="1"></line>
+								<line number="95" hits="1"></line>
+								<line number="96" hits="0"></line>
+								<line number="98" hits="1"></line>
+								<line number="100" hits="1"></line>
+								<line number="101" hits="1"></line>
+								<line number="102" hits="1"></line>
+								<line number="105" hits="1"></line>
+							</lines>
+						</method>
+						<method name="emitSummary" signature="" line-rate="0.8181818" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="109" hits="1"></line>
+								<line number="110" hits="1"></line>
+								<line number="111" hits="0"></line>
+								<line number="114" hits="1"></line>
+								<line number="115" hits="1"></line>
+								<line number="116" hits="0"></line>
+								<line number="118" hits="1"></line>
+								<line number="120" hits="1"></line>
+								<line number="121" hits="1"></line>
+								<line number="122" hits="1"></line>
+								<line number="125" hits="1"></line>
+							</lines>
+						</method>
+						<method name="addMetricToEntity" signature="" line-rate="0.85714287" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="129" hits="1"></line>
+								<line number="131" hits="1"></line>
+								<line number="132" hits="1"></line>
+								<line number="133" hits="1"></line>
+								<line number="136" hits="1"></line>
+								<line number="139" hits="1"></line>
+								<line number="140" hits="1"></line>
+								<line number="141" hits="1"></line>
+								<line number="142" hits="1"></line>
+								<line number="143" hits="0"></line>
+								<line number="144" hits="0"></line>
+								<line number="146" hits="1"></line>
+								<line number="149" hits="1"></line>
+								<line number="150" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="28" hits="1"></line>
+						<line number="34" hits="1"></line>
+						<line number="35" hits="1"></line>
+						<line number="36" hits="0"></line>
+						<line number="39" hits="1"></line>
+						<line number="40" hits="1"></line>
+						<line number="41" hits="1"></line>
+						<line number="43" hits="1"></line>
+						<line number="44" hits="1"></line>
+						<line number="46" hits="1"></line>
+						<line number="47" hits="1"></line>
+						<line number="49" hits="1"></line>
+						<line number="50" hits="1"></line>
+						<line number="52" hits="1"></line>
+						<line number="53" hits="1"></line>
+						<line number="55" hits="0"></line>
+						<line number="58" hits="1"></line>
+						<line number="59" hits="0"></line>
+						<line number="62" hits="1"></line>
+						<line number="63" hits="1"></line>
+						<line number="65" hits="1"></line>
+						<line number="69" hits="1"></line>
+						<line number="70" hits="1"></line>
+						<line number="71" hits="0"></line>
+						<line number="73" hits="1"></line>
+						<line number="75" hits="1"></line>
+						<line number="79" hits="1"></line>
+						<line number="80" hits="1"></line>
+						<line number="81" hits="0"></line>
+						<line number="83" hits="1"></line>
+						<line number="85" hits="1"></line>
+						<line number="89" hits="1"></line>
+						<line number="90" hits="1"></line>
+						<line number="91" hits="0"></line>
+						<line number="94" hits="1"></line>
+						<line number="95" hits="1"></line>
+						<line number="96" hits="0"></line>
+						<line number="98" hits="1"></line>
+						<line number="100" hits="1"></line>
+						<line number="101" hits="1"></line>
+						<line number="102" hits="1"></line>
+						<line number="105" hits="1"></line>
+						<line number="109" hits="1"></line>
+						<line number="110" hits="1"></line>
+						<line number="111" hits="0"></line>
+						<line number="114" hits="1"></line>
+						<line number="115" hits="1"></line>
+						<line number="116" hits="0"></line>
+						<line number="118" hits="1"></line>
+						<line number="120" hits="1"></line>
+						<line number="121" hits="1"></line>
+						<line number="122" hits="1"></line>
+						<line number="125" hits="1"></line>
+						<line number="129" hits="1"></line>
+						<line number="131" hits="1"></line>
+						<line number="132" hits="1"></line>
+						<line number="133" hits="1"></line>
+						<line number="136" hits="1"></line>
+						<line number="139" hits="1"></line>
+						<line number="140" hits="1"></line>
+						<line number="141" hits="1"></line>
+						<line number="142" hits="1"></line>
+						<line number="143" hits="0"></line>
+						<line number="144" hits="0"></line>
+						<line number="146" hits="1"></line>
+						<line number="149" hits="1"></line>
+						<line number="150" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/infra_sdk_emitter.go" line-rate="0.7567568" branch-rate="0" complexity="0" line-count="37" line-hits="28">
+					<methods>
+						<method name="NewInfraSdkEmitter" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="23" hits="1"></line>
+							</lines>
+						</method>
+						<method name="buildEntityName" signature="" line-rate="0.57894737" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="157" hits="1"></line>
+								<line number="159" hits="1"></line>
+								<line number="161" hits="1"></line>
+								<line number="162" hits="1"></line>
+								<line number="163" hits="0"></line>
+								<line number="164" hits="0"></line>
+								<line number="165" hits="0"></line>
+								<line number="167" hits="0"></line>
+								<line number="168" hits="0"></line>
+								<line number="172" hits="1"></line>
+								<line number="173" hits="1"></line>
+								<line number="175" hits="1"></line>
+								<line number="176" hits="0"></line>
+								<line number="177" hits="0"></line>
+								<line number="180" hits="1"></line>
+								<line number="182" hits="1"></line>
+								<line number="183" hits="1"></line>
+								<line number="184" hits="0"></line>
+								<line number="190" hits="1"></line>
+							</lines>
+						</method>
+						<method name="resizeToLimit" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="196" hits="1"></line>
+								<line number="197" hits="1"></line>
+								<line number="200" hits="1"></line>
+								<line number="201" hits="1"></line>
+								<line number="204" hits="1"></line>
+								<line number="205" hits="1"></line>
+								<line number="206" hits="1"></line>
+								<line number="207" hits="1"></line>
+								<line number="208" hits="1"></line>
+								<line number="210" hits="1"></line>
+								<line number="211" hits="1"></line>
+								<line number="213" hits="1"></line>
+							</lines>
+						</method>
+						<method name="addDimensions" signature="" line-rate="0.8" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="217" hits="1"></line>
+								<line number="218" hits="1"></line>
+								<line number="219" hits="1"></line>
+								<line number="220" hits="1"></line>
+								<line number="221" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="23" hits="1"></line>
+						<line number="157" hits="1"></line>
+						<line number="159" hits="1"></line>
+						<line number="161" hits="1"></line>
+						<line number="162" hits="1"></line>
+						<line number="163" hits="0"></line>
+						<line number="164" hits="0"></line>
+						<line number="165" hits="0"></line>
+						<line number="167" hits="0"></line>
+						<line number="168" hits="0"></line>
+						<line number="172" hits="1"></line>
+						<line number="173" hits="1"></line>
+						<line number="175" hits="1"></line>
+						<line number="176" hits="0"></line>
+						<line number="177" hits="0"></line>
+						<line number="180" hits="1"></line>
+						<line number="182" hits="1"></line>
+						<line number="183" hits="1"></line>
+						<line number="184" hits="0"></line>
+						<line number="190" hits="1"></line>
+						<line number="196" hits="1"></line>
+						<line number="197" hits="1"></line>
+						<line number="200" hits="1"></line>
+						<line number="201" hits="1"></line>
+						<line number="204" hits="1"></line>
+						<line number="205" hits="1"></line>
+						<line number="206" hits="1"></line>
+						<line number="207" hits="1"></line>
+						<line number="208" hits="1"></line>
+						<line number="210" hits="1"></line>
+						<line number="211" hits="1"></line>
+						<line number="213" hits="1"></line>
+						<line number="217" hits="1"></line>
+						<line number="218" hits="1"></line>
+						<line number="219" hits="1"></line>
+						<line number="220" hits="1"></line>
+						<line number="221" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/integration.go" line-rate="0" branch-rate="0" complexity="0" line-count="54" line-hits="0">
+					<methods>
+						<method name="Execute" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="41" hits="0"></line>
+								<line number="42" hits="0"></line>
+								<line number="43" hits="0"></line>
+								<line number="44" hits="0"></line>
+								<line number="48" hits="0"></line>
+								<line number="49" hits="0"></line>
+								<line number="50" hits="0"></line>
+								<line number="51" hits="0"></line>
+								<line number="52" hits="0"></line>
+								<line number="54" hits="0"></line>
+								<line number="55" hits="0"></line>
+								<line number="56" hits="0"></line>
+								<line number="57" hits="0"></line>
+								<line number="58" hits="0"></line>
+								<line number="60" hits="0"></line>
+							</lines>
+						</method>
+						<method name="ExecuteOnce" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="68" hits="0"></line>
+								<line number="69" hits="0"></line>
+								<line number="70" hits="0"></line>
+								<line number="71" hits="0"></line>
+								<line number="75" hits="0"></line>
+								<line number="76" hits="0"></line>
+							</lines>
+						</method>
+						<method name="processWithoutTelemetry" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="88" hits="0"></line>
+								<line number="89" hits="0"></line>
+								<line number="90" hits="0"></line>
+								<line number="91" hits="0"></line>
+								<line number="93" hits="0"></line>
+								<line number="94" hits="0"></line>
+								<line number="95" hits="0"></line>
+								<line number="96" hits="0"></line>
+								<line number="97" hits="0"></line>
+								<line number="98" hits="0"></line>
+								<line number="99" hits="0"></line>
+							</lines>
+						</method>
+						<method name="process" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="106" hits="0"></line>
+								<line number="108" hits="0"></line>
+								<line number="109" hits="0"></line>
+								<line number="110" hits="0"></line>
+								<line number="111" hits="0"></line>
+								<line number="112" hits="0"></line>
+								<line number="113" hits="0"></line>
+								<line number="114" hits="0"></line>
+								<line number="115" hits="0"></line>
+								<line number="117" hits="0"></line>
+								<line number="118" hits="0"></line>
+								<line number="120" hits="0"></line>
+								<line number="121" hits="0"></line>
+								<line number="123" hits="0"></line>
+								<line number="124" hits="0"></line>
+								<line number="125" hits="0"></line>
+								<line number="127" hits="0"></line>
+								<line number="128" hits="0"></line>
+								<line number="129" hits="0"></line>
+								<line number="130" hits="0"></line>
+								<line number="135" hits="0"></line>
+								<line number="137" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="41" hits="0"></line>
+						<line number="42" hits="0"></line>
+						<line number="43" hits="0"></line>
+						<line number="44" hits="0"></line>
+						<line number="48" hits="0"></line>
+						<line number="49" hits="0"></line>
+						<line number="50" hits="0"></line>
+						<line number="51" hits="0"></line>
+						<line number="52" hits="0"></line>
+						<line number="54" hits="0"></line>
+						<line number="55" hits="0"></line>
+						<line number="56" hits="0"></line>
+						<line number="57" hits="0"></line>
+						<line number="58" hits="0"></line>
+						<line number="60" hits="0"></line>
+						<line number="68" hits="0"></line>
+						<line number="69" hits="0"></line>
+						<line number="70" hits="0"></line>
+						<line number="71" hits="0"></line>
+						<line number="75" hits="0"></line>
+						<line number="76" hits="0"></line>
+						<line number="88" hits="0"></line>
+						<line number="89" hits="0"></line>
+						<line number="90" hits="0"></line>
+						<line number="91" hits="0"></line>
+						<line number="93" hits="0"></line>
+						<line number="94" hits="0"></line>
+						<line number="95" hits="0"></line>
+						<line number="96" hits="0"></line>
+						<line number="97" hits="0"></line>
+						<line number="98" hits="0"></line>
+						<line number="99" hits="0"></line>
+						<line number="106" hits="0"></line>
+						<line number="108" hits="0"></line>
+						<line number="109" hits="0"></line>
+						<line number="110" hits="0"></line>
+						<line number="111" hits="0"></line>
+						<line number="112" hits="0"></line>
+						<line number="113" hits="0"></line>
+						<line number="114" hits="0"></line>
+						<line number="115" hits="0"></line>
+						<line number="117" hits="0"></line>
+						<line number="118" hits="0"></line>
+						<line number="120" hits="0"></line>
+						<line number="121" hits="0"></line>
+						<line number="123" hits="0"></line>
+						<line number="124" hits="0"></line>
+						<line number="125" hits="0"></line>
+						<line number="127" hits="0"></line>
+						<line number="128" hits="0"></line>
+						<line number="129" hits="0"></line>
+						<line number="130" hits="0"></line>
+						<line number="135" hits="0"></line>
+						<line number="137" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/rules.go" line-rate="0.6262626" branch-rate="0" complexity="0" line-count="99" line-hits="62">
+					<methods>
+						<method name="AutoDecorateLabels" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="83" hits="0"></line>
+								<line number="84" hits="0"></line>
+								<line number="85" hits="0"></line>
+								<line number="86" hits="0"></line>
+								<line number="94" hits="0"></line>
+								<line number="95" hits="0"></line>
+								<line number="96" hits="0"></line>
+							</lines>
+						</method>
+						<method name="CopyAttributes" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="114" hits="1"></line>
+								<line number="115" hits="1"></line>
+								<line number="118" hits="1"></line>
+								<line number="119" hits="1"></line>
+								<line number="121" hits="1"></line>
+								<line number="122" hits="1"></line>
+								<line number="123" hits="1"></line>
+								<line number="125" hits="1"></line>
+								<line number="126" hits="1"></line>
+								<line number="127" hits="1"></line>
+								<line number="128" hits="1"></line>
+								<line number="129" hits="1"></line>
+								<line number="130" hits="1"></line>
+								<line number="132" hits="1"></line>
+							</lines>
+						</method>
+						<method name="MatchingDecorate" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="150" hits="1"></line>
+								<line number="155" hits="1"></line>
+								<line number="158" hits="1"></line>
+								<line number="159" hits="1"></line>
+								<line number="161" hits="1"></line>
+								<line number="164" hits="1"></line>
+								<line number="165" hits="1"></line>
+								<line number="166" hits="1"></line>
+								<line number="167" hits="1"></line>
+								<line number="168" hits="1"></line>
+								<line number="173" hits="1"></line>
+								<line number="177" hits="1"></line>
+								<line number="178" hits="1"></line>
+								<line number="179" hits="1"></line>
+								<line number="183" hits="1"></line>
+							</lines>
+						</method>
+						<method name="appendDecorate" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="188" hits="1"></line>
+								<line number="189" hits="1"></line>
+								<line number="190" hits="1"></line>
+								<line number="191" hits="1"></line>
+								<line number="192" hits="1"></line>
+								<line number="194" hits="1"></line>
+							</lines>
+						</method>
+						<method name="appendLabels" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="199" hits="1"></line>
+								<line number="200" hits="1"></line>
+								<line number="201" hits="1"></line>
+								<line number="202" hits="1"></line>
+								<line number="203" hits="1"></line>
+								<line number="205" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Decorate" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="210" hits="1"></line>
+								<line number="211" hits="1"></line>
+								<line number="212" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Rename" signature="" line-rate="0.875" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="220" hits="1"></line>
+								<line number="221" hits="0"></line>
+								<line number="224" hits="1"></line>
+								<line number="226" hits="1"></line>
+								<line number="227" hits="1"></line>
+								<line number="228" hits="1"></line>
+								<line number="229" hits="1"></line>
+								<line number="230" hits="1"></line>
+							</lines>
+						</method>
+						<method name="AddAttributes" signature="" line-rate="0.8333333" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="243" hits="1"></line>
+								<line number="244" hits="0"></line>
+								<line number="247" hits="1"></line>
+								<line number="248" hits="1"></line>
+								<line number="249" hits="1"></line>
+								<line number="250" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Filter" signature="" line-rate="0.85714287" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="288" hits="1"></line>
+								<line number="289" hits="0"></line>
+								<line number="292" hits="1"></line>
+								<line number="293" hits="1"></line>
+								<line number="294" hits="1"></line>
+								<line number="295" hits="1"></line>
+								<line number="298" hits="1"></line>
+							</lines>
+						</method>
+						<method name="RuleProcessor" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="308" hits="0"></line>
+								<line number="309" hits="0"></line>
+								<line number="310" hits="0"></line>
+								<line number="311" hits="0"></line>
+								<line number="312" hits="0"></line>
+								<line number="313" hits="0"></line>
+								<line number="314" hits="0"></line>
+								<line number="315" hits="0"></line>
+								<line number="316" hits="0"></line>
+								<line number="317" hits="0"></line>
+								<line number="318" hits="0"></line>
+								<line number="319" hits="0"></line>
+								<line number="321" hits="0"></line>
+								<line number="322" hits="0"></line>
+								<line number="323" hits="0"></line>
+								<line number="325" hits="0"></line>
+								<line number="334" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@334:9" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="335" hits="0"></line>
+								<line number="337" hits="0"></line>
+								<line number="353" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@337:6" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="341" hits="0"></line>
+								<line number="343" hits="0"></line>
+								<line number="344" hits="0"></line>
+								<line number="345" hits="0"></line>
+								<line number="346" hits="0"></line>
+								<line number="347" hits="0"></line>
+								<line number="349" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="83" hits="0"></line>
+						<line number="84" hits="0"></line>
+						<line number="85" hits="0"></line>
+						<line number="86" hits="0"></line>
+						<line number="94" hits="0"></line>
+						<line number="95" hits="0"></line>
+						<line number="96" hits="0"></line>
+						<line number="114" hits="1"></line>
+						<line number="115" hits="1"></line>
+						<line number="118" hits="1"></line>
+						<line number="119" hits="1"></line>
+						<line number="121" hits="1"></line>
+						<line number="122" hits="1"></line>
+						<line number="123" hits="1"></line>
+						<line number="125" hits="1"></line>
+						<line number="126" hits="1"></line>
+						<line number="127" hits="1"></line>
+						<line number="128" hits="1"></line>
+						<line number="129" hits="1"></line>
+						<line number="130" hits="1"></line>
+						<line number="132" hits="1"></line>
+						<line number="150" hits="1"></line>
+						<line number="155" hits="1"></line>
+						<line number="158" hits="1"></line>
+						<line number="159" hits="1"></line>
+						<line number="161" hits="1"></line>
+						<line number="164" hits="1"></line>
+						<line number="165" hits="1"></line>
+						<line number="166" hits="1"></line>
+						<line number="167" hits="1"></line>
+						<line number="168" hits="1"></line>
+						<line number="173" hits="1"></line>
+						<line number="177" hits="1"></line>
+						<line number="178" hits="1"></line>
+						<line number="179" hits="1"></line>
+						<line number="183" hits="1"></line>
+						<line number="188" hits="1"></line>
+						<line number="189" hits="1"></line>
+						<line number="190" hits="1"></line>
+						<line number="191" hits="1"></line>
+						<line number="192" hits="1"></line>
+						<line number="194" hits="1"></line>
+						<line number="199" hits="1"></line>
+						<line number="200" hits="1"></line>
+						<line number="201" hits="1"></line>
+						<line number="202" hits="1"></line>
+						<line number="203" hits="1"></line>
+						<line number="205" hits="1"></line>
+						<line number="210" hits="1"></line>
+						<line number="211" hits="1"></line>
+						<line number="212" hits="1"></line>
+						<line number="220" hits="1"></line>
+						<line number="221" hits="0"></line>
+						<line number="224" hits="1"></line>
+						<line number="226" hits="1"></line>
+						<line number="227" hits="1"></line>
+						<line number="228" hits="1"></line>
+						<line number="229" hits="1"></line>
+						<line number="230" hits="1"></line>
+						<line number="243" hits="1"></line>
+						<line number="244" hits="0"></line>
+						<line number="247" hits="1"></line>
+						<line number="248" hits="1"></line>
+						<line number="249" hits="1"></line>
+						<line number="250" hits="1"></line>
+						<line number="288" hits="1"></line>
+						<line number="289" hits="0"></line>
+						<line number="292" hits="1"></line>
+						<line number="293" hits="1"></line>
+						<line number="294" hits="1"></line>
+						<line number="295" hits="1"></line>
+						<line number="298" hits="1"></line>
+						<line number="308" hits="0"></line>
+						<line number="309" hits="0"></line>
+						<line number="310" hits="0"></line>
+						<line number="311" hits="0"></line>
+						<line number="312" hits="0"></line>
+						<line number="313" hits="0"></line>
+						<line number="314" hits="0"></line>
+						<line number="315" hits="0"></line>
+						<line number="316" hits="0"></line>
+						<line number="317" hits="0"></line>
+						<line number="318" hits="0"></line>
+						<line number="319" hits="0"></line>
+						<line number="321" hits="0"></line>
+						<line number="322" hits="0"></line>
+						<line number="323" hits="0"></line>
+						<line number="325" hits="0"></line>
+						<line number="334" hits="0"></line>
+						<line number="335" hits="0"></line>
+						<line number="337" hits="0"></line>
+						<line number="353" hits="0"></line>
+						<line number="341" hits="0"></line>
+						<line number="343" hits="0"></line>
+						<line number="344" hits="0"></line>
+						<line number="345" hits="0"></line>
+						<line number="346" hits="0"></line>
+						<line number="347" hits="0"></line>
+						<line number="349" hits="0"></line>
+					</lines>
+				</class>
+				<class name="ignoreRules" filename="internal/integration/rules.go" line-rate="1" branch-rate="0" complexity="0" line-count="13" line-hits="13">
+					<methods>
+						<method name="shouldIgnore" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="259" hits="1"></line>
+								<line number="260" hits="1"></line>
+								<line number="261" hits="1"></line>
+								<line number="262" hits="1"></line>
+								<line number="263" hits="1"></line>
+								<line number="264" hits="1"></line>
+								<line number="268" hits="1"></line>
+								<line number="269" hits="1"></line>
+								<line number="270" hits="1"></line>
+								<line number="271" hits="1"></line>
+								<line number="276" hits="1"></line>
+								<line number="277" hits="1"></line>
+								<line number="281" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="259" hits="1"></line>
+						<line number="260" hits="1"></line>
+						<line number="261" hits="1"></line>
+						<line number="262" hits="1"></line>
+						<line number="263" hits="1"></line>
+						<line number="264" hits="1"></line>
+						<line number="268" hits="1"></line>
+						<line number="269" hits="1"></line>
+						<line number="270" hits="1"></line>
+						<line number="271" hits="1"></line>
+						<line number="276" hits="1"></line>
+						<line number="277" hits="1"></line>
+						<line number="281" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/spec.go" line-rate="0.7619048" branch-rate="0" complexity="0" line-count="21" line-hits="16">
+					<methods>
+						<method name="LoadSpecFiles" signature="" line-rate="0.7619048" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="67" hits="1"></line>
+								<line number="68" hits="1"></line>
+								<line number="70" hits="1"></line>
+								<line number="71" hits="1"></line>
+								<line number="72" hits="0"></line>
+								<line number="74" hits="1"></line>
+								<line number="75" hits="1"></line>
+								<line number="76" hits="1"></line>
+								<line number="80" hits="1"></line>
+								<line number="81" hits="1"></line>
+								<line number="82" hits="1"></line>
+								<line number="83" hits="0"></line>
+								<line number="84" hits="0"></line>
+								<line number="87" hits="1"></line>
+								<line number="88" hits="1"></line>
+								<line number="89" hits="1"></line>
+								<line number="90" hits="0"></line>
+								<line number="91" hits="0"></line>
+								<line number="93" hits="1"></line>
+								<line number="94" hits="1"></line>
+								<line number="97" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="67" hits="1"></line>
+						<line number="68" hits="1"></line>
+						<line number="70" hits="1"></line>
+						<line number="71" hits="1"></line>
+						<line number="72" hits="0"></line>
+						<line number="74" hits="1"></line>
+						<line number="75" hits="1"></line>
+						<line number="76" hits="1"></line>
+						<line number="80" hits="1"></line>
+						<line number="81" hits="1"></line>
+						<line number="82" hits="1"></line>
+						<line number="83" hits="0"></line>
+						<line number="84" hits="0"></line>
+						<line number="87" hits="1"></line>
+						<line number="88" hits="1"></line>
+						<line number="89" hits="1"></line>
+						<line number="90" hits="0"></line>
+						<line number="91" hits="0"></line>
+						<line number="93" hits="1"></line>
+						<line number="94" hits="1"></line>
+						<line number="97" hits="1"></line>
+					</lines>
+				</class>
+				<class name="Specs" filename="internal/integration/spec.go" line-rate="0.9117647" branch-rate="0" complexity="0" line-count="34" line-hits="31">
+					<methods>
+						<method name="getEntity" signature="" line-rate="0.88" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="107" hits="1"></line>
+								<line number="108" hits="1"></line>
+								<line number="109" hits="1"></line>
+								<line number="112" hits="1"></line>
+								<line number="113" hits="1"></line>
+								<line number="114" hits="1"></line>
+								<line number="115" hits="1"></line>
+								<line number="116" hits="1"></line>
+								<line number="117" hits="0"></line>
+								<line number="118" hits="0"></line>
+								<line number="120" hits="1"></line>
+								<line number="121" hits="0"></line>
+								<line number="124" hits="1"></line>
+								<line number="128" hits="1"></line>
+								<line number="129" hits="1"></line>
+								<line number="130" hits="1"></line>
+								<line number="131" hits="1"></line>
+								<line number="132" hits="1"></line>
+								<line number="134" hits="1"></line>
+								<line number="135" hits="1"></line>
+								<line number="136" hits="1"></line>
+								<line number="138" hits="1"></line>
+								<line number="139" hits="1"></line>
+								<line number="141" hits="1"></line>
+								<line number="144" hits="1"></line>
+							</lines>
+						</method>
+						<method name="findSpec" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="149" hits="1"></line>
+								<line number="151" hits="1"></line>
+								<line number="152" hits="1"></line>
+								<line number="153" hits="1"></line>
+								<line number="155" hits="1"></line>
+								<line number="157" hits="1"></line>
+								<line number="158" hits="1"></line>
+								<line number="159" hits="1"></line>
+								<line number="162" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="107" hits="1"></line>
+						<line number="108" hits="1"></line>
+						<line number="109" hits="1"></line>
+						<line number="112" hits="1"></line>
+						<line number="113" hits="1"></line>
+						<line number="114" hits="1"></line>
+						<line number="115" hits="1"></line>
+						<line number="116" hits="1"></line>
+						<line number="117" hits="0"></line>
+						<line number="118" hits="0"></line>
+						<line number="120" hits="1"></line>
+						<line number="121" hits="0"></line>
+						<line number="124" hits="1"></line>
+						<line number="128" hits="1"></line>
+						<line number="129" hits="1"></line>
+						<line number="130" hits="1"></line>
+						<line number="131" hits="1"></line>
+						<line number="132" hits="1"></line>
+						<line number="134" hits="1"></line>
+						<line number="135" hits="1"></line>
+						<line number="136" hits="1"></line>
+						<line number="138" hits="1"></line>
+						<line number="139" hits="1"></line>
+						<line number="141" hits="1"></line>
+						<line number="144" hits="1"></line>
+						<line number="149" hits="1"></line>
+						<line number="151" hits="1"></line>
+						<line number="152" hits="1"></line>
+						<line number="153" hits="1"></line>
+						<line number="155" hits="1"></line>
+						<line number="157" hits="1"></line>
+						<line number="158" hits="1"></line>
+						<line number="159" hits="1"></line>
+						<line number="162" hits="1"></line>
+					</lines>
+				</class>
+				<class name="SpecDef" filename="internal/integration/spec.go" line-rate="0.8888889" branch-rate="0" complexity="0" line-count="9" line-hits="8">
+					<methods>
+						<method name="findEntity" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="167" hits="1"></line>
+								<line number="168" hits="1"></line>
+								<line number="169" hits="1"></line>
+								<line number="170" hits="1"></line>
+								<line number="174" hits="1"></line>
+							</lines>
+						</method>
+						<method name="findEntityByName" signature="" line-rate="0.75" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="178" hits="1"></line>
+								<line number="179" hits="1"></line>
+								<line number="180" hits="1"></line>
+								<line number="183" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="167" hits="1"></line>
+						<line number="168" hits="1"></line>
+						<line number="169" hits="1"></line>
+						<line number="170" hits="1"></line>
+						<line number="174" hits="1"></line>
+						<line number="178" hits="1"></line>
+						<line number="179" hits="1"></line>
+						<line number="180" hits="1"></line>
+						<line number="183" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/fetcher.go" line-rate="0.6210526" branch-rate="0" complexity="0" line-count="95" line-hits="59">
+					<methods>
+						<method name="NewTLSConfig" signature="" line-rate="0.33333334" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="43" hits="1"></line>
+								<line number="45" hits="1"></line>
+								<line number="46" hits="0"></line>
+								<line number="47" hits="0"></line>
+								<line number="48" hits="0"></line>
+								<line number="49" hits="0"></line>
+								<line number="51" hits="0"></line>
+								<line number="52" hits="0"></line>
+								<line number="54" hits="1"></line>
+							</lines>
+						</method>
+						<method name="NewRoundTripper" signature="" line-rate="0.71428573" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="60" hits="1"></line>
+								<line number="61" hits="1"></line>
+								<line number="62" hits="0"></line>
+								<line number="64" hits="1"></line>
+								<line number="65" hits="1"></line>
+								<line number="66" hits="0"></line>
+								<line number="68" hits="1"></line>
+							</lines>
+						</method>
+						<method name="newDefaultRoundTripper" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="72" hits="1"></line>
+								<line number="82" hits="1"></line>
+							</lines>
+						</method>
+						<method name="NewBearerAuthFileRoundTripper" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="88" hits="0"></line>
+							</lines>
+						</method>
+						<method name="cloneRequest" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="115" hits="0"></line>
+								<line number="116" hits="0"></line>
+								<line number="118" hits="0"></line>
+								<line number="119" hits="0"></line>
+								<line number="120" hits="0"></line>
+								<line number="122" hits="0"></line>
+							</lines>
+						</method>
+						<method name="NewFetcher" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="127" hits="1"></line>
+								<line number="128" hits="1"></line>
+								<line number="132" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@173:5" signature="" line-rate="0.7777778" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="177" hits="1"></line>
+								<line number="178" hits="1"></line>
+								<line number="179" hits="0"></line>
+								<line number="182" hits="0"></line>
+								<line number="192" hits="1"></line>
+								<line number="193" hits="1"></line>
+								<line number="194" hits="1"></line>
+								<line number="195" hits="1"></line>
+								<line number="196" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@200:5" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="203" hits="1"></line>
+								<line number="204" hits="1"></line>
+								<line number="205" hits="1"></line>
+								<line number="206" hits="1"></line>
+							</lines>
+						</method>
+						<method name="isMutualTLSTarget" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="257" hits="1"></line>
+							</lines>
+						</method>
+						<method name="NewMutualTLSRoundTripper" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="264" hits="0"></line>
+								<line number="265" hits="0"></line>
+								<line number="266" hits="0"></line>
+								<line number="270" hits="0"></line>
+								<line number="271" hits="0"></line>
+								<line number="272" hits="0"></line>
+								<line number="275" hits="0"></line>
+								<line number="276" hits="0"></line>
+								<line number="278" hits="0"></line>
+								<line number="283" hits="0"></line>
+								<line number="285" hits="0"></line>
+								<line number="286" hits="0"></line>
+							</lines>
+						</method>
+						<method name="convertPromMetrics" signature="" line-rate="0.8292683" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="318" hits="1"></line>
+								<line number="319" hits="1"></line>
+								<line number="320" hits="1"></line>
+								<line number="321" hits="1"></line>
+								<line number="322" hits="0"></line>
+								<line number="324" hits="1"></line>
+								<line number="325" hits="1"></line>
+								<line number="326" hits="1"></line>
+								<line number="327" hits="1"></line>
+								<line number="329" hits="1"></line>
+								<line number="331" hits="1"></line>
+								<line number="332" hits="1"></line>
+								<line number="333" hits="1"></line>
+								<line number="334" hits="1"></line>
+								<line number="335" hits="1"></line>
+								<line number="336" hits="0"></line>
+								<line number="338" hits="1"></line>
+								<line number="339" hits="1"></line>
+								<line number="340" hits="1"></line>
+								<line number="341" hits="1"></line>
+								<line number="343" hits="0"></line>
+								<line number="344" hits="0"></line>
+								<line number="346" hits="1"></line>
+								<line number="347" hits="1"></line>
+								<line number="349" hits="1"></line>
+								<line number="350" hits="1"></line>
+								<line number="352" hits="1"></line>
+								<line number="353" hits="1"></line>
+								<line number="355" hits="1"></line>
+								<line number="356" hits="1"></line>
+								<line number="358" hits="0"></line>
+								<line number="359" hits="0"></line>
+								<line number="361" hits="0"></line>
+								<line number="363" hits="1"></line>
+								<line number="364" hits="1"></line>
+								<line number="365" hits="1"></line>
+								<line number="366" hits="1"></line>
+								<line number="368" hits="1"></line>
+								<line number="369" hits="1"></line>
+								<line number="370" hits="1"></line>
+								<line number="381" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="43" hits="1"></line>
+						<line number="45" hits="1"></line>
+						<line number="46" hits="0"></line>
+						<line number="47" hits="0"></line>
+						<line number="48" hits="0"></line>
+						<line number="49" hits="0"></line>
+						<line number="51" hits="0"></line>
+						<line number="52" hits="0"></line>
+						<line number="54" hits="1"></line>
+						<line number="60" hits="1"></line>
+						<line number="61" hits="1"></line>
+						<line number="62" hits="0"></line>
+						<line number="64" hits="1"></line>
+						<line number="65" hits="1"></line>
+						<line number="66" hits="0"></line>
+						<line number="68" hits="1"></line>
+						<line number="72" hits="1"></line>
+						<line number="82" hits="1"></line>
+						<line number="88" hits="0"></line>
+						<line number="115" hits="0"></line>
+						<line number="116" hits="0"></line>
+						<line number="118" hits="0"></line>
+						<line number="119" hits="0"></line>
+						<line number="120" hits="0"></line>
+						<line number="122" hits="0"></line>
+						<line number="127" hits="1"></line>
+						<line number="128" hits="1"></line>
+						<line number="132" hits="1"></line>
+						<line number="177" hits="1"></line>
+						<line number="178" hits="1"></line>
+						<line number="179" hits="0"></line>
+						<line number="182" hits="0"></line>
+						<line number="192" hits="1"></line>
+						<line number="193" hits="1"></line>
+						<line number="194" hits="1"></line>
+						<line number="195" hits="1"></line>
+						<line number="196" hits="1"></line>
+						<line number="203" hits="1"></line>
+						<line number="204" hits="1"></line>
+						<line number="205" hits="1"></line>
+						<line number="206" hits="1"></line>
+						<line number="257" hits="1"></line>
+						<line number="264" hits="0"></line>
+						<line number="265" hits="0"></line>
+						<line number="266" hits="0"></line>
+						<line number="270" hits="0"></line>
+						<line number="271" hits="0"></line>
+						<line number="272" hits="0"></line>
+						<line number="275" hits="0"></line>
+						<line number="276" hits="0"></line>
+						<line number="278" hits="0"></line>
+						<line number="283" hits="0"></line>
+						<line number="285" hits="0"></line>
+						<line number="286" hits="0"></line>
+						<line number="318" hits="1"></line>
+						<line number="319" hits="1"></line>
+						<line number="320" hits="1"></line>
+						<line number="321" hits="1"></line>
+						<line number="322" hits="0"></line>
+						<line number="324" hits="1"></line>
+						<line number="325" hits="1"></line>
+						<line number="326" hits="1"></line>
+						<line number="327" hits="1"></line>
+						<line number="329" hits="1"></line>
+						<line number="331" hits="1"></line>
+						<line number="332" hits="1"></line>
+						<line number="333" hits="1"></line>
+						<line number="334" hits="1"></line>
+						<line number="335" hits="1"></line>
+						<line number="336" hits="0"></line>
+						<line number="338" hits="1"></line>
+						<line number="339" hits="1"></line>
+						<line number="340" hits="1"></line>
+						<line number="341" hits="1"></line>
+						<line number="343" hits="0"></line>
+						<line number="344" hits="0"></line>
+						<line number="346" hits="1"></line>
+						<line number="347" hits="1"></line>
+						<line number="349" hits="1"></line>
+						<line number="350" hits="1"></line>
+						<line number="352" hits="1"></line>
+						<line number="353" hits="1"></line>
+						<line number="355" hits="1"></line>
+						<line number="356" hits="1"></line>
+						<line number="358" hits="0"></line>
+						<line number="359" hits="0"></line>
+						<line number="361" hits="0"></line>
+						<line number="363" hits="1"></line>
+						<line number="364" hits="1"></line>
+						<line number="365" hits="1"></line>
+						<line number="366" hits="1"></line>
+						<line number="368" hits="1"></line>
+						<line number="369" hits="1"></line>
+						<line number="370" hits="1"></line>
+						<line number="381" hits="1"></line>
+					</lines>
+				</class>
+				<class name="bearerAuthFileRoundTripper" filename="internal/integration/fetcher.go" line-rate="0" branch-rate="0" complexity="0" line-count="8" line-hits="0">
+					<methods>
+						<method name="RoundTrip" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="97" hits="0"></line>
+								<line number="98" hits="0"></line>
+								<line number="99" hits="0"></line>
+								<line number="100" hits="0"></line>
+								<line number="102" hits="0"></line>
+								<line number="104" hits="0"></line>
+								<line number="105" hits="0"></line>
+								<line number="108" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="97" hits="0"></line>
+						<line number="98" hits="0"></line>
+						<line number="99" hits="0"></line>
+						<line number="100" hits="0"></line>
+						<line number="102" hits="0"></line>
+						<line number="104" hits="0"></line>
+						<line number="105" hits="0"></line>
+						<line number="108" hits="0"></line>
+					</lines>
+				</class>
+				<class name="prometheusFetcher" filename="internal/integration/fetcher.go" line-rate="0.84375" branch-rate="0" complexity="0" line-count="32" line-hits="27">
+					<methods>
+						<method name="Fetch" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="157" hits="1"></line>
+								<line number="158" hits="1"></line>
+								<line number="159" hits="1"></line>
+								<line number="160" hits="1"></line>
+								<line number="162" hits="1"></line>
+								<line number="164" hits="1"></line>
+								<line number="169" hits="1"></line>
+								<line number="170" hits="1"></line>
+								<line number="173" hits="1"></line>
+								<line number="200" hits="1"></line>
+								<line number="208" hits="1"></line>
+							</lines>
+						</method>
+						<method name="work" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="213" hits="1"></line>
+								<line number="214" hits="1"></line>
+								<line number="215" hits="1"></line>
+								<line number="220" hits="1"></line>
+								<line number="222" hits="1"></line>
+							</lines>
+						</method>
+						<method name="fetch" signature="" line-rate="0.6875" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="227" hits="1"></line>
+								<line number="228" hits="1"></line>
+								<line number="229" hits="1"></line>
+								<line number="231" hits="1"></line>
+								<line number="232" hits="0"></line>
+								<line number="233" hits="0"></line>
+								<line number="234" hits="0"></line>
+								<line number="235" hits="0"></line>
+								<line number="237" hits="0"></line>
+								<line number="243" hits="1"></line>
+								<line number="244" hits="1"></line>
+								<line number="245" hits="1"></line>
+								<line number="246" hits="1"></line>
+								<line number="247" hits="1"></line>
+								<line number="249" hits="1"></line>
+								<line number="250" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="157" hits="1"></line>
+						<line number="158" hits="1"></line>
+						<line number="159" hits="1"></line>
+						<line number="160" hits="1"></line>
+						<line number="162" hits="1"></line>
+						<line number="164" hits="1"></line>
+						<line number="169" hits="1"></line>
+						<line number="170" hits="1"></line>
+						<line number="173" hits="1"></line>
+						<line number="200" hits="1"></line>
+						<line number="208" hits="1"></line>
+						<line number="213" hits="1"></line>
+						<line number="214" hits="1"></line>
+						<line number="215" hits="1"></line>
+						<line number="220" hits="1"></line>
+						<line number="222" hits="1"></line>
+						<line number="227" hits="1"></line>
+						<line number="228" hits="1"></line>
+						<line number="229" hits="1"></line>
+						<line number="231" hits="1"></line>
+						<line number="232" hits="0"></line>
+						<line number="233" hits="0"></line>
+						<line number="234" hits="0"></line>
+						<line number="235" hits="0"></line>
+						<line number="237" hits="0"></line>
+						<line number="243" hits="1"></line>
+						<line number="244" hits="1"></line>
+						<line number="245" hits="1"></line>
+						<line number="246" hits="1"></line>
+						<line number="247" hits="1"></line>
+						<line number="249" hits="1"></line>
+						<line number="250" hits="1"></line>
+					</lines>
+				</class>
+				<class name="Metric" filename="internal/integration/fetcher.go" line-rate="1" branch-rate="0" complexity="0" line-count="1" line-hits="1">
+					<methods>
+						<method name="MarshalJSON" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="386" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="386" hits="1"></line>
+					</lines>
+				</class>
+				<class name="harvesterDecorator" filename="internal/integration/harvester_decorator.go" line-rate="0.5714286" branch-rate="0" complexity="0" line-count="14" line-hits="8">
+					<methods>
+						<method name="RecordMetric" signature="" line-rate="0.6666667" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="17" hits="1"></line>
+								<line number="19" hits="1"></line>
+								<line number="21" hits="1"></line>
+								<line number="23" hits="1"></line>
+								<line number="25" hits="0"></line>
+								<line number="26" hits="0"></line>
+							</lines>
+						</method>
+						<method name="HarvestNow" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="31" hits="1"></line>
+							</lines>
+						</method>
+						<method name="processMetric" signature="" line-rate="0.42857143" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="35" hits="1"></line>
+								<line number="36" hits="0"></line>
+								<line number="37" hits="0"></line>
+								<line number="40" hits="1"></line>
+								<line number="41" hits="0"></line>
+								<line number="42" hits="0"></line>
+								<line number="45" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="17" hits="1"></line>
+						<line number="19" hits="1"></line>
+						<line number="21" hits="1"></line>
+						<line number="23" hits="1"></line>
+						<line number="25" hits="0"></line>
+						<line number="26" hits="0"></line>
+						<line number="31" hits="1"></line>
+						<line number="35" hits="1"></line>
+						<line number="36" hits="0"></line>
+						<line number="37" hits="0"></line>
+						<line number="40" hits="1"></line>
+						<line number="41" hits="0"></line>
+						<line number="42" hits="0"></line>
+						<line number="45" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/integration/metrics.go" line-rate="1" branch-rate="0" complexity="0" line-count="12" line-hits="12">
+					<methods>
+						<method name="init" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="115" hits="1"></line>
+								<line number="116" hits="1"></line>
+								<line number="117" hits="1"></line>
+								<line number="118" hits="1"></line>
+								<line number="119" hits="1"></line>
+								<line number="120" hits="1"></line>
+								<line number="121" hits="1"></line>
+								<line number="122" hits="1"></line>
+								<line number="123" hits="1"></line>
+								<line number="124" hits="1"></line>
+								<line number="125" hits="1"></line>
+								<line number="126" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="115" hits="1"></line>
+						<line number="116" hits="1"></line>
+						<line number="117" hits="1"></line>
+						<line number="118" hits="1"></line>
+						<line number="119" hits="1"></line>
+						<line number="120" hits="1"></line>
+						<line number="121" hits="1"></line>
+						<line number="122" hits="1"></line>
+						<line number="123" hits="1"></line>
+						<line number="124" hits="1"></line>
+						<line number="125" hits="1"></line>
+						<line number="126" hits="1"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+		<package name="github.com/newrelic/nri-prometheus/internal/pkg/endpoints" line-rate="0.6632997" branch-rate="0" complexity="0" line-count="297" line-hits="197">
+			<classes>
+				<class name="-" filename="internal/pkg/endpoints/fixed.go" line-rate="0" branch-rate="0" complexity="0" line-count="7" line-hits="0">
+					<methods>
+						<method name="FixedRetriever" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="29" hits="0"></line>
+								<line number="30" hits="0"></line>
+								<line number="31" hits="0"></line>
+								<line number="32" hits="0"></line>
+								<line number="33" hits="0"></line>
+								<line number="35" hits="0"></line>
+								<line number="37" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="29" hits="0"></line>
+						<line number="30" hits="0"></line>
+						<line number="31" hits="0"></line>
+						<line number="32" hits="0"></line>
+						<line number="33" hits="0"></line>
+						<line number="35" hits="0"></line>
+						<line number="37" hits="0"></line>
+					</lines>
+				</class>
+				<class name="fixedRetriever" filename="internal/pkg/endpoints/fixed.go" line-rate="0" branch-rate="0" complexity="0" line-count="3" line-hits="0">
+					<methods>
+						<method name="GetTargets" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="41" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Watch" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="46" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Name" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="50" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="41" hits="0"></line>
+						<line number="46" hits="0"></line>
+						<line number="50" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/pkg/endpoints/kubernetes.go" line-rate="0.7105263" branch-rate="0" complexity="0" line-count="152" line-hits="108">
+					<methods>
+						<method name="nodeAddress" signature="" line-rate="0.41666666" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="65" hits="1"></line>
+								<line number="66" hits="1"></line>
+								<line number="67" hits="1"></line>
+								<line number="70" hits="1"></line>
+								<line number="71" hits="1"></line>
+								<line number="73" hits="0"></line>
+								<line number="74" hits="0"></line>
+								<line number="76" hits="0"></line>
+								<line number="77" hits="0"></line>
+								<line number="79" hits="0"></line>
+								<line number="80" hits="0"></line>
+								<line number="82" hits="0"></line>
+							</lines>
+						</method>
+						<method name="nodeTargets" signature="" line-rate="0.85714287" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="108" hits="1"></line>
+								<line number="113" hits="1"></line>
+								<line number="119" hits="1"></line>
+								<line number="120" hits="1"></line>
+								<line number="121" hits="0"></line>
+								<line number="124" hits="1"></line>
+								<line number="125" hits="1"></line>
+								<line number="126" hits="0"></line>
+								<line number="129" hits="1"></line>
+								<line number="130" hits="1"></line>
+								<line number="131" hits="1"></line>
+								<line number="133" hits="1"></line>
+								<line number="135" hits="1"></line>
+								<line number="137" hits="1"></line>
+							</lines>
+						</method>
+						<method name="isObjectScrapable" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="158" hits="1"></line>
+							</lines>
+						</method>
+						<method name="objectTargets" signature="" line-rate="0.6666667" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="162" hits="1"></line>
+								<line number="164" hits="1"></line>
+								<line number="166" hits="1"></line>
+								<line number="168" hits="1"></line>
+								<line number="169" hits="1"></line>
+								<line number="170" hits="0"></line>
+								<line number="171" hits="0"></line>
+								<line number="173" hits="1"></line>
+								<line number="175" hits="0"></line>
+							</lines>
+						</method>
+						<method name="serviceTarget" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="179" hits="1"></line>
+								<line number="180" hits="1"></line>
+								<line number="181" hits="1"></line>
+								<line number="182" hits="1"></line>
+								<line number="183" hits="1"></line>
+								<line number="184" hits="1"></line>
+								<line number="185" hits="1"></line>
+								<line number="186" hits="1"></line>
+								<line number="188" hits="1"></line>
+								<line number="189" hits="1"></line>
+								<line number="191" hits="1"></line>
+								<line number="192" hits="1"></line>
+								<line number="193" hits="1"></line>
+								<line number="194" hits="1"></line>
+							</lines>
+						</method>
+						<method name="serviceTargets" signature="" line-rate="0.95238096" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="200" hits="1"></line>
+								<line number="201" hits="1"></line>
+								<line number="202" hits="1"></line>
+								<line number="203" hits="1"></line>
+								<line number="204" hits="1"></line>
+								<line number="207" hits="1"></line>
+								<line number="208" hits="0"></line>
+								<line number="211" hits="1"></line>
+								<line number="212" hits="1"></line>
+								<line number="213" hits="1"></line>
+								<line number="217" hits="1"></line>
+								<line number="218" hits="1"></line>
+								<line number="219" hits="1"></line>
+								<line number="220" hits="1"></line>
+								<line number="222" hits="1"></line>
+								<line number="226" hits="1"></line>
+								<line number="227" hits="1"></line>
+								<line number="228" hits="1"></line>
+								<line number="229" hits="1"></line>
+								<line number="230" hits="1"></line>
+								<line number="233" hits="1"></line>
+							</lines>
+						</method>
+						<method name="getPodDeployment" signature="" line-rate="0.42857143" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="250" hits="1"></line>
+								<line number="251" hits="1"></line>
+								<line number="252" hits="0"></line>
+								<line number="253" hits="0"></line>
+								<line number="254" hits="0"></line>
+								<line number="255" hits="0"></line>
+								<line number="258" hits="1"></line>
+							</lines>
+						</method>
+						<method name="podTarget" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="262" hits="1"></line>
+								<line number="263" hits="1"></line>
+								<line number="264" hits="1"></line>
+								<line number="265" hits="1"></line>
+								<line number="266" hits="1"></line>
+								<line number="267" hits="1"></line>
+								<line number="268" hits="1"></line>
+								<line number="270" hits="1"></line>
+								<line number="271" hits="1"></line>
+								<line number="273" hits="1"></line>
+								<line number="274" hits="1"></line>
+								<line number="275" hits="1"></line>
+								<line number="276" hits="1"></line>
+								<line number="277" hits="1"></line>
+								<line number="278" hits="1"></line>
+							</lines>
+						</method>
+						<method name="podTargets" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="284" hits="1"></line>
+								<line number="285" hits="1"></line>
+								<line number="289" hits="1"></line>
+								<line number="290" hits="1"></line>
+								<line number="291" hits="1"></line>
+								<line number="292" hits="1"></line>
+								<line number="293" hits="1"></line>
+								<line number="296" hits="1"></line>
+								<line number="297" hits="1"></line>
+								<line number="301" hits="1"></line>
+								<line number="302" hits="1"></line>
+								<line number="303" hits="1"></line>
+								<line number="307" hits="1"></line>
+								<line number="308" hits="1"></line>
+								<line number="309" hits="1"></line>
+								<line number="310" hits="1"></line>
+								<line number="312" hits="1"></line>
+								<line number="316" hits="1"></line>
+								<line number="317" hits="1"></line>
+								<line number="318" hits="1"></line>
+								<line number="319" hits="1"></line>
+								<line number="320" hits="1"></line>
+								<line number="321" hits="1"></line>
+								<line number="325" hits="1"></line>
+							</lines>
+						</method>
+						<method name="WithKubeConfig" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="334" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@334:9" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="335" hits="0"></line>
+								<line number="336" hits="0"></line>
+								<line number="337" hits="0"></line>
+								<line number="340" hits="0"></line>
+								<line number="341" hits="0"></line>
+								<line number="342" hits="0"></line>
+								<line number="345" hits="0"></line>
+								<line number="346" hits="0"></line>
+							</lines>
+						</method>
+						<method name="WithInClusterConfig" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="353" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@353:9" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="354" hits="0"></line>
+								<line number="355" hits="0"></line>
+								<line number="356" hits="0"></line>
+								<line number="359" hits="0"></line>
+								<line number="360" hits="0"></line>
+								<line number="361" hits="0"></line>
+								<line number="364" hits="0"></line>
+								<line number="365" hits="0"></line>
+							</lines>
+						</method>
+						<method name="NewKubernetesTargetRetriever" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="383" hits="0"></line>
+								<line number="384" hits="0"></line>
+								<line number="387" hits="0"></line>
+								<line number="393" hits="0"></line>
+								<line number="394" hits="0"></line>
+								<line number="395" hits="0"></line>
+								<line number="399" hits="0"></line>
+								<line number="400" hits="0"></line>
+								<line number="403" hits="0"></line>
+							</lines>
+						</method>
+						<method name="@433:18" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="434" hits="1"></line>
+								<line number="435" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@438:18" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="439" hits="1"></line>
+								<line number="440" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@462:18" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="463" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@469:18" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="470" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@476:18" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="477" hits="1"></line>
+							</lines>
+						</method>
+						<method name="debugLogEvent" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="561" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="65" hits="1"></line>
+						<line number="66" hits="1"></line>
+						<line number="67" hits="1"></line>
+						<line number="70" hits="1"></line>
+						<line number="71" hits="1"></line>
+						<line number="73" hits="0"></line>
+						<line number="74" hits="0"></line>
+						<line number="76" hits="0"></line>
+						<line number="77" hits="0"></line>
+						<line number="79" hits="0"></line>
+						<line number="80" hits="0"></line>
+						<line number="82" hits="0"></line>
+						<line number="108" hits="1"></line>
+						<line number="113" hits="1"></line>
+						<line number="119" hits="1"></line>
+						<line number="120" hits="1"></line>
+						<line number="121" hits="0"></line>
+						<line number="124" hits="1"></line>
+						<line number="125" hits="1"></line>
+						<line number="126" hits="0"></line>
+						<line number="129" hits="1"></line>
+						<line number="130" hits="1"></line>
+						<line number="131" hits="1"></line>
+						<line number="133" hits="1"></line>
+						<line number="135" hits="1"></line>
+						<line number="137" hits="1"></line>
+						<line number="158" hits="1"></line>
+						<line number="162" hits="1"></line>
+						<line number="164" hits="1"></line>
+						<line number="166" hits="1"></line>
+						<line number="168" hits="1"></line>
+						<line number="169" hits="1"></line>
+						<line number="170" hits="0"></line>
+						<line number="171" hits="0"></line>
+						<line number="173" hits="1"></line>
+						<line number="175" hits="0"></line>
+						<line number="179" hits="1"></line>
+						<line number="180" hits="1"></line>
+						<line number="181" hits="1"></line>
+						<line number="182" hits="1"></line>
+						<line number="183" hits="1"></line>
+						<line number="184" hits="1"></line>
+						<line number="185" hits="1"></line>
+						<line number="186" hits="1"></line>
+						<line number="188" hits="1"></line>
+						<line number="189" hits="1"></line>
+						<line number="191" hits="1"></line>
+						<line number="192" hits="1"></line>
+						<line number="193" hits="1"></line>
+						<line number="194" hits="1"></line>
+						<line number="200" hits="1"></line>
+						<line number="201" hits="1"></line>
+						<line number="202" hits="1"></line>
+						<line number="203" hits="1"></line>
+						<line number="204" hits="1"></line>
+						<line number="207" hits="1"></line>
+						<line number="208" hits="0"></line>
+						<line number="211" hits="1"></line>
+						<line number="212" hits="1"></line>
+						<line number="213" hits="1"></line>
+						<line number="217" hits="1"></line>
+						<line number="218" hits="1"></line>
+						<line number="219" hits="1"></line>
+						<line number="220" hits="1"></line>
+						<line number="222" hits="1"></line>
+						<line number="226" hits="1"></line>
+						<line number="227" hits="1"></line>
+						<line number="228" hits="1"></line>
+						<line number="229" hits="1"></line>
+						<line number="230" hits="1"></line>
+						<line number="233" hits="1"></line>
+						<line number="250" hits="1"></line>
+						<line number="251" hits="1"></line>
+						<line number="252" hits="0"></line>
+						<line number="253" hits="0"></line>
+						<line number="254" hits="0"></line>
+						<line number="255" hits="0"></line>
+						<line number="258" hits="1"></line>
+						<line number="262" hits="1"></line>
+						<line number="263" hits="1"></line>
+						<line number="264" hits="1"></line>
+						<line number="265" hits="1"></line>
+						<line number="266" hits="1"></line>
+						<line number="267" hits="1"></line>
+						<line number="268" hits="1"></line>
+						<line number="270" hits="1"></line>
+						<line number="271" hits="1"></line>
+						<line number="273" hits="1"></line>
+						<line number="274" hits="1"></line>
+						<line number="275" hits="1"></line>
+						<line number="276" hits="1"></line>
+						<line number="277" hits="1"></line>
+						<line number="278" hits="1"></line>
+						<line number="284" hits="1"></line>
+						<line number="285" hits="1"></line>
+						<line number="289" hits="1"></line>
+						<line number="290" hits="1"></line>
+						<line number="291" hits="1"></line>
+						<line number="292" hits="1"></line>
+						<line number="293" hits="1"></line>
+						<line number="296" hits="1"></line>
+						<line number="297" hits="1"></line>
+						<line number="301" hits="1"></line>
+						<line number="302" hits="1"></line>
+						<line number="303" hits="1"></line>
+						<line number="307" hits="1"></line>
+						<line number="308" hits="1"></line>
+						<line number="309" hits="1"></line>
+						<line number="310" hits="1"></line>
+						<line number="312" hits="1"></line>
+						<line number="316" hits="1"></line>
+						<line number="317" hits="1"></line>
+						<line number="318" hits="1"></line>
+						<line number="319" hits="1"></line>
+						<line number="320" hits="1"></line>
+						<line number="321" hits="1"></line>
+						<line number="325" hits="1"></line>
+						<line number="334" hits="0"></line>
+						<line number="335" hits="0"></line>
+						<line number="336" hits="0"></line>
+						<line number="337" hits="0"></line>
+						<line number="340" hits="0"></line>
+						<line number="341" hits="0"></line>
+						<line number="342" hits="0"></line>
+						<line number="345" hits="0"></line>
+						<line number="346" hits="0"></line>
+						<line number="353" hits="0"></line>
+						<line number="354" hits="0"></line>
+						<line number="355" hits="0"></line>
+						<line number="356" hits="0"></line>
+						<line number="359" hits="0"></line>
+						<line number="360" hits="0"></line>
+						<line number="361" hits="0"></line>
+						<line number="364" hits="0"></line>
+						<line number="365" hits="0"></line>
+						<line number="383" hits="0"></line>
+						<line number="384" hits="0"></line>
+						<line number="387" hits="0"></line>
+						<line number="393" hits="0"></line>
+						<line number="394" hits="0"></line>
+						<line number="395" hits="0"></line>
+						<line number="399" hits="0"></line>
+						<line number="400" hits="0"></line>
+						<line number="403" hits="0"></line>
+						<line number="434" hits="1"></line>
+						<line number="435" hits="1"></line>
+						<line number="439" hits="1"></line>
+						<line number="440" hits="1"></line>
+						<line number="463" hits="1"></line>
+						<line number="470" hits="1"></line>
+						<line number="477" hits="1"></line>
+						<line number="561" hits="1"></line>
+					</lines>
+				</class>
+				<class name="KubernetesTargetRetriever" filename="internal/pkg/endpoints/kubernetes.go" line-rate="0.78723407" branch-rate="0" complexity="0" line-count="94" line-hits="74">
+					<methods>
+						<method name="listNodes" signature="" line-rate="0.30769232" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="87" hits="1"></line>
+								<line number="88" hits="1"></line>
+								<line number="89" hits="0"></line>
+								<line number="91" hits="1"></line>
+								<line number="92" hits="0"></line>
+								<line number="93" hits="0"></line>
+								<line number="94" hits="0"></line>
+								<line number="97" hits="0"></line>
+								<line number="98" hits="0"></line>
+								<line number="99" hits="0"></line>
+								<line number="100" hits="0"></line>
+								<line number="102" hits="0"></line>
+								<line number="104" hits="1"></line>
+							</lines>
+						</method>
+						<method name="listServices" signature="" line-rate="0.5714286" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="145" hits="1"></line>
+								<line number="146" hits="1"></line>
+								<line number="147" hits="0"></line>
+								<line number="149" hits="1"></line>
+								<line number="150" hits="0"></line>
+								<line number="151" hits="0"></line>
+								<line number="154" hits="1"></line>
+							</lines>
+						</method>
+						<method name="listPods" signature="" line-rate="0.5714286" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="237" hits="1"></line>
+								<line number="238" hits="1"></line>
+								<line number="239" hits="0"></line>
+								<line number="241" hits="1"></line>
+								<line number="242" hits="0"></line>
+								<line number="243" hits="0"></line>
+								<line number="246" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Watch" signature="" line-rate="0.8333333" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="408" hits="1"></line>
+								<line number="409" hits="0"></line>
+								<line number="416" hits="1"></line>
+								<line number="418" hits="1"></line>
+								<line number="420" hits="1"></line>
+								<line number="422" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Name" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="427" hits="1"></line>
+							</lines>
+						</method>
+						<method name="GetTargets" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="432" hits="1"></line>
+								<line number="433" hits="1"></line>
+								<line number="437" hits="1"></line>
+								<line number="438" hits="1"></line>
+								<line number="442" hits="1"></line>
+							</lines>
+						</method>
+						<method name="listTargets" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="446" hits="1"></line>
+								<line number="447" hits="1"></line>
+								<line number="448" hits="1"></line>
+							</lines>
+						</method>
+						<method name="watchTargets" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="452" hits="1"></line>
+								<line number="453" hits="1"></line>
+							</lines>
+						</method>
+						<method name="getWatchableResources" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="458" hits="1"></line>
+							</lines>
+						</method>
+						<method name="processEvent" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="483" hits="1"></line>
+								<line number="484" hits="1"></line>
+								<line number="485" hits="1"></line>
+								<line number="486" hits="1"></line>
+								<line number="487" hits="1"></line>
+								<line number="488" hits="1"></line>
+								<line number="499" hits="1"></line>
+								<line number="503" hits="1"></line>
+								<line number="504" hits="1"></line>
+								<line number="505" hits="1"></line>
+								<line number="509" hits="1"></line>
+								<line number="510" hits="1"></line>
+								<line number="513" hits="1"></line>
+								<line number="516" hits="1"></line>
+								<line number="517" hits="1"></line>
+								<line number="518" hits="1"></line>
+								<line number="521" hits="1"></line>
+								<line number="522" hits="1"></line>
+								<line number="523" hits="1"></line>
+								<line number="526" hits="1"></line>
+								<line number="528" hits="1"></line>
+								<line number="529" hits="1"></line>
+								<line number="530" hits="1"></line>
+								<line number="534" hits="1"></line>
+								<line number="535" hits="1"></line>
+								<line number="536" hits="1"></line>
+								<line number="537" hits="1"></line>
+								<line number="541" hits="1"></line>
+								<line number="542" hits="1"></line>
+							</lines>
+						</method>
+						<method name="addTarget" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="549" hits="1"></line>
+								<line number="551" hits="1"></line>
+								<line number="552" hits="1"></line>
+								<line number="553" hits="1"></line>
+								<line number="556" hits="1"></line>
+								<line number="557" hits="1"></line>
+							</lines>
+						</method>
+						<method name="watchResource" signature="" line-rate="0.71428573" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="573" hits="1"></line>
+								<line number="574" hits="1"></line>
+								<line number="579" hits="1"></line>
+								<line number="580" hits="1"></line>
+								<line number="581" hits="1"></line>
+								<line number="582" hits="0"></line>
+								<line number="583" hits="0"></line>
+								<line number="586" hits="1"></line>
+								<line number="587" hits="1"></line>
+								<line number="588" hits="0"></line>
+								<line number="592" hits="0"></line>
+								<line number="594" hits="1"></line>
+								<line number="595" hits="1"></line>
+								<line number="597" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="87" hits="1"></line>
+						<line number="88" hits="1"></line>
+						<line number="89" hits="0"></line>
+						<line number="91" hits="1"></line>
+						<line number="92" hits="0"></line>
+						<line number="93" hits="0"></line>
+						<line number="94" hits="0"></line>
+						<line number="97" hits="0"></line>
+						<line number="98" hits="0"></line>
+						<line number="99" hits="0"></line>
+						<line number="100" hits="0"></line>
+						<line number="102" hits="0"></line>
+						<line number="104" hits="1"></line>
+						<line number="145" hits="1"></line>
+						<line number="146" hits="1"></line>
+						<line number="147" hits="0"></line>
+						<line number="149" hits="1"></line>
+						<line number="150" hits="0"></line>
+						<line number="151" hits="0"></line>
+						<line number="154" hits="1"></line>
+						<line number="237" hits="1"></line>
+						<line number="238" hits="1"></line>
+						<line number="239" hits="0"></line>
+						<line number="241" hits="1"></line>
+						<line number="242" hits="0"></line>
+						<line number="243" hits="0"></line>
+						<line number="246" hits="1"></line>
+						<line number="408" hits="1"></line>
+						<line number="409" hits="0"></line>
+						<line number="416" hits="1"></line>
+						<line number="418" hits="1"></line>
+						<line number="420" hits="1"></line>
+						<line number="422" hits="1"></line>
+						<line number="427" hits="1"></line>
+						<line number="432" hits="1"></line>
+						<line number="433" hits="1"></line>
+						<line number="437" hits="1"></line>
+						<line number="438" hits="1"></line>
+						<line number="442" hits="1"></line>
+						<line number="446" hits="1"></line>
+						<line number="447" hits="1"></line>
+						<line number="448" hits="1"></line>
+						<line number="452" hits="1"></line>
+						<line number="453" hits="1"></line>
+						<line number="458" hits="1"></line>
+						<line number="483" hits="1"></line>
+						<line number="484" hits="1"></line>
+						<line number="485" hits="1"></line>
+						<line number="486" hits="1"></line>
+						<line number="487" hits="1"></line>
+						<line number="488" hits="1"></line>
+						<line number="499" hits="1"></line>
+						<line number="503" hits="1"></line>
+						<line number="504" hits="1"></line>
+						<line number="505" hits="1"></line>
+						<line number="509" hits="1"></line>
+						<line number="510" hits="1"></line>
+						<line number="513" hits="1"></line>
+						<line number="516" hits="1"></line>
+						<line number="517" hits="1"></line>
+						<line number="518" hits="1"></line>
+						<line number="521" hits="1"></line>
+						<line number="522" hits="1"></line>
+						<line number="523" hits="1"></line>
+						<line number="526" hits="1"></line>
+						<line number="528" hits="1"></line>
+						<line number="529" hits="1"></line>
+						<line number="530" hits="1"></line>
+						<line number="534" hits="1"></line>
+						<line number="535" hits="1"></line>
+						<line number="536" hits="1"></line>
+						<line number="537" hits="1"></line>
+						<line number="541" hits="1"></line>
+						<line number="542" hits="1"></line>
+						<line number="549" hits="1"></line>
+						<line number="551" hits="1"></line>
+						<line number="552" hits="1"></line>
+						<line number="553" hits="1"></line>
+						<line number="556" hits="1"></line>
+						<line number="557" hits="1"></line>
+						<line number="573" hits="1"></line>
+						<line number="574" hits="1"></line>
+						<line number="579" hits="1"></line>
+						<line number="580" hits="1"></line>
+						<line number="581" hits="1"></line>
+						<line number="582" hits="0"></line>
+						<line number="583" hits="0"></line>
+						<line number="586" hits="1"></line>
+						<line number="587" hits="1"></line>
+						<line number="588" hits="0"></line>
+						<line number="592" hits="0"></line>
+						<line number="594" hits="1"></line>
+						<line number="595" hits="1"></line>
+						<line number="597" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/pkg/endpoints/metrics.go" line-rate="1" branch-rate="0" complexity="0" line-count="1" line-hits="1">
+					<methods>
+						<method name="init" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="23" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="23" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/pkg/endpoints/self.go" line-rate="0" branch-rate="0" complexity="0" line-count="5" line-hits="0">
+					<methods>
+						<method name="newSelfTargetConfig" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="18" hits="0"></line>
+							</lines>
+						</method>
+						<method name="SelfRetriever" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="27" hits="0"></line>
+								<line number="28" hits="0"></line>
+								<line number="29" hits="0"></line>
+								<line number="31" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="18" hits="0"></line>
+						<line number="27" hits="0"></line>
+						<line number="28" hits="0"></line>
+						<line number="29" hits="0"></line>
+						<line number="31" hits="0"></line>
+					</lines>
+				</class>
+				<class name="selfRetriever" filename="internal/pkg/endpoints/self.go" line-rate="0" branch-rate="0" complexity="0" line-count="3" line-hits="0">
+					<methods>
+						<method name="GetTargets" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="35" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Watch" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="40" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Name" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="44" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="35" hits="0"></line>
+						<line number="40" hits="0"></line>
+						<line number="44" hits="0"></line>
+					</lines>
+				</class>
+				<class name="Target" filename="internal/pkg/endpoints/endpoints.go" line-rate="0" branch-rate="0" complexity="0" line-count="10" line-hits="0">
+					<methods>
+						<method name="Metadata" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="41" hits="0"></line>
+								<line number="42" hits="0"></line>
+								<line number="43" hits="0"></line>
+								<line number="44" hits="0"></line>
+								<line number="46" hits="0"></line>
+								<line number="47" hits="0"></line>
+								<line number="48" hits="0"></line>
+								<line number="50" hits="0"></line>
+								<line number="52" hits="0"></line>
+								<line number="54" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="41" hits="0"></line>
+						<line number="42" hits="0"></line>
+						<line number="43" hits="0"></line>
+						<line number="44" hits="0"></line>
+						<line number="46" hits="0"></line>
+						<line number="47" hits="0"></line>
+						<line number="48" hits="0"></line>
+						<line number="50" hits="0"></line>
+						<line number="52" hits="0"></line>
+						<line number="54" hits="0"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/pkg/endpoints/endpoints.go" line-rate="0.6363636" branch-rate="0" complexity="0" line-count="22" line-hits="14">
+					<methods>
+						<method name="redactedURLString" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="61" hits="0"></line>
+								<line number="62" hits="0"></line>
+								<line number="64" hits="0"></line>
+								<line number="65" hits="0"></line>
+								<line number="66" hits="0"></line>
+								<line number="68" hits="0"></line>
+							</lines>
+						</method>
+						<method name="New" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="73" hits="1"></line>
+							</lines>
+						</method>
+						<method name="EndpointToTarget" signature="" line-rate="0.85714287" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="86" hits="1"></line>
+								<line number="87" hits="1"></line>
+								<line number="88" hits="1"></line>
+								<line number="89" hits="1"></line>
+								<line number="90" hits="0"></line>
+								<line number="92" hits="1"></line>
+								<line number="94" hits="1"></line>
+							</lines>
+						</method>
+						<method name="urlToTarget" signature="" line-rate="0.875" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="98" hits="1"></line>
+								<line number="99" hits="1"></line>
+								<line number="102" hits="1"></line>
+								<line number="103" hits="1"></line>
+								<line number="104" hits="0"></line>
+								<line number="106" hits="1"></line>
+								<line number="107" hits="1"></line>
+								<line number="110" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="61" hits="0"></line>
+						<line number="62" hits="0"></line>
+						<line number="64" hits="0"></line>
+						<line number="65" hits="0"></line>
+						<line number="66" hits="0"></line>
+						<line number="68" hits="0"></line>
+						<line number="73" hits="1"></line>
+						<line number="86" hits="1"></line>
+						<line number="87" hits="1"></line>
+						<line number="88" hits="1"></line>
+						<line number="89" hits="1"></line>
+						<line number="90" hits="0"></line>
+						<line number="92" hits="1"></line>
+						<line number="94" hits="1"></line>
+						<line number="98" hits="1"></line>
+						<line number="99" hits="1"></line>
+						<line number="102" hits="1"></line>
+						<line number="103" hits="1"></line>
+						<line number="104" hits="0"></line>
+						<line number="106" hits="1"></line>
+						<line number="107" hits="1"></line>
+						<line number="110" hits="1"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+		<package name="github.com/newrelic/nri-prometheus/internal/pkg/labels" line-rate="0.6481481" branch-rate="0" complexity="0" line-count="54" line-hits="35">
+			<classes>
+				<class name="-" filename="internal/pkg/labels/labels.go" line-rate="0.6481481" branch-rate="0" complexity="0" line-count="54" line-hits="35">
+					<methods>
+						<method name="DifferenceEqualValues" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="22" hits="1"></line>
+								<line number="23" hits="1"></line>
+								<line number="24" hits="1"></line>
+								<line number="27" hits="1"></line>
+								<line number="28" hits="1"></line>
+								<line number="29" hits="1"></line>
+								<line number="30" hits="1"></line>
+								<line number="32" hits="1"></line>
+								<line number="36" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Join" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="43" hits="0"></line>
+								<line number="44" hits="0"></line>
+								<line number="45" hits="0"></line>
+								<line number="47" hits="0"></line>
+								<line number="48" hits="0"></line>
+								<line number="49" hits="0"></line>
+								<line number="50" hits="0"></line>
+								<line number="52" hits="0"></line>
+								<line number="53" hits="0"></line>
+								<line number="54" hits="0"></line>
+								<line number="56" hits="0"></line>
+								<line number="57" hits="0"></line>
+								<line number="59" hits="0"></line>
+								<line number="61" hits="0"></line>
+							</lines>
+						</method>
+						<method name="ToAdd" signature="" line-rate="0.9583333" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="77" hits="1"></line>
+								<line number="79" hits="1"></line>
+								<line number="81" hits="1"></line>
+								<line number="83" hits="1"></line>
+								<line number="84" hits="0"></line>
+								<line number="86" hits="1"></line>
+								<line number="87" hits="1"></line>
+								<line number="88" hits="1"></line>
+								<line number="90" hits="1"></line>
+								<line number="91" hits="1"></line>
+								<line number="92" hits="1"></line>
+								<line number="93" hits="1"></line>
+								<line number="94" hits="1"></line>
+								<line number="96" hits="1"></line>
+								<line number="98" hits="1"></line>
+								<line number="99" hits="1"></line>
+								<line number="101" hits="1"></line>
+								<line number="106" hits="1"></line>
+								<line number="107" hits="1"></line>
+								<line number="112" hits="1"></line>
+								<line number="113" hits="1"></line>
+								<line number="114" hits="1"></line>
+								<line number="115" hits="1"></line>
+								<line number="118" hits="1"></line>
+							</lines>
+						</method>
+						<method name="Accumulate" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="123" hits="1"></line>
+								<line number="124" hits="1"></line>
+								<line number="125" hits="1"></line>
+							</lines>
+						</method>
+						<method name="AccumulateOnly" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="133" hits="0"></line>
+								<line number="134" hits="0"></line>
+								<line number="135" hits="0"></line>
+								<line number="136" hits="0"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="22" hits="1"></line>
+						<line number="23" hits="1"></line>
+						<line number="24" hits="1"></line>
+						<line number="27" hits="1"></line>
+						<line number="28" hits="1"></line>
+						<line number="29" hits="1"></line>
+						<line number="30" hits="1"></line>
+						<line number="32" hits="1"></line>
+						<line number="36" hits="1"></line>
+						<line number="43" hits="0"></line>
+						<line number="44" hits="0"></line>
+						<line number="45" hits="0"></line>
+						<line number="47" hits="0"></line>
+						<line number="48" hits="0"></line>
+						<line number="49" hits="0"></line>
+						<line number="50" hits="0"></line>
+						<line number="52" hits="0"></line>
+						<line number="53" hits="0"></line>
+						<line number="54" hits="0"></line>
+						<line number="56" hits="0"></line>
+						<line number="57" hits="0"></line>
+						<line number="59" hits="0"></line>
+						<line number="61" hits="0"></line>
+						<line number="77" hits="1"></line>
+						<line number="79" hits="1"></line>
+						<line number="81" hits="1"></line>
+						<line number="83" hits="1"></line>
+						<line number="84" hits="0"></line>
+						<line number="86" hits="1"></line>
+						<line number="87" hits="1"></line>
+						<line number="88" hits="1"></line>
+						<line number="90" hits="1"></line>
+						<line number="91" hits="1"></line>
+						<line number="92" hits="1"></line>
+						<line number="93" hits="1"></line>
+						<line number="94" hits="1"></line>
+						<line number="96" hits="1"></line>
+						<line number="98" hits="1"></line>
+						<line number="99" hits="1"></line>
+						<line number="101" hits="1"></line>
+						<line number="106" hits="1"></line>
+						<line number="107" hits="1"></line>
+						<line number="112" hits="1"></line>
+						<line number="113" hits="1"></line>
+						<line number="114" hits="1"></line>
+						<line number="115" hits="1"></line>
+						<line number="118" hits="1"></line>
+						<line number="123" hits="1"></line>
+						<line number="124" hits="1"></line>
+						<line number="125" hits="1"></line>
+						<line number="133" hits="0"></line>
+						<line number="134" hits="0"></line>
+						<line number="135" hits="0"></line>
+						<line number="136" hits="0"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+		<package name="github.com/newrelic/nri-prometheus/internal/pkg/prometheus" line-rate="0.8125" branch-rate="0" complexity="0" line-count="32" line-hits="26">
+			<classes>
+				<class name="-" filename="internal/pkg/prometheus/prometheus.go" line-rate="0.8076923" branch-rate="0" complexity="0" line-count="26" line-hits="21">
+					<methods>
+						<method name="ResetTotalScrapedPayload" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="43" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Get" signature="" line-rate="0.8333333" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="48" hits="1"></line>
+								<line number="49" hits="1"></line>
+								<line number="50" hits="1"></line>
+								<line number="51" hits="0"></line>
+								<line number="53" hits="1"></line>
+								<line number="54" hits="1"></line>
+								<line number="55" hits="1"></line>
+								<line number="56" hits="0"></line>
+								<line number="59" hits="1"></line>
+								<line number="63" hits="1"></line>
+								<line number="64" hits="0"></line>
+								<line number="67" hits="1"></line>
+								<line number="68" hits="1"></line>
+								<line number="69" hits="1"></line>
+								<line number="70" hits="1"></line>
+								<line number="71" hits="1"></line>
+								<line number="72" hits="1"></line>
+								<line number="73" hits="1"></line>
+								<line number="75" hits="0"></line>
+								<line number="77" hits="1"></line>
+								<line number="80" hits="1"></line>
+								<line number="81" hits="1"></line>
+								<line number="82" hits="1"></line>
+								<line number="83" hits="1"></line>
+							</lines>
+						</method>
+						<method name="@59:8" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="60" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="43" hits="0"></line>
+						<line number="48" hits="1"></line>
+						<line number="49" hits="1"></line>
+						<line number="50" hits="1"></line>
+						<line number="51" hits="0"></line>
+						<line number="53" hits="1"></line>
+						<line number="54" hits="1"></line>
+						<line number="55" hits="1"></line>
+						<line number="56" hits="0"></line>
+						<line number="59" hits="1"></line>
+						<line number="63" hits="1"></line>
+						<line number="64" hits="0"></line>
+						<line number="67" hits="1"></line>
+						<line number="68" hits="1"></line>
+						<line number="69" hits="1"></line>
+						<line number="70" hits="1"></line>
+						<line number="71" hits="1"></line>
+						<line number="72" hits="1"></line>
+						<line number="73" hits="1"></line>
+						<line number="75" hits="0"></line>
+						<line number="77" hits="1"></line>
+						<line number="80" hits="1"></line>
+						<line number="81" hits="1"></line>
+						<line number="82" hits="1"></line>
+						<line number="83" hits="1"></line>
+						<line number="60" hits="1"></line>
+					</lines>
+				</class>
+				<class name="countReadCloser" filename="internal/pkg/prometheus/prometheus.go" line-rate="0.75" branch-rate="0" complexity="0" line-count="4" line-hits="3">
+					<methods>
+						<method name="Close" signature="" line-rate="0" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="31" hits="0"></line>
+							</lines>
+						</method>
+						<method name="Read" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="35" hits="1"></line>
+								<line number="36" hits="1"></line>
+								<line number="37" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="31" hits="0"></line>
+						<line number="35" hits="1"></line>
+						<line number="36" hits="1"></line>
+						<line number="37" hits="1"></line>
+					</lines>
+				</class>
+				<class name="-" filename="internal/pkg/prometheus/metrics.go" line-rate="1" branch-rate="0" complexity="0" line-count="2" line-hits="2">
+					<methods>
+						<method name="init" signature="" line-rate="1" branch-rate="0" complexity="0" line-count="0" line-hits="0">
+							<lines>
+								<line number="28" hits="1"></line>
+								<line number="29" hits="1"></line>
+							</lines>
+						</method>
+					</methods>
+					<lines>
+						<line number="28" hits="1"></line>
+						<line number="29" hits="1"></line>
+					</lines>
+				</class>
+			</classes>
+		</package>
+	</packages>
+	<sources>
+		<source>/Users/adias/projects/forks/nri-prometheus</source>
+	</sources>
+</coverage>
