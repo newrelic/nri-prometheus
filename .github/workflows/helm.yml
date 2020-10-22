@@ -1,7 +1,7 @@
 name: Update Helm Chart POMI version
 on:
   release:
-    types: [published]
+    types: [released]
 
 jobs:
   create_helm_chart_pr:
