@@ -43,6 +43,12 @@ func ResetTotalScrapedPayload() {
 	totalScrapedPayload.Set(0)
 }
 
+// ResetTargetSize resets the integration targetSize
+// metric.
+func ResetTargetSize() {
+	targetSize.Reset()
+}
+
 // Get scrapes the given URL and decodes the retrieved payload.
 func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
 	mfs := MetricFamiliesByName{}
