@@ -238,15 +238,17 @@ func (te *TelemetryEmitter) emitSummary(metric Metric, timestamp time.Time) erro
 		return fmt.Errorf("unknown summary metric type for %q: %T", metric.name, metric.value)
 	}
 
-	te.harvester.RecordMetric(telemetry.Summary{
-		Name:       metric.name + "_sum",
-		Attributes: metric.attributes,
-		Count:      1,
-		Sum:        summary.GetSampleSum(),
-		Min:        math.NaN(),
-		Max:        math.NaN(),
-		Timestamp:  timestamp,
-	})
+	if sumCount, ok := te.deltaCalculator.CountMetric(metric.name+"_sum", metric.attributes, float64(summary.GetSampleSum()), timestamp); ok {
+		te.harvester.RecordMetric(telemetry.Summary{
+			Name:       metric.name + "_sum",
+			Attributes: metric.attributes,
+			Count:      1,
+			Sum:        sumCount.Value,
+			Min:        math.NaN(),
+			Max:        math.NaN(),
+			Timestamp:  timestamp,
+		})
+	}
 
 	if count, ok := te.deltaCalculator.CountMetric(metric.name+"_count", metric.attributes, float64(summary.GetSampleCount()), timestamp); ok {
 		te.harvester.RecordMetric(count)
