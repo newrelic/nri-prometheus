@@ -192,6 +192,13 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 	assert.NoError(t, e.Emit(metrics))
 	e.harvester.HarvestNow(context.Background())
 
+	// Set new summary values so counts will be non-zero.
+	summary2, err := newSummary(4, 15, []*quantile{{0.5, 10}, {0.999, 100}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	*summary = *summary2
+
 	// Set new histogram values so counts will be non-zero.
 	hist2, err := newHistogram([]int64{1, 2, 10})
 	if err != nil {
@@ -306,7 +313,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			"name":       "summary-1_sum",
 			"type":       "summary",
 			"value": map[string]interface{}{
-				"sum":   float64(10),
+				"sum":   float64(5),
 				"count": float64(1),
 				"min":   nil,
 				"max":   nil,
@@ -316,7 +323,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			"attributes": map[string]interface{}{},
 			"name":       "summary-1_count",
 			"type":       "count",
-			"value":      float64(0),
+			"value":      float64(1),
 		},
 		map[string]interface{}{
 			"attributes": map[string]interface{}{
