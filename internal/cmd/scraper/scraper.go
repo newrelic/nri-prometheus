@@ -135,10 +135,17 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 			{
 				MetricPrefix: "",
 				Attributes: map[string]interface{}{
-					"k8s.cluster.name":   cfg.ClusterName,
-					"clusterName":        cfg.ClusterName,
+					"k8s.cluster.name": cfg.ClusterName,
+					"clusterName":      cfg.ClusterName,
+					//Keeping these for backward compatibility
 					"integrationVersion": integration.Version,
 					"integrationName":    integration.Name,
+					//Since the agent is not used we add the attributes manually
+					"collector.name":           integration.Name,
+					"collector.version":        integration.Version,
+					"instrumentation.name":     integration.Name,
+					"instrumentation.version":  integration.Version,
+					"instrumentation.provider": "newRelic",
 				},
 			},
 		},
