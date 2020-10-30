@@ -100,18 +100,18 @@ release:
 
 checksum:
   name_template: 'checksums.txt'
-dockers:
-  - dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
-    image_templates:
-      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-    skip_push: auto
-  - dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
-    image_templates:
-      - 'newrelic/nri-prometheus:{{ .Version }}'
+# dockers:
+#   - dockerfile: Dockerfile.release
+#     binaries:
+#       - nri-prometheus
+#     image_templates:
+#       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+#     skip_push: auto
+#   - dockerfile: Dockerfile.release
+#     binaries:
+#       - nri-prometheus
+#     image_templates:
+#       - 'newrelic/nri-prometheus:{{ .Version }}'
 snapshot:
   name_template: "{{ .Tag }}-next"
 changelog:
