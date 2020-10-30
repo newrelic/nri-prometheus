@@ -51,12 +51,9 @@ nfpms:
       - deb
     bindir: "/var/db/newrelic-infra/newrelic-integrations/bin"
     files:
-      # "prometheus-config.yml.sample": "/etc/newrelic-infra/integrations.d/prometheus-config.yml.sample"
       "CHANGELOG.md": "/usr/share/doc/nri-prometheus/CHANGELOG.md"
       "README.md":  "/usr/share/doc/nri-prometheus/README.md"
       "LICENSE": "/usr/share/doc/nri-prometheus/LICENSE"
-    #config_files:
-    #  "prometheus-definition.yml": "/var/db/newrelic-infra/newrelic-integrations/prometheus-definition.yml"
     dependencies:
       - "newrelic-infra"
 
@@ -74,12 +71,9 @@ nfpms:
       - rpm
     bindir: "/var/db/newrelic-infra/newrelic-integrations/bin"
     files:
-      # "prometheus-config.yml.sample": "/etc/newrelic-infra/integrations.d/prometheus-config.yml.sample"
       "CHANGELOG.md": "/usr/share/doc/nri-prometheus/CHANGELOG.md"
       "README.md":  "/usr/share/doc/nri-prometheus/README.md"
       "LICENSE": "/usr/share/doc/nri-prometheus/LICENSE"
-    #config_files:
-    #  "prometheus-definition.yml": "/var/db/newrelic-infra/newrelic-integrations/prometheus-definition.yml"
     dependencies:
       - "newrelic-infra"
     overrides:
@@ -92,43 +86,37 @@ archives:
     builds:
       - nri-prometheus-nix
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}_{{ .Version }}_dirty"
-    # files:
-    #   - prometheus-config.yml.sample
-    #   - prometheus-definition.yml
     format: tar.gz
 
   - id: nri-prometheus-win
     builds:
       - nri-prometheus-win
     name_template: "{{ .ProjectName }}-{{ .Arch }}.{{ .Version }}_dirty"
-    # files:
-    #   - prometheus-win-config.yml.sample
-    #   - prometheus-win-definition.yml
     format: zip
 
 # we use custom publisher for fixing archives and signing them
 release:
   disable: true
 
-# checksum:
-#   name_template: 'checksums.txt'
-# dockers:
-#   - dockerfile: Dockerfile.release
-#     binaries:
-#       - nri-prometheus
-#     image_templates:
-#       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-#     skip_push: auto
-#   - dockerfile: Dockerfile.release
-#     binaries:
-#       - nri-prometheus
-#     image_templates:
-#       - 'newrelic/nri-prometheus:{{ .Version }}'
-# snapshot:
-#   name_template: "{{ .Tag }}-next"
-# changelog:
-#   sort: asc
-#   filters:
-#     exclude:
-#       - '^docs:'
-#       - '^test:'
+checksum:
+  name_template: 'checksums.txt'
+dockers:
+  - dockerfile: Dockerfile.release
+    binaries:
+      - nri-prometheus
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+    skip_push: auto
+  - dockerfile: Dockerfile.release
+    binaries:
+      - nri-prometheus
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Version }}'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
