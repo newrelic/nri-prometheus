@@ -95,6 +95,7 @@ func loadConfig() (*scraper.Config, error) {
 func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("debug", false)
 	viper.SetDefault("verbose", false)
+	viper.SetDefault("audit", false)
 	viper.SetDefault("scrape_enabled_label", "prometheus.io/scrape")
 	viper.SetDefault("require_scrape_enabled_label_for_nodes", true)
 	viper.SetDefault("scrape_timeout", 5*time.Second)
