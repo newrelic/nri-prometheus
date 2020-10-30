@@ -1,0 +1,44 @@
+{
+	"FixedFileInfo":
+	{
+		"FileVersion": {
+			"Major": ,
+			"Minor": 9,
+			"Patch": 9,
+			"Build": 0
+		},
+		"ProductVersion": {
+			"Major": ,
+			"Minor": 9,
+			"Patch": 9,
+			"Build": 0
+		},
+		"FileFlagsMask": "3f",
+		"FileFlags ": "00",
+		"FileOS": "040004",
+		"FileType": "01",
+		"FileSubType": "00"
+	},
+	"StringFileInfo":
+	{
+		"Comments": "(c) 2020 New Relic, Inc.",
+		"CompanyName": "New Relic, Inc.",
+		"FileDescription": "",
+		"FileVersion": ".9.9.0",
+		"InternalName": "nri-prometheus",
+		"LegalCopyright": "(c) 2020 New Relic, Inc.",
+		"LegalTrademarks": "",
+		"OriginalFilename": "nri-prometheus.exe",
+		"PrivateBuild": "",
+		"ProductName": "New Relic Infrastructure Integration, nri-prometheus",
+		"ProductVersion": ".9.9.0",
+		"SpecialBuild": ""
+	},
+	"VarFileInfo":
+	{
+		"Translation": {
+			"LangID": "0409",
+			"CharsetID": "04B0"
+		}
+	}
+}

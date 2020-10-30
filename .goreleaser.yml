@@ -2,9 +2,10 @@ builds:
   - id: nri-prometheus-nix
     main: ./cmd/nri-prometheus/
     binary: nri-prometheus
-    gobinary: "go1.13.15"
     ldflags:
       - -s -w -X internal/integration/integration.Version={{.Version}} #-X main.gitCommit={{.Commit}} -X main.buildDate={{.Date}}
+    env:
+      - CGO_ENABLED=0
     goos:
       - linux
       - darwin
@@ -25,7 +26,6 @@ builds:
   - id: nri-prometheus-win
     main: ./cmd/nri-prometheus/
     binary: nri-prometheus
-    gobinary: "go1.13.15"
     ldflags:
       - -s -w -X internal/integration/integration.Version={{.Version}} #-X main.gitCommit={{.Commit}} -X main.buildDate={{.Date}}
     goos:
@@ -98,22 +98,30 @@ archives:
 release:
   disable: true
 
-checksum:
-  name_template: 'checksums.txt'
-# dockers:
-#   - dockerfile: Dockerfile.release
-#     binaries:
-#       - nri-prometheus
-#     image_templates:
-#       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-#     skip_push: auto
-#   - dockerfile: Dockerfile.release
-#     binaries:
-#       - nri-prometheus
-#     image_templates:
-#       - 'newrelic/nri-prometheus:{{ .Version }}'
+dockers:
+  - 
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile.release
+    binaries:
+      - nri-prometheus
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+    # auto mean that if version has rc-1 or similar it won't be pushed
+    skip_push: auto
+  - 
+    goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile.release
+    binaries:
+      - nri-prometheus
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Version }}'
+    skip_push: false
+
 snapshot:
   name_template: "{{ .Tag }}-next"
+
 changelog:
   sort: asc
   filters:

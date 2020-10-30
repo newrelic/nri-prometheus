@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION := v0.143.0
+GORELEASER_VERSION := v0.146.0
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -17,21 +17,22 @@ release/clean:
 	@echo "===> $(INTEGRATION) === [release/clean] remove build metadata files"
 	rm -fv $(CURDIR)/cmd/nri-prometheus/versioninfo.json
 	rm -fv $(CURDIR)/cmd/nri-prometheus/resource.syso
-	@go mod tidy
 
 .PHONY : release/deps
 release/deps: $(GORELEASER_BIN)
-	@echo "===> $(INTEGRATION) === [release/deps] install goversioninfo"
+	@echo "===> $(INTEGRATION) === [release/deps] installing deps"
 	@go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
+	@go mod tidy
+	
 
 .PHONY : release/build
 release/build: release/deps release/clean
 ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/build] PRE-RELEASE compiling all binaries, creating packages, archives"
-	@$(GORELEASER_BIN) release --config $(CURDIR)/build/.goreleaser.yml --rm-dist
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
-	@$(GORELEASER_BIN) build --config $(CURDIR)/build/.goreleaser.yml --snapshot --rm-dist
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
 endif
 
 .PHONY : release/fix-archive
@@ -51,10 +52,11 @@ release/sign/nix:
 release/publish:
 	@echo "===> $(INTEGRATION) === [release/publish] publishing artifacts"
 	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
-	@bash $(CURDIR)/build/upload_artifacts_gh.sh ${REPO_FULL_NAME}
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
 
 .PHONY : release
-release: release/build release/fix-archive release/sign/nix release/publish release/clean
+release: release/build release/fix-archive release/publish release/clean
+	# release/sign/nix 
 	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
 
 OS := $(shell uname -s)
