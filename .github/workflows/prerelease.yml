@@ -28,7 +28,8 @@ env:
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   TAG: ${{ github.event.release.tag_name }}
   GH_VERSION: '1.2.0'
-
+  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 jobs:
 
   validate:
