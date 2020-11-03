@@ -6,6 +6,7 @@ set -e
 #
 #
 PROJECT_PATH=$1
+#PROJECT_PATH=$(PWD)
 
 for tarball_dirty in $(find dist -regex ".*_dirty\.\(tar.gz\)");do
   tarball=${tarball_dirty:5:${#tarball_dirty}-(5+13)} # Strips begining and end chars

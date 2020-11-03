@@ -1,16 +1,19 @@
-name: Prerelease pipeline
+name: Release pipeline
 
 on:
   release:
     types:
+       # a pre-release is created
       - prereleased
+      # a release or draft of a release is published, or a pre-release is changed to a release
+      - released
     tags:
       - 'v*'
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GO_VERSION: '1.13.15'
+  GO_VERSION: '1.15.2'
   GPG_MAIL: 'infrastructure-eng@newrelic.com' #'info@newrelic.com' # infrastructure-eng@newrelic.com
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GPG_PRIVATE_KEY_BASE64: ${{ secrets.GPG_PRIVATE_KEY_BASE64 }} # base64 encoded
@@ -24,6 +27,7 @@ env:
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
   SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
   TAG: ${{ github.event.release.tag_name }}
+  GH_VERSION: '1.2.0'
 
 jobs:
 
@@ -96,55 +100,40 @@ jobs:
           GOPATH: ${{ github.workspace }}
         run: make integration-test
 
-  prerelease:
-    name: Build binary for *Nix/Win, create archives for *Nix/Win, create packages for *Nix, upload all artifacts into GH Release assets
+  # cant run on container becuase we want to push docker images through goreleaser
+  release:
+    name: Use goreleaser for releasing
     runs-on: ubuntu-20.04
-    #needs: [validate, test-nix, test-windows, test-integration-nix]
-    needs: [validate, test-nix, test-integration-nix]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Pre release
-        run: make ci/prerelease
+    needs: [validate, test-nix, test-windows, test-integration-nix]
+    steps:    
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: setup github-cli
+        run: |
+          wget -q https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${{env.GH_VERSION}}_linux_amd64.deb -O /tmp/gh_${{env.GH_VERSION}}_linux_amd64.deb
+          sudo apt-get -y install /tmp/gh_${{env.GH_VERSION}}_linux_amd64.deb
+      - name: do the release
+        run: make release
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
       - name: Notify failure via Slack
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_WEBHOOK }}
           slack-channel: ${{ env.SLACK_CHANNEL }}
-          slack-text: ":shit: Repo: ${{env.REPO_FULL_NAME}}, prerelease for nix FAILURE!"
-
-  #docker-publish:
-  #  name: Publish container image to docker hub
-  #  runs-on: ubuntu-20.04
-  #  needs: [prerelease]
-    # only when it's a real release
-    #if: "!github.event.release.prerelease"
-  #  steps:
-  #    - uses: actions/checkout@v2
-  #    - name: Install Go
-  #      uses: actions/setup-go@v2
-  #      with:
-  #        go-version: ${{env.GO_VERSION}}
-  #    - name: Build binary
-  #      run: go build -o bin/nri-${{env.INTEGRATION}} ./cmd/nri-prometheus/
-  #    - name: Get the version
-  #      id: get_version
-  #      run: echo ::set-output name=VERSION::$(echo $TAG | cut  -c 2-)
-  #    - name: Publish docker image
-  #      uses: docker/build-push-action@v2
-  #      with:
-  #        context: .
-  #        file: Dockerfile.release
-  #        username: ${{ secrets.DOCKER_USERNAME }}
-  #        password: ${{ secrets.DOCKER_PASSWORD }}
-  #        repository: newrelic/nri-prometheus
-  #        tags: newrelic/nri-prometheus:${{ steps.get_version.outputs.VERSION }}
-  #        push: false
+          slack-text: "Repo: ${{env.REPO_FULL_NAME}}, nix release FAILURE!"
 
   package-win:
     name: Create MSI & Upload into GH Release assets
     runs-on: windows-2019
-    needs: [prerelease]
+    needs: [release]
     env:
       GOPATH: ${{ github.workspace }}
     defaults:
@@ -179,4 +168,4 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_WEBHOOK }}
           slack-channel: ${{ env.SLACK_CHANNEL }}
-          slack-text: ":error: Repo: ${{env.REPO_FULL_NAME}}, prerelease for Windows FAILURE!"
+          slack-text: "Repo: ${{env.REPO_FULL_NAME}}, Windows release FAILURE!"
