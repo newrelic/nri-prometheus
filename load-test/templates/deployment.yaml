@@ -1,0 +1,68 @@
+{{- $replicaCount := .Values.replicaCount -}}
+{{- $chartName := .Chart.Name -}}
+{{- $namespace := .Values.namespace -}}
+
+{{- $index := 0 -}}
+
+
+{{- range .Values.deployments }}
+{{- $index = add1 $index -}}
+{{- $latency := default "0" .latency -}}
+{{- $latencyVariation := default "0" .latencyVariation   -}}
+{{- $indexString := toString $index  -}}
+
+{{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $uniqueDeployName }}
+  namespace: {{ $namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $uniqueDeployName }}
+spec:
+  replicas: {{ $replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $uniqueDeployName }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $uniqueDeployName }}
+    spec:
+      serviceAccountName: "default"
+      containers:
+        - name: {{ $chartName }}
+          image: roobre/mockexporter:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LATENCY
+              value: {{ $latency | quote}}
+            - name: LATENCY_VARIATION
+              value: {{ $latencyVariation | quote}}
+            - name: METRICS
+              value: "/metrics/metrics.sample"
+            - name: MAX_ROUTINES
+              value: {{ .maxRoutines | default "0" | quote}}
+            - name: ADDR
+              value: ":80"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: metricsdir
+              mountPath: /metrics
+      initContainers:
+        - name: installmetrics
+          image: roobre/mockexporter:latest
+          command: [ "/bin/sh","-c" ]
+          args:
+            - wget {{ .metrics | default "https://gist.githubusercontent.com/paologallinaharbur/a159ad779ca44fb9f4ff5b006ef475ee/raw/f5d8a5e7350b8d5e1d03f151fa643fb3a02cd07d/Average%2520prom%2520output" | quote}} -O /metrics/metrics.sample
+          volumeMounts:
+            - name: metricsdir
+              mountPath: "/metrics"
+      volumes:
+        - name: metricsdir
+          emptyDir: {}
+---
+{{- end }}

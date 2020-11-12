@@ -1,0 +1,73 @@
+# Due to the high volume helm could fail to generate all the needed resources in small clusters due to time-out
+# Somethimes `helm template [..] | kubectl apply -f -` seems to be more performant
+
+# When increasing the number of targets and the size the error is shown `Request Entity Too Large 413`
+# Adding in the environment variables of POMI seems to solve it reducing the payload
+#    - name: EMITTER_HARVEST_PERIOD
+#      value: 200ms
+
+# Number of targets created numberServicesPerDeploy*len(deployments)
+# Each service has the label `prometheus.io/scrape: "true"` that is automatically detected by nri-prometheus
+
+# Resources are generated automatically according the following specifications
+# Name of deployment: `<name>-lat<latency>-latvar<latencyVar>-<deployindex>`
+# Name of service: `<name>-lat<latency>-latvar<latencyVar>-<deployindex>-<serviceindex>`
+
+# Test prometheus metrics, by default the deployments download the average output sample:
+# https://gist.githubusercontent.com/paologallinaharbur/125cca06b5c717503c7672766e3667fe/raw/67070882bee890a9e060189cff1ef316745a652b/Small%2520Prom%2520payload Small Payload
+# https://gist.githubusercontent.com/paologallinaharbur/a159ad779ca44fb9f4ff5b006ef475ee/raw/f5d8a5e7350b8d5e1d03f151fa643fb3a02cd07d/Average%2520prom%2520output Average Payload
+# https://gist.githubusercontent.com/paologallinaharbur/f03818327921754efc5a997894467ff9/raw/c61168c1d2ea8bde6580144ada6f739fb40a7bbf/Large%2520Prom%2520output Big payload
+# 
+# To compare the average size of the payload scraped by pomi you can run `SELECT average(nr_stats_metrics_total_timeseries_by_target) FROM Metric SINCE 30 MINUTES AGO TIMESERIES`$
+# and get the number of timeseries sent (the average payload here counts 400)
+
+
+numberServicesPerDeploy: 100 # Total number service created: numberServicesPerDeploy*len(deployments)
+deployments: # Total number deployments created: len(deployments)
+  - name: one # required (uniqueness is assured by adding an index)
+    latency: "0" # not required
+    latencyVariation: "0" # not required
+    metrics: "" # not required
+    #maxRoutines: "1" #not required
+  - name: two
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: three
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: four
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: five
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: six
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: seven
+    latency: "0"
+    latencyVaration: "0"
+    metrics: ""
+    #maxRoutines: "1"
+  - name: eight
+    latency: "0"
+    latencyVariation: "0"
+    metrics: ""
+    #maxRoutines: "1"
+
+# ---------------------------- No need to modify this
+
+namespace: "newrelic"
+replicaCount: 1
+nameOverride: ""
+fullnameOverride: "load-test"

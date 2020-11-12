@@ -1,0 +1,37 @@
+{{- $values := .Values -}}
+{{- $numberServices :=  .Values.numberServicesPerDeploy | int }}
+{{- $numberDeploy :=  .Values.numberOfDeployments | int }}
+{{- $namespace := .Values.namespace -}}
+{{- $index := 0 -}}
+
+
+{{- range .Values.deployments }}
+{{- $index = add1 $index -}}
+{{- $latency := default "0" .latency -}}
+{{- $latencyVariation := default "0" .latencyVariation   -}}
+{{- $indexString := toString $index  -}}
+
+{{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString -}}
+
+{{- range untilStep 0 $numberServices 1 }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $uniqueDeployName }}-{{ . }}
+  namespace: {{ $namespace }}
+  labels:
+    prometheus.io/scrape: "true"
+    app.kubernetes.io/name: {{ $uniqueDeployName }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ $uniqueDeployName }}
+---
+{{- end }}
+{{- end }}
