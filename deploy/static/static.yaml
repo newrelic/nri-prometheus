@@ -24,7 +24,9 @@ spec:
           image: golang:alpine
           env:
             - name: METRICS_FILE_URL
-              value: "<ADD_YOUR_FILE_URL_HERE>" # You can use private gist url.
+              value: "" # You can use private gist url.
+            - name: TESTER_SCRIPT_URL
+              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/mockexporter/loadtest.go".
           ports:
             - name: metrics
               containerPort: 8080
@@ -32,10 +34,11 @@ spec:
           # The reason of using a URL instead of a config map is that the latest has a limitation of up to 1MB
           args:
             - |
-              wget $METRICS_FILE_URL -O /etc/from-file-prometheus-exporter/metrics
-              go run /app/loadtest.go -addr :8080 -metrics /etc/from-file-prometheus-exporter/metrics -latency 50 -latency-variation 15
+              [[ -n "$METRICS_FILE_URL" ]] && wget $METRICS_FILE_URL -O /app/metrics
+              [[ -n "$TESTER_SCRIPT_URL" ]] && wget $TESTER_SCRIPT_URL -O /app/loadtest.go
+              go run /app/loadtest.go -addr :8080 -metrics /app/metrics -latency 50 -latency-variation 15
           volumeMounts:
-            - mountPath: /etc/from-file-prometheus-exporter/
+            - mountPath: /app
               name: metrics-dir
           readinessProbe:
             httpGet:
@@ -45,4 +48,4 @@ spec:
             periodSeconds: 5
       volumes:
         - name: metrics-dir
-          emptyDir: {}
+          emptyDir: {} # Or just mount ./internal/mockexporter from this repo
