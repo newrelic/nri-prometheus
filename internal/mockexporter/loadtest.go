@@ -8,15 +8,17 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 )
 
 func main() {
-	metrics := flag.String("metrics", "", "path to the metrics file to serve")
-	latency := flag.Int64("latency", 0, "artificial latency to induce in the responses (milliseconds)")
-	latencyVariation := flag.Int("latency-variation", 0, "randomly variate latency by +- this value (percentage)")
-	maxRoutines := flag.Int("max-routines", 0, "maximum number of requests to handle in parallel")
-	listenAddress := flag.String("addr", ":9940", "address:port pair to listen in")
+	metrics := flagEnvString("metrics", "", "path to the metrics file to serve")
+	latency := flagEnvInt("latency", 0, "artificial latency to induce in the responses (milliseconds)")
+	latencyVariation := flagEnvInt("latency-variation", 0, "randomly variate latency by +- this value (percentage)")
+	maxRoutines := flagEnvInt("max-routines", 0, "maximum number of requests to handle in parallel")
+	listenAddress := flagEnvString("addr", ":9940", "address:port pair to listen in")
 	flag.Parse()
 
 	if *metrics == "" {
@@ -35,9 +37,37 @@ func main() {
 	log.Println(ms.ListenAndServe(*listenAddress))
 }
 
+// Wrapper to get default from environment if present
+func flagEnvString(name, defaultValue, usage string) *string {
+	val := os.Getenv(strings.ToUpper(strings.ReplaceAll(name, "-", "_")))
+	if val == "" {
+		val = defaultValue
+	}
+
+	return flag.String(
+		name,
+		val,
+		usage,
+	)
+}
+
+// Wrapper to get default from environment if present
+func flagEnvInt(name string, defaultValue int, usage string) *int {
+	val, err := strconv.Atoi(os.Getenv(strings.ToUpper(strings.ReplaceAll(name, "-", "_"))))
+	if err != nil {
+		val = defaultValue
+	}
+
+	return flag.Int(
+		name,
+		val,
+		usage,
+	)
+}
+
 type metricsServer struct {
 	MetricsFile      string
-	Latency          int64
+	Latency          int
 	LatencyVariation int
 	MaxRoutines      int
 
