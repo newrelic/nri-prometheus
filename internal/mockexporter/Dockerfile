@@ -12,7 +12,6 @@ FROM alpine:latest
 
 RUN mkdir -p /app
 COPY --from=build /app/mockexporter /app
-COPY metrics.file /app
 
 WORKDIR /app
 ENTRYPOINT ["/app/mockexporter"]

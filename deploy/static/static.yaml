@@ -24,7 +24,7 @@ spec:
           image: golang:alpine
           env: # Files will be downloaded from the following URLs if they are not empty
             - name: METRICS_FILE_URL
-              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/mockexporter/metrics.file"
+              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/integration/test/cadvisor.txt"
             - name: TESTER_SCRIPT_URL
               value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/mockexporter/loadtest.go"
           ports:
