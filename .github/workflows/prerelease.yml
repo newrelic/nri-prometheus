@@ -15,21 +15,21 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GO_VERSION: '1.15.2'
   GPG_MAIL: 'infrastructure-eng@newrelic.com' #'info@newrelic.com' # infrastructure-eng@newrelic.com
-  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-  GPG_PRIVATE_KEY_BASE64: ${{ secrets.GPG_PRIVATE_KEY_BASE64 }} # base64 encoded
+  GPG_PASSPHRASE: ${{ secrets.OHAI_GPG_PASSPHRASE }}
+  GPG_PRIVATE_KEY_BASE64: ${{ secrets.OHAI_GPG_PRIVATE_KEY_BASE64 }} # base64 encoded
   INTEGRATION: "prometheus"
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
-  PFX_CERTIFICATE_BASE64: ${{ secrets.PFX_CERTIFICATE_BASE64 }} # base64 encoded
+  PFX_CERTIFICATE_BASE64: ${{ secrets.OHAI_PFX_CERTIFICATE_BASE64 }} # base64 encoded
   PFX_CERTIFICATE_DESCRIPTION: 'New Relic Infrastructure'
-  PFX_PASSPHRASE:  ${{ secrets.PFX_PASSPHRASE }}
+  PFX_PASSPHRASE:  ${{ secrets.OHAI_PFX_PASSPHRASE }}
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-  SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+  SNYK_TOKEN: ${{ secrets.COREINT_SNYK_TOKEN }}
   TAG: ${{ github.event.release.tag_name }}
   GH_VERSION: '1.2.0'
-  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+  DOCKER_USERNAME: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
 jobs:
 
   validate:
@@ -122,8 +122,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1 
         with:
-          username: ${{ secrets.DOCKER_USERNAME}}
-          password: ${{ secrets.DOCKER_PASSWORD}}      
+          username: ${{ secrets.FSI_DOCKERHUB_USERNAME}}
+          password: ${{ secrets.FSI_DOCKERHUB_TOKEN}}      
       - name: do the release
         run: make release
         env:
