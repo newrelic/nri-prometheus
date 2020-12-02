@@ -26,7 +26,7 @@ spec:
             - name: METRICS_FILE_URL
               value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/integration/test/cadvisor.txt"
             - name: TESTER_SCRIPT_URL
-              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/mockexporter/loadtest.go"
+              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/cmd/mockexporter/mockexporter.go"
           ports:
             - name: metrics
               containerPort: 8080
