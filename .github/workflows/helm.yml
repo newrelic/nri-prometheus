@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: Create PR using Version Bump 
       run: |
-        appVersion=${{github.event.release.tag_name}}
+        appVersion=${{ github.event.release.tag_name }}
         chartName=nri-prometheus
         
         curl -H "Accept: application/vnd.github.everest-preview+json" \

@@ -2,10 +2,11 @@ name: Push/PR pipeline
 
 on:
   push:
+    tags:
+      - v*
     branches:
-      - '**'
-    tags-ignore:
-      - '**'
+      - main
+  pull_request:
 
 env:
   TAG: "v0.0.0" # needed for goreleaser windows builds
@@ -92,5 +93,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: Scan code for vulnerabilities
         run: make ci/snyk-test
-
 
