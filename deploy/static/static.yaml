@@ -21,25 +21,44 @@ spec:
     spec:
       containers:
         - name: from-file-prometheus-exporter
-          image: python:alpine3.9
-          env:
+          image: golang:alpine
+          env: # Files will be downloaded from the following URLs if they are not empty
             - name: METRICS_FILE_URL
-              value: "<ADD_YOUR_FILE_URL_HERE>" # You can use private gist url.
+              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/integration/test/cadvisor.txt"
+            - name: TESTER_SCRIPT_URL
+              value: "https://raw.githubusercontent.com/newrelic/nri-prometheus/santalla/mockexporter/internal/cmd/mockexporter/mockexporter.go"
           ports:
             - name: metrics
               containerPort: 8080
           command: ["/bin/sh","-c"]
           # The reason of using a URL instead of a config map is that the latest has a limitation of up to 1MB
-          args: ["wget $METRICS_FILE_URL -O /etc/from-file-prometheus-exporter/metrics; python -m http.server -b 0.0.0.0 -d /etc/from-file-prometheus-exporter/ 8080"]
+          args:
+            - |
+              [[ -n "$METRICS_FILE_URL" ]] && wget $METRICS_FILE_URL -O /app/metrics
+              [[ -n "$TESTER_SCRIPT_URL" ]] && wget $TESTER_SCRIPT_URL -O /app/loadtest.go
+              go run /app/loadtest.go -addr :8080 -metrics /app/metrics -latency 50 -latency-variation 15
           volumeMounts:
-            - mountPath: /etc/from-file-prometheus-exporter/
+            - mountPath: /app
               name: metrics-dir
           readinessProbe:
             httpGet:
               path: /
               port: metrics
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 5
+            periodSeconds: 10
       volumes:
         - name: metrics-dir
-          emptyDir: {}
+          emptyDir: {} # Alternatively to file download, ./internal/mockexporter from this repo can be mounted here
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: from-file-prometheus-exporter
+spec:
+  type: ClusterIP
+  selector:
+    app: from-file-prometheus-exporter
+  ports:
+    - name: prometheus-metrics
+      port: 8080
+      targetPort: metrics
