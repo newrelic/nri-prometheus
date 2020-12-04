@@ -12,9 +12,10 @@ This chart will deploy a prometheus load generator.
 | `deployments.*`                                             | List of specification of the deployments to create                                                                                                                                                                                                      | `[]`                                   |
 | `deployments.latency`                                              | time in millisecond the /metric endpoint will wait before answering                                                                                                                                                                        |                `0`                    |
 | `deployments.latencyVariation`                                                 | ± latency variation %                                                                                                                                                                                                  | `0`                                   |
-| `deployments.metrics`                                         | Metric file to download                                                                                                                                                                                                | `https://gist.githubusercontent.com/paologallinaharbur/a159ad779ca44fb9f4ff5b006ef475ee/raw/f5d8a5e7350b8d5e1d03f151fa643fb3a02cd07d/Average%2520prom%2520output`                                   |
+| `deployments.metrics`                                         | Metric file to download                                                                                                                                                                                                | Average Load URL*                                 |
 | `deployments.maxRoutines`                           | Max number of goroutines the prometheus mock server will open (if 0 no limit is imposed)                                                                                                                             | `0`                                  |
 
+*Average load URL: https://gist.githubusercontent.com/paologallinaharbur/a159ad779ca44fb9f4ff5b006ef475ee/raw/f5d8a5e7350b8d5e1d03f151fa643fb3a02cd07d/Average%2520prom%2520output
 
 ## Resources created
 
@@ -55,7 +56,7 @@ Test prometheus metrics, by default the deployments download the average output 
 
 ## Compare with real data
 
-To compare the average size of the payload scraped by pomi you can run `SELECT average(nr_stats_metrics_total_timeseries_by_target) FROM Metric where clusterName= 'xxxx' SINCE 30 MINUTES AGO TIMESERIES`$
+To compare the average size of the payload scraped by pomi you can run `SELECT average(nr_stats_metrics_total_timeseries_by_target) FROM Metric where clusterName='xxxx' SINCE 30 MINUTES AGO TIMESERIES`$
 and get the number of timeseries sent (the average payload here counts 500)
 
-To compare the average time a target takes in order to answer `SELECT average(nr_stats_integration_fetch_target_duration_seconds) FROM Metric where clusterName= 'xxxx'  SINCE 30 MINUTES AGO FACET target LIMIT 500`
+To compare the average time a target takes in order to answer `SELECT average(nr_stats_integration_fetch_target_duration_seconds) FROM Metric where clusterName='xxxx'  SINCE 30 MINUTES AGO FACET target LIMIT 500`
