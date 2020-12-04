@@ -1,0 +1,10 @@
+THIS CHART IS MEANT FOR LOAD TESTING ONLY
+
+It created {{ .Values.numberServicesPerDeploy }} services per each Deployment
+It created {{ len .Values.deployments }} deployments
+
+Name of deployment: `<name>-lat<latency>-latvar<latencyVar>-<deployindex>`
+Name of service: `<name>-lat<latency>-latvar<latencyVar>-<deployindex>-<serviceindex>`
+
+Number of targets created numberServicesPerDeploy*len(deployments)
+Each service has the label `prometheus.io/scrape: "true"` that is automatically detected by nri-prometheus
