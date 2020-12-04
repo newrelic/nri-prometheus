@@ -116,4 +116,3 @@ jobs:
           coverageCommand: go test -coverprofile=c.out ./...
           coverageLocations: "${{ github.workspace }}/c.out:gocov" # Can be removed when https://github.com/paambaati/codeclimate-action/issues/265 is fixed
           prefix: ${{ env.CC_PREFIX }} # CC will strip this from the test report, leading to the correct file path
-          debug: true
