@@ -117,6 +117,10 @@ data:
     # Whether k8s nodes need to be labelled to be scraped or not. Defaults to true.
     require_scrape_enabled_label_for_nodes: true
 
+    # Number of worker threads used for scraping targets. Defaults to 4.
+    # For large clusters with many endpoints, increase to 10.
+    # worker_threads: 4
+
     # targets:
     #   - description: Secure etcd example
     #     urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
@@ -157,7 +161,7 @@ data:
     #   - 99
 
     # transformations:
-    #   - description: "General processing rules"
+    #   - description: "Uncomment if running New Relic Kubernetes Integration"
     #     rename_attributes:
     #       - metric_prefix: ""
     #         attributes:
@@ -169,22 +173,17 @@ data:
     #           pod: "podName"
     #           deployment: "deploymentName"
     #     ignore_metrics:
-    #       # Ignore all the metrics except the ones listed below.
-    #       # This is a list that complements the data retrieved by the New
-    #       # Relic Kubernetes Integration, that's why Pods and containers are
-    #       # not included, because they are already collected by the
-    #       # Kubernetes Integration.
-    #       - except:
-    #         - kube_hpa_
+    #       - prefixes:
     #         - kube_daemonset_
-    #         - kube_statefulset_
+    #         - kube_deployment_
     #         - kube_endpoint_
-    #         - kube_service_
-    #         - kube_limitrange
+    #         - kube_namespace_
     #         - kube_node_
-    #         - kube_poddisruptionbudget_
-    #         - kube_resourcequota
-    #         - nr_stats
+    #         - kube_persistentvolume_
+    #         - kube_pod_
+    #         - kube_replicaset_
+    #         - kube_service_
+    #         - kube_statefulset_
     #     copy_attributes:
     #       # Copy all the labels from the timeseries with metric name
     #       # `kube_hpa_labels` into every timeseries with a metric name that
