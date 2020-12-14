@@ -1,0 +1,10 @@
+version: "2"
+plugins:
+  golint:
+    enabled: true
+    config:
+      min_confidence: 0.9
+  gofmt:
+    enabled: true
+  govet:
+    enabled: true
