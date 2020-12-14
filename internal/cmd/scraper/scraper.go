@@ -36,6 +36,8 @@ type Config struct {
 	DisableAutodiscovery              bool                         `mapstructure:"disable_autodiscovery"`
 	ScrapeDuration                    string                       `mapstructure:"scrape_duration"`
 	EmitterHarvestPeriod              string                       `mapstructure:"emitter_harvest_period"`
+	MinEmitterHarvestPeriod           string                       `mapstructure:"min_emitter_harvest_period"`
+	MaxStoredMetrics                  int                          `mapstructure:"max_stored_metrics"`
 	TargetConfigs                     []endpoints.TargetConfig     `mapstructure:"targets"`
 	AutoDecorate                      bool                         `mapstructure:"auto_decorate" default:"false"`
 	CaFile                            string                       `mapstructure:"ca_file"`
@@ -244,15 +246,6 @@ func Run(cfg *Config) error {
 		case "stdout":
 			emitters = append(emitters, integration.NewStdoutEmitter())
 		case "telemetry":
-			hTime, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
-			if err != nil {
-				return fmt.Errorf(
-					"invalid telemetry emitter harvest period %s: %w",
-					cfg.EmitterHarvestPeriod,
-					err,
-				)
-			}
-
 			harvesterOpts := []func(*telemetry.Config){
 				telemetry.ConfigAPIKey(string(cfg.LicenseKey)),
 				telemetry.ConfigBasicErrorLogger(os.Stdout),
@@ -296,14 +289,31 @@ func Run(cfg *Config) error {
 				harvesterOpts = append(harvesterOpts, telemetry.ConfigBasicAuditLogger(os.Stdout))
 			}
 
+			hTime, err := time.ParseDuration(cfg.EmitterHarvestPeriod)
+			if err != nil {
+				return fmt.Errorf(
+					"invalid telemetry emitter harvest period %s: %w",
+					cfg.EmitterHarvestPeriod,
+					err,
+				)
+			}
+			mhTime, err := time.ParseDuration(cfg.MinEmitterHarvestPeriod)
+			if err != nil {
+				return fmt.Errorf(
+					"invalid minimum telemetry emitter harvest period %s: %w",
+					cfg.MinEmitterHarvestPeriod,
+					err,
+				)
+			}
+
 			c := integration.TelemetryEmitterConfig{
 				HarvesterOpts:                 harvesterOpts,
 				DeltaExpirationAge:            cfg.TelemetryEmitterDeltaExpirationAge,
 				DeltaExpirationCheckInternval: cfg.TelemetryEmitterDeltaExpirationCheckInterval,
 				BoundedHarvesterCfg: integration.BoundedHarvesterCfg{
 					HarvestPeriod:     hTime,
-					MinReportInterval: hTime / 10,
-					MetricCap:         1e5,
+					MinReportInterval: mhTime,
+					MetricCap:         cfg.MaxStoredMetrics,
 				},
 			}
 
