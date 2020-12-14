@@ -59,8 +59,16 @@ type BoundedHarvesterCfg struct {
 	MinReportInterval time.Duration
 }
 
+// BoundedHarvesterDefaultHarvestPeriod is the default harvest period. Since harvests are also triggered by stacking
+// metrics, there is no need for this to be very low
 const BoundedHarvesterDefaultHarvestPeriod = 5 * time.Second
+
+// BoundedHarvesterDefaultMetricsCap is the default number of metrics stack before triggering a harvest. 10000 metrics
+// require around 500MiB in our testing setup
 const BoundedHarvesterDefaultMetricsCap = 10000
+
+// BoundedHarvesterDefaultMinReportInterval is the default and minimum enforced harvest interval time. No harvests will
+// be issued if previous harvest was less than this value ago (except for those triggered with HarvestNow)
 const BoundedHarvesterDefaultMinReportInterval = 200 * time.Millisecond
 
 // boundedHarvester is a harvester implementation and wrapper that keeps count of the number of metrics that are waiting
