@@ -9,27 +9,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const BoundedHarvesterDefaultPeriod = 5 * time.Second
-const BoundedHarvesterDefaultMetricCap = 10000
-const BoundedHarvesterDefaultMinReportInterval = 200 * time.Millisecond
-
 // bindHarvester creates a boundedHarvester from an existing harvester.
 // It also returns a cancel channel to stop the periodic harvest goroutine.
+// The returned boundedHarvester always runs in a loop.
 func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan struct{}) {
 	if _, ok := inner.(*telemetry.Harvester); ok {
 		log.Debug("using telemetry.Harvester as underlying harvester, make sure to set HarvestPeriod to 0")
 	}
 
-	if cfg.HarvestPeriod == 0 {
-		cfg.HarvestPeriod = BoundedHarvesterDefaultPeriod
+	if cfg.MinReportInterval < BoundedHarvesterDefaultMinReportInterval {
+		log.Warnf("Ignorning min_emitter_harvest_period %v < %v", cfg.MinReportInterval, BoundedHarvesterDefaultMinReportInterval)
+		cfg.MinReportInterval = BoundedHarvesterDefaultMinReportInterval
+	}
+
+	if cfg.HarvestPeriod < cfg.MinReportInterval {
+		log.Warnf("Ignorning emitter_harvest_period %v < %v, setting to default %v", cfg.HarvestPeriod, cfg.MinReportInterval, BoundedHarvesterDefaultHarvestPeriod)
+		cfg.HarvestPeriod = BoundedHarvesterDefaultHarvestPeriod
 	}
 
 	if cfg.MetricCap == 0 {
-		cfg.MetricCap = BoundedHarvesterDefaultMetricCap
-	}
-
-	if cfg.MinReportInterval == 0 {
-		cfg.MinReportInterval = BoundedHarvesterDefaultMinReportInterval
+		cfg.MetricCap = BoundedHarvesterDefaultMetricsCap
 	}
 
 	h := &boundedHarvester{
@@ -59,6 +58,10 @@ type BoundedHarvesterCfg struct {
 	// This will be always enforced, regardless of HarvestPeriod and MetricCap
 	MinReportInterval time.Duration
 }
+
+const BoundedHarvesterDefaultHarvestPeriod = 5 * time.Second
+const BoundedHarvesterDefaultMetricsCap = 10000
+const BoundedHarvesterDefaultMinReportInterval = 200 * time.Millisecond
 
 // boundedHarvester is a harvester implementation and wrapper that keeps count of the number of metrics that are waiting
 // to be harvested. Every small period of time (BoundedHarvesterCfg.MinReportInterval), if the number of accumulated

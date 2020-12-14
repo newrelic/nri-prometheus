@@ -158,12 +158,12 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 		return nil, errors.Wrap(err, "could not create new Harvester")
 	}
 
-	// Create a bound harvester based on passed configuration
-	bh, _ := bindHarvester(h, cfg.BoundedHarvesterCfg)
+	// Create a bound harvester based on passed configuration if going to run in a loop
+	h, _ = bindHarvester(h, cfg.BoundedHarvesterCfg)
 
 	// Wrap the harvester so we can filter out invalid float values: NaN and Infinity.
 	// If we do send them, the harvester will always output these as errors
-	h = harvesterDecorator{bh}
+	h = harvesterDecorator{h}
 
 	return &TelemetryEmitter{
 		name:            "telemetry",
