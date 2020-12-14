@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-const boundHarvesterDefaultPeriod = 1 * time.Second
+const boundHarvesterDefaultPeriod = 3 * time.Second
 const boundHarvesterDefaultMetricCap = 1e5
 const boundHarvesterDefaultMinReportInterval = 100 * time.Millisecond
 
@@ -17,7 +17,7 @@ const boundHarvesterDefaultMinReportInterval = 100 * time.Millisecond
 // It also returns a cancel channel to stop the periodic harvest goroutine.
 func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan struct{}) {
 	if _, ok := inner.(*telemetry.Harvester); ok {
-		logrus.Debug("using telemetry.Harvester as underlying harvester, make sure to set HarvestPeriod to 0")
+		log.Debug("using telemetry.Harvester as underlying harvester, make sure to set HarvestPeriod to 0")
 	}
 
 	if cfg.HarvestPeriod == 0 {
@@ -70,13 +70,16 @@ type boundedHarvester struct {
 
 // RecordMetric records the metric in the underlying harvester and reports all of them if needed
 func (h *boundedHarvester) RecordMetric(m telemetry.Metric) {
+	h.mtx.Lock()
+	h.storedMetrics++
+	h.mtx.Unlock()
+
 	h.inner.RecordMetric(m)
-	h.reportIfNeeded(context.Background(), 1, false)
 }
 
 // HarvestNow forces a new report
 func (h *boundedHarvester) HarvestNow(ctx context.Context) {
-	h.reportIfNeeded(ctx, 0, true)
+	h.reportIfNeeded(ctx, true)
 }
 
 // reportIfNeeded carries the logic to report metrics.
@@ -84,37 +87,39 @@ func (h *boundedHarvester) HarvestNow(ctx context.Context) {
 // - Force is set to true, or
 // - Last report occurred earlier than Now() - HarvestPeriod, or
 // - The number of metrics is above MetricCap and MinReportInterval has passed since last report
-func (h *boundedHarvester) reportIfNeeded(ctx context.Context, newMetrics int, force bool) {
+func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 	h.mtx.Lock()
-
-	h.storedMetrics += newMetrics
+	defer h.mtx.Unlock()
 
 	if force ||
 		time.Since(h.lastReport) >= h.HarvestPeriod ||
 		(h.storedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval) {
 
+		if force {
+			log.Debug("force harvesting")
+		} else if time.Since(h.lastReport) >= h.HarvestPeriod {
+			log.Debug("harvesting periodically")
+		} else if h.storedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval {
+			log.Debug("harvesting due to max number of metrics reached")
+		}
+
 		h.lastReport = time.Now()
 		h.storedMetrics = 0
-		// Unlock mutex, then ask the inner harvest to do its thing
-		h.mtx.Unlock()
 
-		h.inner.HarvestNow(ctx)
-	} else {
-		// Unlock mutex if we are not harvesting
-		h.mtx.Unlock()
+		go h.inner.HarvestNow(ctx)
 	}
 }
 
 // periodicHarvest can be run in a separate goroutine to periodically call reportIfNeeded every HarvestPeriod
 func (h *boundedHarvester) periodicHarvest(cancel chan struct{}) {
-	t := time.NewTicker(h.HarvestPeriod)
+	t := time.NewTicker(h.MinReportInterval)
 	for {
 		select {
 		case <-cancel:
 			t.Stop()
 			return
 		case <-t.C:
-			h.reportIfNeeded(context.Background(), 0, false)
+			h.reportIfNeeded(context.Background(), false)
 		}
 	}
 }
