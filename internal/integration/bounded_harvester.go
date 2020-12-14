@@ -45,18 +45,26 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan st
 
 // BoundedHarvesterCfg stores the configurable values for boundedHarvester
 type BoundedHarvesterCfg struct {
-	// Never report more often than MinReportInterval
-	MinReportInterval time.Duration
-
-	// Report when the number of stored metrics is greater than MetricCap
+	// MetricCap is the number of metrics to store in memory before triggering a HarvestNow action regardless of
+	// HarvestPeriod. It will directly influence the amount of memory that nri-prometheus allocates.
+	// A value of 10000 is rougly equivalent to 500M in RAM in the tested scenarios
 	MetricCap int
-	// Also report at least once every HarvestPeriod
+
+	// HarvestPeriod specifies the period that will trigger a HarvestNow action for the inner harvester.
+	// It is not necessary to decrease this value further, as other conditions (namely the MetricCap) will also trigger a
+	// harvest action.
 	HarvestPeriod time.Duration
+
+	// MinReportInterval Specifies the minimum amount of time to wait before reports.
+	// This will be always enforced, regardless of HarvestPeriod and MetricCap
+	MinReportInterval time.Duration
 }
 
-// boundedHarvester wraps another harvester and triggers its HarvestNow operation when a number of metrics have been
-// collected, or periodically every HarvestPeriod.
-// Additionally, it ensures that reports do not happen more often than MinReportInterval
+// boundedHarvester is a harvester implementation and wrapper that keeps count of the number of metrics that are waiting
+// to be harvested. Every small period of time (BoundedHarvesterCfg.MinReportInterval), if the number of accumulated
+// metrics is above a given threshold (BoundedHarvesterCfg.MetricCap), a harvest is triggered.
+// A harvest is also triggered in periodic time intervals (BoundedHarvesterCfg.HarvestPeriod)
+// boundedHarvester will never trigger harvests more often than specified in BoundedHarvesterCfg.MinReportInterval.
 type boundedHarvester struct {
 	BoundedHarvesterCfg
 
@@ -87,6 +95,7 @@ func (h *boundedHarvester) HarvestNow(ctx context.Context) {
 // - Force is set to true, or
 // - Last report occurred earlier than Now() - HarvestPeriod, or
 // - The number of metrics is above MetricCap and MinReportInterval has passed since last report
+// A report will not be triggered in any case if time since last harvest is less than MinReportInterval
 func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 	h.mtx.Lock()
 	defer h.mtx.Unlock()
@@ -104,7 +113,7 @@ func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 	}
 }
 
-// periodicHarvest can be run in a separate goroutine to periodically call reportIfNeeded every HarvestPeriod
+// periodicHarvest is run in a separate goroutine to periodically call reportIfNeeded every MinReportInterval
 func (h *boundedHarvester) periodicHarvest(cancel chan struct{}) {
 	t := time.NewTicker(h.MinReportInterval)
 	for {
