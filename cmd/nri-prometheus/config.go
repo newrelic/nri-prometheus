@@ -4,13 +4,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/newrelic/nri-prometheus/internal/integration"
 	"path/filepath"
 	"reflect"
 	"regexp"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/newrelic/nri-prometheus/internal/integration"
 
 	"github.com/newrelic/infra-integrations-sdk/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
