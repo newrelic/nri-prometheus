@@ -18,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
@@ -64,6 +65,7 @@ func BenchmarkTelemetrySDKEmitter(b *testing.B) {
 			TelemetryHarvesterWithMetricsURL("nilapiurl"),
 			telemetry.ConfigBasicErrorLogger(os.Stdout),
 		},
+		DisableBoundedHarvester: true,
 	}
 
 	b.ReportAllocs()
@@ -183,6 +185,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			},
 			telemetry.ConfigBasicErrorLogger(os.Stdout),
 		},
+		DisableBoundedHarvester: true,
 	}
 
 	e, err := NewTelemetryEmitter(c)
@@ -191,6 +194,8 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 	// Emit and force a harvest to clear.
 	assert.NoError(t, e.Emit(metrics))
 	e.harvester.HarvestNow(context.Background())
+	// Because of boundedHarvester, HarvestNow is asynchronous. Let's give it some space.
+	time.Sleep(1 * time.Second)
 
 	// Set new summary values so counts will be non-zero.
 	summary2, err := newSummary(4, 15, []*quantile{{0.5, 10}, {0.999, 100}})

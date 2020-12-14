@@ -42,6 +42,9 @@ type TelemetryEmitterConfig struct {
 	// DeltaExpirationCheckInternval sets the cumulative DeltaCalculator
 	// duration between checking for expirations. Defaults to 30s.
 	DeltaExpirationCheckInternval time.Duration
+
+	// boundedHarvester configuration
+	DisableBoundedHarvester bool
 	BoundedHarvesterCfg
 }
 
@@ -158,8 +161,10 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 		return nil, errors.Wrap(err, "could not create new Harvester")
 	}
 
-	// Create a bound harvester based on passed configuration if going to run in a loop
-	h, _ = bindHarvester(h, cfg.BoundedHarvesterCfg)
+	if !cfg.DisableBoundedHarvester {
+		// Create a bound harvester based on passed configuration if going to run in a loop
+		h, _ = bindHarvester(h, cfg.BoundedHarvesterCfg)
+	}
 
 	// Wrap the harvester so we can filter out invalid float values: NaN and Infinity.
 	// If we do send them, the harvester will always output these as errors
