@@ -2,10 +2,11 @@ package integration
 
 import (
 	"context"
-	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
-	"github.com/sirupsen/logrus"
 	"sync"
 	"time"
+
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
+	"github.com/sirupsen/logrus"
 )
 
 const boundHarvesterDefaultPeriod = 3 * time.Second
