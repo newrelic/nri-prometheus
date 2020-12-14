@@ -9,9 +9,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const boundHarvesterDefaultPeriod = 3 * time.Second
-const boundHarvesterDefaultMetricCap = 1e5
-const boundHarvesterDefaultMinReportInterval = 100 * time.Millisecond
+const BoundedHarvesterDefaultPeriod = 5 * time.Second
+const BoundedHarvesterDefaultMetricCap = 10000
+const BoundedHarvesterDefaultMinReportInterval = 200 * time.Millisecond
 
 // bindHarvester creates a boundedHarvester from an existing harvester.
 // It also returns a cancel channel to stop the periodic harvest goroutine.
@@ -21,15 +21,15 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan st
 	}
 
 	if cfg.HarvestPeriod == 0 {
-		cfg.HarvestPeriod = boundHarvesterDefaultPeriod
+		cfg.HarvestPeriod = BoundedHarvesterDefaultPeriod
 	}
 
 	if cfg.MetricCap == 0 {
-		cfg.MetricCap = boundHarvesterDefaultMetricCap
+		cfg.MetricCap = BoundedHarvesterDefaultMetricCap
 	}
 
 	if cfg.MinReportInterval == 0 {
-		cfg.MinReportInterval = boundHarvesterDefaultMinReportInterval
+		cfg.MinReportInterval = BoundedHarvesterDefaultMinReportInterval
 	}
 
 	h := &boundedHarvester{
@@ -95,13 +95,7 @@ func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 		time.Since(h.lastReport) >= h.HarvestPeriod ||
 		(h.storedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval) {
 
-		if force {
-			log.Debug("force harvesting")
-		} else if time.Since(h.lastReport) >= h.HarvestPeriod {
-			log.Debug("harvesting periodically")
-		} else if h.storedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval {
-			log.Debug("harvesting due to max number of metrics reached")
-		}
+		log.Tracef("triggering harvest, last harvest: %v ago", time.Since(h.lastReport))
 
 		h.lastReport = time.Now()
 		h.storedMetrics = 0
