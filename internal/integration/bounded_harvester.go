@@ -62,8 +62,8 @@ type boundedHarvester struct {
 
 	mtx sync.Mutex
 
-	reportedMetrics int
-	lastReport      time.Time
+	storedMetrics int
+	lastReport    time.Time
 
 	inner harvester
 }
@@ -86,16 +86,22 @@ func (h *boundedHarvester) HarvestNow(ctx context.Context) {
 // - The number of metrics is above MetricCap and MinReportInterval has passed since last report
 func (h *boundedHarvester) reportIfNeeded(ctx context.Context, newMetrics int, force bool) {
 	h.mtx.Lock()
-	defer h.mtx.Unlock()
 
-	h.reportedMetrics += newMetrics
+	h.storedMetrics += newMetrics
+
 	if force ||
 		time.Since(h.lastReport) >= h.HarvestPeriod ||
-		(h.reportedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval) {
+		(h.storedMetrics > h.MetricCap && time.Since(h.lastReport) > h.MinReportInterval) {
 
 		h.lastReport = time.Now()
-		h.reportedMetrics = 0
+		h.storedMetrics = 0
+		// Unlock mutex, then ask the inner harvest to do its thing
+		h.mtx.Unlock()
+
 		h.inner.HarvestNow(ctx)
+	} else {
+		// Unlock mutex if we are not harvesting
+		h.mtx.Unlock()
 	}
 }
 
