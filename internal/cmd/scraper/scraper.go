@@ -257,7 +257,6 @@ func Run(cfg *Config) error {
 				telemetry.ConfigAPIKey(string(cfg.LicenseKey)),
 				telemetry.ConfigBasicErrorLogger(os.Stdout),
 				integration.TelemetryHarvesterWithMetricsURL(cfg.MetricAPIURL),
-				integration.TelemetryHarvesterWithHarvestPeriod(hTime),
 			}
 
 			if cfg.EmitterProxyURL != nil {
@@ -301,6 +300,11 @@ func Run(cfg *Config) error {
 				HarvesterOpts:                 harvesterOpts,
 				DeltaExpirationAge:            cfg.TelemetryEmitterDeltaExpirationAge,
 				DeltaExpirationCheckInternval: cfg.TelemetryEmitterDeltaExpirationCheckInterval,
+				BoundedHarvesterCfg: integration.BoundedHarvesterCfg{
+					HarvestPeriod:     hTime,
+					MinReportInterval: hTime / 10,
+					MetricCap:         1e5,
+				},
 			}
 
 			emitter, err := integration.NewTelemetryEmitter(c)
