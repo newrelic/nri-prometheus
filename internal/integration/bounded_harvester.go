@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const boundHarvesterDefaultPeriod = 3 * time.Second
+const boundHarvesterDefaultPeriod = 1 * time.Second
 const boundHarvesterDefaultMetricCap = 1e5
 const boundHarvesterDefaultMinReportInterval = 100 * time.Millisecond
 
