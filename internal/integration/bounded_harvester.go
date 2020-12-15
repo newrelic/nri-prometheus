@@ -18,12 +18,12 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) harvester {
 	}
 
 	if cfg.MinReportInterval < BoundedHarvesterDefaultMinReportInterval {
-		log.Warnf("Ignorning min_emitter_harvest_period %v < %v", cfg.MinReportInterval, BoundedHarvesterDefaultMinReportInterval)
+		log.Warnf("Ignoring min_emitter_harvest_period %v < %v", cfg.MinReportInterval, BoundedHarvesterDefaultMinReportInterval)
 		cfg.MinReportInterval = BoundedHarvesterDefaultMinReportInterval
 	}
 
 	if cfg.HarvestPeriod < cfg.MinReportInterval {
-		log.Warnf("Ignorning emitter_harvest_period %v < %v, setting to default %v", cfg.HarvestPeriod, cfg.MinReportInterval, BoundedHarvesterDefaultHarvestPeriod)
+		log.Warnf("Ignoring emitter_harvest_period %v < %v, setting to default %v", cfg.HarvestPeriod, cfg.MinReportInterval, BoundedHarvesterDefaultHarvestPeriod)
 		cfg.HarvestPeriod = BoundedHarvesterDefaultHarvestPeriod
 	}
 
@@ -38,7 +38,7 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) harvester {
 	}
 
 	if !cfg.DisablePeriodicReporting {
-		h.stopper = make(chan struct{})
+		h.stopper = make(chan struct{}, 2)
 		go h.periodicHarvest()
 	}
 
@@ -92,6 +92,7 @@ type boundedHarvester struct {
 	lastReport    time.Time
 
 	stopper chan struct{}
+	stopped bool
 
 	inner harvester
 }
@@ -111,8 +112,13 @@ func (h *boundedHarvester) HarvestNow(ctx context.Context) {
 }
 
 func (h *boundedHarvester) Stop() {
-	if h.stopper != nil {
+	// We need to nil the channel and flag stopped synchronously to avoid double-stop races
+	h.mtx.Lock()
+	defer h.mtx.Unlock()
+
+	if h.stopper != nil && !h.stopped {
 		h.stopper <- struct{}{}
+		h.stopped = true
 	}
 }
 
