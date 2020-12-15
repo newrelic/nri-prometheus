@@ -163,7 +163,7 @@ func NewTelemetryEmitter(cfg TelemetryEmitterConfig) (*TelemetryEmitter, error) 
 
 	if !cfg.DisableBoundedHarvester {
 		// Create a bound harvester based on passed configuration if going to run in a loop
-		h, _ = bindHarvester(h, cfg.BoundedHarvesterCfg)
+		h = bindHarvester(h, cfg.BoundedHarvesterCfg)
 	}
 
 	// Wrap the harvester so we can filter out invalid float values: NaN and Infinity.

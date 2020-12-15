@@ -12,7 +12,7 @@ import (
 // bindHarvester creates a boundedHarvester from an existing harvester.
 // It also returns a cancel channel to stop the periodic harvest goroutine.
 // The returned boundedHarvester always runs in a loop.
-func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan struct{}) {
+func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) harvester {
 	if _, ok := inner.(*telemetry.Harvester); ok {
 		log.Debug("using telemetry.Harvester as underlying harvester, make sure to set HarvestPeriod to 0")
 	}
@@ -37,9 +37,11 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) (harvester, chan st
 		inner:               inner,
 	}
 
-	cancel := make(chan struct{})
-	go h.periodicHarvest(cancel)
-	return h, cancel
+	if !cfg.DisablePeriodicReporting {
+		go h.periodicHarvest()
+	}
+
+	return h
 }
 
 // BoundedHarvesterCfg stores the configurable values for boundedHarvester
@@ -50,13 +52,17 @@ type BoundedHarvesterCfg struct {
 	MetricCap int
 
 	// HarvestPeriod specifies the period that will trigger a HarvestNow action for the inner harvester.
-	// It is not necessary to decrease this value further, as other conditions (namely the MetricCap) will also trigger a
-	// harvest action.
+	// It is not necessary to decrease this value further, as other conditions (namely the MetricCap) will also trigger
+	// a harvest action.
 	HarvestPeriod time.Duration
 
 	// MinReportInterval Specifies the minimum amount of time to wait before reports.
-	// This will be always enforced, regardless of HarvestPeriod and MetricCap
+	// This will be always enforced, regardless of HarvestPeriod and MetricCap.
 	MinReportInterval time.Duration
+
+	// DisablePeriodicReporting prevents bindHarvester from spawning the periodic report routine.
+	// It also causes an already spawned reporting routine to be stopped on the next interval.
+	DisablePeriodicReporting bool
 }
 
 // BoundedHarvesterDefaultHarvestPeriod is the default harvest period. Since harvests are also triggered by stacking
@@ -125,15 +131,13 @@ func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 }
 
 // periodicHarvest is run in a separate goroutine to periodically call reportIfNeeded every MinReportInterval
-func (h *boundedHarvester) periodicHarvest(cancel chan struct{}) {
-	t := time.NewTicker(h.MinReportInterval)
+func (h *boundedHarvester) periodicHarvest() {
 	for {
-		select {
-		case <-cancel:
-			t.Stop()
+		time.Sleep(h.MinReportInterval)
+		if h.DisablePeriodicReporting {
 			return
-		case <-t.C:
-			h.reportIfNeeded(context.Background(), false)
 		}
+
+		h.reportIfNeeded(context.Background(), false)
 	}
 }
