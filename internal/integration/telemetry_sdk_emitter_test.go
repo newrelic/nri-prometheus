@@ -18,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
@@ -184,7 +185,9 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 			},
 			telemetry.ConfigBasicErrorLogger(os.Stdout),
 		},
-		DisableBoundedHarvester: true,
+		BoundedHarvesterCfg: BoundedHarvesterCfg{
+			DisablePeriodicReporting: true,
+		},
 	}
 
 	e, err := NewTelemetryEmitter(c)
@@ -193,6 +196,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 	// Emit and force a harvest to clear.
 	assert.NoError(t, e.Emit(metrics))
 	e.harvester.HarvestNow(context.Background())
+	time.Sleep(100 * time.Millisecond) // boundedHarvester.HarvestNow is asynchronous
 
 	// Set new summary values so counts will be non-zero.
 	summary2, err := newSummary(4, 15, []*quantile{{0.5, 10}, {0.999, 100}})
@@ -211,6 +215,7 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 	// Run twice so delta counts are sent.
 	assert.NoError(t, e.Emit(metrics))
 	e.harvester.HarvestNow(context.Background())
+	time.Sleep(100 * time.Millisecond)
 	purgeTimestamps(rawMetrics)
 
 	expectedMetrics := []interface{}{
