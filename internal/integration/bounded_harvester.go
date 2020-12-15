@@ -38,6 +38,7 @@ func bindHarvester(inner harvester, cfg BoundedHarvesterCfg) harvester {
 	}
 
 	if !cfg.DisablePeriodicReporting {
+		h.stopper = make(chan struct{})
 		go h.periodicHarvest()
 	}
 
@@ -90,6 +91,8 @@ type boundedHarvester struct {
 	storedMetrics int
 	lastReport    time.Time
 
+	stopper chan struct{}
+
 	inner harvester
 }
 
@@ -105,6 +108,12 @@ func (h *boundedHarvester) RecordMetric(m telemetry.Metric) {
 // HarvestNow forces a new report
 func (h *boundedHarvester) HarvestNow(ctx context.Context) {
 	h.reportIfNeeded(ctx, true)
+}
+
+func (h *boundedHarvester) Stop() {
+	if h.stopper != nil {
+		h.stopper <- struct{}{}
+	}
 }
 
 // reportIfNeeded carries the logic to report metrics.
@@ -132,12 +141,20 @@ func (h *boundedHarvester) reportIfNeeded(ctx context.Context, force bool) {
 
 // periodicHarvest is run in a separate goroutine to periodically call reportIfNeeded every MinReportInterval
 func (h *boundedHarvester) periodicHarvest() {
+	t := time.NewTicker(h.MinReportInterval)
 	for {
-		time.Sleep(h.MinReportInterval)
-		if h.DisablePeriodicReporting {
+		select {
+		case <-h.stopper:
+			t.Stop()
 			return
-		}
 
-		h.reportIfNeeded(context.Background(), false)
+		case <-t.C:
+			if h.DisablePeriodicReporting {
+				h.Stop()
+				continue
+			}
+
+			h.reportIfNeeded(context.Background(), false)
+		}
 	}
 }
