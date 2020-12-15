@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/newrelic/nri-prometheus/internal/integration"
+
 	"github.com/newrelic/infra-integrations-sdk/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
 	"github.com/pkg/errors"
@@ -100,7 +102,9 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("require_scrape_enabled_label_for_nodes", true)
 	viper.SetDefault("scrape_timeout", 5*time.Second)
 	viper.SetDefault("scrape_duration", "30s")
-	viper.SetDefault("emitter_harvest_period", "1s")
+	viper.SetDefault("emitter_harvest_period", fmt.Sprint(integration.BoundedHarvesterDefaultHarvestPeriod))
+	viper.SetDefault("min_emitter_harvest_period", fmt.Sprint(integration.BoundedHarvesterDefaultMinReportInterval))
+	viper.SetDefault("max_stored_metrics", fmt.Sprint(integration.BoundedHarvesterDefaultMetricsCap))
 	viper.SetDefault("auto_decorate", false)
 	viper.SetDefault("insecure_skip_verify", false)
 	viper.SetDefault("standalone", true)
