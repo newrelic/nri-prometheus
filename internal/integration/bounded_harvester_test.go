@@ -2,9 +2,10 @@ package integration
 
 import (
 	"context"
-	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"testing"
 	"time"
+
+	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 )
 
 type mockHarvester struct {
