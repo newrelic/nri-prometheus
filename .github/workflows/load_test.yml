@@ -1,0 +1,40 @@
+on:
+  release:
+    types:
+      - prereleased
+  pull_request:
+    branches: [ feat/automatizeLoadTests, main ]
+
+name: Load Tests
+jobs:
+  load_tests:
+    name: Load Tests
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: '^1.13.1'
+      - name: Installing dependencies yq and skaffold
+        run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          sudo wget -O /usr/local/bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+          sudo chmod +x /usr/local/bin/skaffold
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.2.0
+        with:
+          minikube version: 'v1.15.1'
+          kubernetes version: 'v1.19.4'
+      - name: Run laod tests
+        env:
+          NEWRELIC_LICENSE: ${{ secrets.NEWRELIC_LICENSE }}
+        run : |
+          source ./load-test/laod_test.sh
+          cleanOldResources
+          deployLoadTestEnvironment
+          deployCurrentNriPrometheus
+          sleep 180
+          retrieveResults
+          verifyResults

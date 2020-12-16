@@ -5,6 +5,7 @@
 tmp/
 bin/
 deploy/local*.yaml
+load-test/load_test.results
 dist/
 config.yaml
 deploy/nri-prometheus.major.yaml

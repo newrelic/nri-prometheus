@@ -1,0 +1,29 @@
+# HELP go_gc_duration_seconds A summary of the GC invocation durations.
+# TYPE go_gc_duration_seconds summary
+go_gc_duration_seconds{instance="1.2.3.4",quantile="0"} 6.1708e-05
+go_gc_duration_seconds{instance="1.2.3.4",quantile="0.25"} 8.1063e-05
+go_gc_duration_seconds{instance="1.2.3.4",quantile="0.5"} 9.5992e-05
+go_gc_duration_seconds{instance="1.2.3.4",quantile="0.75"} 0.000127407
+go_gc_duration_seconds{instance="1.2.3.4",quantile="1"} 0.015248652
+go_gc_duration_seconds_sum 10.254398459
+go_gc_duration_seconds_count 52837
+
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines 126
+
+# HELP go_memstats_alloc_bytes_total Total number of bytes allocated, even if freed.
+# TYPE go_memstats_alloc_bytes_total counter
+go_memstats_alloc_bytes_total 1.52575345048e+11
+
+# A histogram, which has a pretty complex representation in the text format:
+# HELP http_request_duration_seconds A histogram of the request duration.
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{le="0.05"} 24054
+http_request_duration_seconds_bucket{le="0.1"} 33444
+http_request_duration_seconds_bucket{le="0.2"} 100392
+http_request_duration_seconds_bucket{le="0.5"} 129389
+http_request_duration_seconds_bucket{le="1"} 133988
+http_request_duration_seconds_bucket{le="+Inf"} 144320
+http_request_duration_seconds_sum 53423
+http_request_duration_seconds_count 144320

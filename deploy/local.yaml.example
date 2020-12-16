@@ -41,6 +41,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nri-prometheus
+  namespace: default
   labels:
     app: nri-prometheus
 spec:
@@ -80,7 +81,7 @@ apiVersion: v1
 data:
   config.yaml: |
     # The name of your cluster. It's important to match other New Relic products to relate the data.
-    cluster_name: "<YOUR_CLUSTER_NAME>"
+    cluster_name: "local-ci-test"
     # When standalone is set to false nri-prometheus requires an infrastructure agent to work and send data. Defaults to true
     # standalone: true
     # How often the integration should run. Defaults to 30s.
@@ -102,6 +103,7 @@ data:
     # disable_autodiscovery: false
     # Wether k8s nodes needs to be labelled to be scraped or not. Defaults to false.
     require_scrape_enabled_label_for_nodes: true
+    worker_threads: 8
     #targets:
     #  - description: Secure etcd example
     #    urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
