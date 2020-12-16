@@ -8,7 +8,7 @@ builds:
     main: ./cmd/nri-prometheus/
     binary: nri-prometheus
     ldflags:
-      - -s -w -X github.com/newrelic/nri-prometheus/internal/integration.Version={{.Version}} #-X main.gitCommit={{.Commit}} -X main.buildDate={{.Date}}
+      - -s -w -X internal/integration/integration.Version={{.Version}} #-X main.gitCommit={{.Commit}} -X main.buildDate={{.Date}}
     env:
       - CGO_ENABLED=0
     goos:
