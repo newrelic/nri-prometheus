@@ -3,7 +3,7 @@ name: Release pipeline
 on:
   release:
     types:
-       # a pre-release is created
+      # a pre-release is created
       - prereleased
       # a release or draft of a release is published, or a pre-release is changed to a release
       - released
@@ -21,7 +21,7 @@ env:
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
   PFX_CERTIFICATE_BASE64: ${{ secrets.OHAI_PFX_CERTIFICATE_BASE64 }} # base64 encoded
   PFX_CERTIFICATE_DESCRIPTION: 'New Relic Infrastructure'
-  PFX_PASSPHRASE:  ${{ secrets.OHAI_PFX_PASSPHRASE }}
+  PFX_PASSPHRASE: ${{ secrets.OHAI_PFX_PASSPHRASE }}
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
@@ -105,8 +105,8 @@ jobs:
   release:
     name: Use goreleaser for releasing
     runs-on: ubuntu-20.04
-    needs: [validate, test-nix, test-windows, test-integration-nix]
-    steps:    
+    needs: [ validate, test-nix, test-windows, test-integration-nix ]
+    steps:
       - name: checkout
         uses: actions/checkout@v2
         with:
@@ -120,7 +120,7 @@ jobs:
           wget -q https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${{env.GH_VERSION}}_linux_amd64.deb -O /tmp/gh_${{env.GH_VERSION}}_linux_amd64.deb
           sudo apt-get -y install /tmp/gh_${{env.GH_VERSION}}_linux_amd64.deb
       - name: Login to DockerHub
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
           password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
@@ -139,7 +139,7 @@ jobs:
   package-win:
     name: Create MSI & Upload into GH Release assets
     runs-on: windows-2019
-    needs: [release]
+    needs: [ release ]
     env:
       GOPATH: ${{ github.workspace }}
     defaults:
@@ -147,7 +147,7 @@ jobs:
         working-directory: src/github.com/${{env.ORIGINAL_REPO_NAME}}
     strategy:
       matrix:
-        goarch: [amd64,386]
+        goarch: [ amd64,386 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
