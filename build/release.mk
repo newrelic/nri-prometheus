@@ -33,7 +33,7 @@ ifeq ($(PRERELEASE), true)
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
 	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
-	aws s3 $(CURDIR)/target/deploy/* $$S3_PATH/integrations/kubernetes/
+	aws s3 cp $(CURDIR)/target/deploy/* $$S3_PATH/integrations/kubernetes/
 endif
 
 .PHONY : release/fix-archive
