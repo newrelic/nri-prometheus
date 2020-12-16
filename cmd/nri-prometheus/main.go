@@ -8,7 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//go:generate go run -ldflags "-X main.majorMinorVersion=$MAJOR_MINOR_VERSION -X main.preReleaseVersion=$PRE_RELEASE_VERSION -X main.fullVersion=$FULL_VERSION" ../../tools/deploy-yaml/main.go
 func main() {
 	cfg, err := loadConfig()
 	if err != nil {
