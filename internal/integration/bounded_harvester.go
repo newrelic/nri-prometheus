@@ -68,7 +68,7 @@ type BoundedHarvesterCfg struct {
 
 // BoundedHarvesterDefaultHarvestPeriod is the default harvest period. Since harvests are also triggered by stacking
 // metrics, there is no need for this to be very low
-const BoundedHarvesterDefaultHarvestPeriod = 5 * time.Second
+const BoundedHarvesterDefaultHarvestPeriod = 1 * time.Second
 
 // BoundedHarvesterDefaultMetricsCap is the default number of metrics stack before triggering a harvest. 10000 metrics
 // require around 500MiB in our testing setup
