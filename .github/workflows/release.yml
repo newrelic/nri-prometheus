@@ -30,6 +30,7 @@ env:
   GH_VERSION: '1.2.0'
   DOCKER_USERNAME: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
+  S3_PATH: s3://nr-downloads-main/infrastructure_agent
 jobs:
 
   validate:
@@ -124,6 +125,11 @@ jobs:
         with:
           username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
           password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
       - name: do the release
         run: make release
         env:
