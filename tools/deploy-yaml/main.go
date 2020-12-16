@@ -1,7 +1,7 @@
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 // This program generates deploy/nri-prometheus.major.yaml and deploy/nri-prometheus.minor.yaml.
-// It is run as a pre-release hook by goreleaser
+// It is run as by goreleaser before build
 package main
 
 import (
