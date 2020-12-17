@@ -31,6 +31,7 @@ type Harvester struct {
 	rawMetrics        []Metric
 	aggregatedMetrics map[metricIdentity]*metric
 	spans             []Span
+	events            []Event
 }
 
 const (
@@ -88,6 +89,7 @@ func NewHarvester(options ...func(*Config)) (*Harvester, error) {
 		"harvest-period-seconds": h.config.HarvestPeriod.Seconds(),
 		"metrics-url-override":   h.config.MetricsURLOverride,
 		"spans-url-override":     h.config.SpansURLOverride,
+		"events-url-override":    h.config.EventsURLOverride,
 		"version":                version,
 	})
 
@@ -99,8 +101,9 @@ func NewHarvester(options ...func(*Config)) (*Harvester, error) {
 }
 
 var (
-	errSpanIDUnset  = errors.New("span id must be set")
-	errTraceIDUnset = errors.New("trace id must be set")
+	errSpanIDUnset    = errors.New("span id must be set")
+	errTraceIDUnset   = errors.New("trace id must be set")
+	errEventTypeUnset = errors.New("eventType must be set")
 )
 
 // RecordSpan records the given span.
@@ -143,6 +146,25 @@ func (h *Harvester) RecordMetric(m Metric) {
 	}
 
 	h.rawMetrics = append(h.rawMetrics, m)
+}
+
+// RecordEvent records the given event.
+func (h *Harvester) RecordEvent(e Event) error {
+	if nil == h {
+		return nil
+	}
+	if "" == e.EventType {
+		return errEventTypeUnset
+	}
+	if e.Timestamp.IsZero() {
+		e.Timestamp = time.Now()
+	}
+
+	h.lock.Lock()
+	defer h.lock.Unlock()
+
+	h.events = append(h.events, e)
+	return nil
 }
 
 type response struct {
@@ -276,6 +298,29 @@ func (h *Harvester) swapOutSpans() []request {
 	return reqs
 }
 
+func (h *Harvester) swapOutEvents() []request {
+	h.lock.Lock()
+	events := h.events
+	h.events = nil
+	h.lock.Unlock()
+
+	if nil == events {
+		return nil
+	}
+	batch := &eventBatch{
+		Events: events,
+	}
+	reqs, err := newRequests(batch, h.config.APIKey, h.config.eventURL(), h.config.userAgent())
+	if nil != err {
+		h.config.logError(map[string]interface{}{
+			"err":     err.Error(),
+			"message": "error creating requests for events",
+		})
+		return nil
+	}
+	return reqs
+}
+
 func harvestRequest(req request, cfg *Config) {
 	var attempts int
 	for {
@@ -343,6 +388,7 @@ func (h *Harvester) HarvestNow(ct context.Context) {
 	var reqs []request
 	reqs = append(reqs, h.swapOutMetrics(time.Now())...)
 	reqs = append(reqs, h.swapOutSpans()...)
+	reqs = append(reqs, h.swapOutEvents()...)
 
 	for _, req := range reqs {
 		req.Request = req.Request.WithContext(ctx)
@@ -361,13 +407,6 @@ func (h *Harvester) HarvestNow(ct context.Context) {
 			return
 		}
 	}
-}
-
-func minDuration(d1, d2 time.Duration) time.Duration {
-	if d1 < d2 {
-		return d1
-	}
-	return d2
 }
 
 func harvestRoutine(h *Harvester) {
