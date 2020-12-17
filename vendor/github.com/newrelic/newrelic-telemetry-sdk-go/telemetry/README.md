@@ -11,7 +11,7 @@ the background.
 
   ```go
   harvester := telemetry.NewHarvester(
-    telemetry.ConfigAPIKey(os.Getenv("NEW_RELIC_INSIGHTS_INSERT_API_KEY")),
+    telemetry.ConfigAPIKey(os.Getenv("NEW_RELIC_INSERT_API_KEY")),
   )
   ```
 
@@ -34,6 +34,16 @@ Record metrics and/or spans.
     Attributes: map[string]interface{}{
       "color": "purple",
     },
+    Events: []Event{
+			Event{
+				Name:      "Series",
+				Timestamp: tm,
+				Attributes: map[string]interface{}{
+					"exception.message": "Unfortunate event occurred",
+					"exception.type":    "Unfortunate",
+				},
+			},
+		},
   })
   ```
 
