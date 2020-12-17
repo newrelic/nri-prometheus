@@ -29,11 +29,14 @@ release/deps: $(GORELEASER_BIN)
 release/build: release/deps release/clean
 ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/build] PRE-RELEASE compiling all binaries, creating packages, archives"
-	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+	# Pre-release pipeline in GHA runs `goreleaser release`, which will upload docker images, s3 manifests, and publish a release with changelog and artifacts
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
+	# Upload manifests to S3
+	aws s3 cp $(CURDIR)/target/deploy/* $$S3_PATH/integrations/kubernetes/
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
-	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
-	aws s3 cp $(CURDIR)/target/deploy/* $$S3_PATH/integrations/kubernetes/
+	# Just build packages. This is done as a double-check, and also called from push/pr pipeline as a check
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
 endif
 
 .PHONY : release/fix-archive

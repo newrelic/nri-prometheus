@@ -1,3 +1,4 @@
+# Pre-release pipeline is run on prereleases, which runs and publishes final releases using goreleaser
 name: Release pipeline
 
 on:
@@ -5,8 +6,6 @@ on:
     types:
       # a pre-release is created
       - prereleased
-      # a release or draft of a release is published, or a pre-release is changed to a release
-      - released
     tags:
       - 'v*'
 
@@ -30,8 +29,8 @@ env:
   DOCKER_USERNAME: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
   DOCKER_PASSWORD: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
   S3_PATH: s3://nr-downloads-main/infrastructure_agent
-jobs:
 
+jobs:
   validate:
     name: Validate code via linters
     runs-on: ubuntu-20.04

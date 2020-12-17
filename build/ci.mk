@@ -48,7 +48,7 @@ ifdef TAG
 			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
 			-e INTEGRATION=$(INTEGRATION) \
 			-e TAG \
-			$(BUILDER_TAG) make PRERELEASE=true release/build
+			$(BUILDER_TAG) make release/build
 else
 	@echo "===> $(INTEGRATION) ===  [ci/build] TAG env variable expected to be set"
 	exit 1
