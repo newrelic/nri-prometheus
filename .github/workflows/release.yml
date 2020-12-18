@@ -128,7 +128,7 @@ jobs:
       - name: do the release
         run: make release
         env:
-          PRERELEASE: ${{ github.event.release.prerelease }}
+          PRERELEASE: ${{ github.event.release.prerelease }} # Prevents upload of docker images and manifests
       - name: Notify failure via Slack
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master

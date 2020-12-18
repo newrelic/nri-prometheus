@@ -43,6 +43,8 @@ ci/snyk-test:
 .PHONY : ci/build
 ci/build: ci/deps
 ifdef TAG
+	# Run goreleaser through release pipeline
+	# PRERELEASE=true is set to avoid building docker images
 	@docker run --rm -t \
 			-v $(CURDIR):/go/src/github.com/newrelic/nri-$(INTEGRATION) \
 			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
