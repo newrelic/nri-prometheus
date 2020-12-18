@@ -36,7 +36,7 @@ ifeq ($(PRERELEASE), true)
 	aws s3 cp $(CURDIR)/target/deploy/* $$S3_PATH/integrations/kubernetes/
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
-	# Release is actually called only from push/pr pipeline
+	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
 endif
 
