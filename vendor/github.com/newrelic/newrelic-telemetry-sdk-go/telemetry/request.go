@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	maxCompressedSizeBytes = 1 << 20
+	maxCompressedSizeBytes = 1e6
 )
 
 // request contains an http.Request and the UncompressedBody which is provided

@@ -13,7 +13,7 @@ import (
 
 // Config customizes the behavior of a Harvester.
 type Config struct {
-	// APIKey is required  and refers to your New Relic Insights Insert API key.
+	// APIKey is required and refers to your New Relic Insert API key.
 	APIKey string
 	// Client is the http.Client used for making requests.
 	Client *http.Client
@@ -37,14 +37,16 @@ type Config struct {
 	// AuditLogger receives structured log messages that include the
 	// uncompressed data sent to New Relic.  Use this to log all data sent.
 	AuditLogger func(map[string]interface{})
-	// MetricsURLOverride overrides the metrics endpoint if not not empty.
+	// MetricsURLOverride overrides the metrics endpoint if not empty.
 	MetricsURLOverride string
-	// SpansURLOverride overrides the spans endpoint if not not empty.
+	// SpansURLOverride overrides the spans endpoint if not empty.
 	//
 	// To enable Infinite Tracing on the New Relic Edge, set this field to your
 	// Trace Observer URL.  See
 	// https://docs.newrelic.com/docs/understand-dependencies/distributed-tracing/enable-configure/enable-distributed-tracing
 	SpansURLOverride string
+	// EventsURLOverride overrides the events endpoint if not empty
+	EventsURLOverride string
 	// Product is added to the User-Agent header. eg. "NewRelic-Go-OpenCensus"
 	Product string
 	// ProductVersion is added to the User-Agent header. eg. "0.1.0".
@@ -52,7 +54,7 @@ type Config struct {
 }
 
 // ConfigAPIKey sets the Config's APIKey which is required and refers to your
-// New Relic Insights Insert API key.
+// New Relic Insert API key.
 func ConfigAPIKey(key string) func(*Config) {
 	return func(cfg *Config) {
 		cfg.APIKey = key
@@ -113,10 +115,18 @@ func ConfigBasicAuditLogger(w io.Writer) func(*Config) {
 }
 
 // ConfigSpansURLOverride sets the Config's SpansURLOverride field which
-// overrides the spans endpoint if not not empty.
+// overrides the spans endpoint if not empty.
 func ConfigSpansURLOverride(url string) func(*Config) {
 	return func(cfg *Config) {
 		cfg.SpansURLOverride = url
+	}
+}
+
+// ConfigEventsURLOverride sets the Config's EventsURLOverride field which
+// overrides the events endpoint if not empty.
+func ConfigEventsURLOverride(url string) func(*Config) {
+	return func(cfg *Config) {
+		cfg.EventsURLOverride = url
 	}
 }
 
@@ -155,6 +165,7 @@ func (cfg *Config) logAudit(fields map[string]interface{}) {
 const (
 	defaultSpanURL   = "https://trace-api.newrelic.com/trace/v1"
 	defaultMetricURL = "https://metric-api.newrelic.com/metric/v1"
+	defaultEventURL  = "https://insights-collector.newrelic.com/v1/accounts/events"
 )
 
 func (cfg *Config) spanURL() string {
@@ -169,6 +180,13 @@ func (cfg *Config) metricURL() string {
 		return cfg.MetricsURLOverride
 	}
 	return defaultMetricURL
+}
+
+func (cfg *Config) eventURL() string {
+	if cfg.EventsURLOverride != "" {
+		return cfg.EventsURLOverride
+	}
+	return defaultEventURL
 }
 
 // userAgent creates the User-Agent header version according to the spec here:
