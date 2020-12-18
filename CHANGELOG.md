@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.3.1
+### Changed
+
+- Implemented automated load testing for regression tests (#109, #112, #126)
+- Fixed a bug that caused nri-prometheus to consume too much memory if too
+  much data was ingested per unit of time (#124)
+- Fixed a bug in the telemtry-sdk which caused big metric payloads to fail to
+  fail to be reported in some rare cases (#127)
+- Fixed a bug in the release pipeline that caused K8s manifests to not be
+  upload to download.newrelic.com (#125)
+- Fixed a bug that caused the integration version to be reported as `dev`
+  (#122)
+
+## 2.3.0
+### Changed
+
+b2f8b87 fix: summary "sum" metric must also be sent as delta (#101)
+181024e fix: resetting metrics to avoid leakage (#98)
+a316f58 fix: update sdk fixes count type metrics agent error (#96)
+108d60f feat: accept duplicated service definitions (#94)
+fffc410 fix: ensuring ordering of labels (#89)
+568957c fix: Entity type format changed (#88)
+120c78d fix: rename dimensions to labels in entity properties (#87)
+
 ## 2.2.0
 ### Changed
 - Various performance improvements
