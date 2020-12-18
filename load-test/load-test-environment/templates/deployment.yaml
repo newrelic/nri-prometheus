@@ -57,7 +57,7 @@ spec:
           image: roobre/mockexporter:latest
           command: [ "/bin/sh","-c" ]
           args:
-            - wget {{ .metrics | default "https://gist.githubusercontent.com/paologallinaharbur/a159ad779ca44fb9f4ff5b006ef475ee/raw/f5d8a5e7350b8d5e1d03f151fa643fb3a02cd07d/Average%2520prom%2520output" | quote}} -O /metrics/metrics.sample
+            - wget {{ .metrics | default "https://raw.githubusercontent.com/newrelic/nri-prometheus/main/load-test/mockexporter/load_test_big_sample.data" | quote}} -O /metrics/metrics.sample
           volumeMounts:
             - name: metricsdir
               mountPath: "/metrics"
