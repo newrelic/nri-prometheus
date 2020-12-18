@@ -33,9 +33,4 @@ jobs:
           NEWRELIC_LICENSE: ${{ secrets.NEWRELIC_LICENSE }}
         run : |
           source ./load-test/laod_test.sh
-          cleanOldResources
-          deployLoadTestEnvironment
-          deployCurrentNriPrometheus
-          sleep 180
-          retrieveResults
-          verifyResults
+          runLoadTest

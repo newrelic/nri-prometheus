@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 #Clean away old resources not useful anymore
 cleanOldResources(){
   kubectl delete namespace newrelic-load || true
@@ -37,7 +39,7 @@ verifyResults(){
 }
 
 #Not used for CI, useful for localenvironemnt only
-runAllLoadTest(){
+runLoadTest(){
   cleanOldResources
   deployLoadTestEnvironment
   deployCurrentNriPrometheus

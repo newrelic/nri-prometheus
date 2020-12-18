@@ -7,8 +7,9 @@ You can also run manually the load tests against a local minikube.
 es from the repo root folder:
 ```bash
 minikube --memory 8192 --cpus 4 start
+NEWRELIC_LICENSE=xxxx
 source ./load-test/laod_test.sh
-runAllLoadTest
+runLoadTest
 ```
 
 The image is compiled, deployed with `Skaffold`, the load test chart is deployed with 800 targets and the results from the
