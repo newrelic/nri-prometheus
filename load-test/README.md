@@ -11,7 +11,7 @@ source ./load-test/laod_test.sh
 runAllLoadTest
 ```
 
-The image is compile, deployed with `Skaffold`, the load test chart is deployed with 800 targets and the results from the
+The image is compiled, deployed with `Skaffold`, the load test chart is deployed with 800 targets and the results from the
 prometheus output are collected and parsed with a golang help tool.
 
 Check load_test.sh to gather more information regarding the behaviour.

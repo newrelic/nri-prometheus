@@ -1,9 +1,10 @@
 on:
-  release:
-    types:
-      - prereleased
+  push:
+    tags:
+      - v*
+    branches:
+      - main
   pull_request:
-    branches: [ feat/automatizeLoadTests, main ]
 
 name: Load Tests
 jobs:
