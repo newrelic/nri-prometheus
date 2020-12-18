@@ -38,7 +38,6 @@ verifyResults(){
   go test -v -tags=loadtests ./load-test/...
 }
 
-#Not used for CI, useful for localenvironemnt only
 runLoadTest(){
   cleanOldResources
   deployLoadTestEnvironment
