@@ -1,3 +1,8 @@
+before:
+  hooks:
+    # Generate yamls pointing to correct versions on release
+    - go run tools/deploy-yaml/main.go -full-version {{.Version}} -major-minor-version {{.Major}}.{{.Minor}}
+
 builds:
   - id: nri-prometheus-nix
     main: ./cmd/nri-prometheus/
@@ -107,8 +112,7 @@ dockers:
       - nri-prometheus
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-    # auto mean that if version has rc-1 or similar it won't be pushed
-    skip_push: auto
+    skip_push: false
   - 
     goos: linux
     goarch: amd64
