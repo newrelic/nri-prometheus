@@ -1,9 +1,11 @@
 package event
 
 import (
+	"fmt"
 	"time"
 
-	err "github.com/newrelic/infra-integrations-sdk/data/errors"
+	err "github.com/newrelic/infra-integrations-sdk/v4/data/errors"
+	agentEventPkg "github.com/newrelic/infrastructure-agent/pkg/event"
 )
 
 const (
@@ -61,7 +63,10 @@ func (e *Event) AddAttribute(key string, value interface{}) error {
 	if len(key) == 0 {
 		return err.ParameterCannotBeEmpty("key")
 	}
-	// TODO validate value type (bool, number, string) ?
+
+	if agentEventPkg.IsReserved(key) {
+		return fmt.Errorf("attribute '%s' is reserved", key)
+	}
 	e.Attributes[key] = value
 	return nil
 }

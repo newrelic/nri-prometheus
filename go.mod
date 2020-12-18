@@ -3,11 +3,10 @@ module github.com/newrelic/nri-prometheus
 go 1.13
 
 require (
-	github.com/fsnotify/fsnotify v1.4.8-0.20190312181446-1485a34d5d57 // indirect
 	github.com/googleapis/gnostic v0.2.3-0.20181019180348-e2aafd60c944 // indirect
 	github.com/hashicorp/hcl v1.0.1-0.20190611123218-cf7d376da96d // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
-	github.com/newrelic/infra-integrations-sdk v1.0.1-0.20201016141521-6fdfe28ad6c0
+	github.com/newrelic/infra-integrations-sdk/v4 v4.0.0
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.5.1
 	github.com/onsi/ginkgo v1.10.1 // indirect
 	github.com/onsi/gomega v1.7.0 // indirect
