@@ -1,9 +1,11 @@
 # Release proccess
 
-The releases are triggered by creating a new release on github.
+Releases are triggered by creating a new **pre-release** on github.
 On a successful build the job will run [GoReleaser](https://goreleaser.com).
-For prereleases, this will generate artifacts, which will later be uploaded by `build/upload_artifacts_gh.sh`.
-For full releases, goreleaser will also push images to docker hub. Yaml manifests will be uploaded to S3 by `make release`, and artifacts will be uploaded to the release just like for prereleases.
+This will generate artifacts, docker images, and kubernetes manifest which will be uploaded the same step.
+After verifying everything is correct, the pre-release (already containing the artifacts) can be promoted to a release.
+Pre-release to release promotion will not trigger any additional job, as everything is done in the pre-release step.
+
 The `Update Helm Chart POMI version` (`helm.yml`) GitHub Action will be triggered creating a new PR on https://github.com/newrelic/helm-charts/ with the version specified in the tag. After POMI is released this PR should be merged and released.
  
 To create a new release you need to tag the main branch with the new release version.
