@@ -21,7 +21,10 @@ func main() {
 	majorMinorVersion := flag.String("major-minor-version", "dev", "Semver without the patch")
 	// prerelease should be is non-empty if doing a prerelease
 	// It is retrieved from $PRERELEASE, which is currently set by Github Actions
-	prerelease := flag.String("prerelease", os.Getenv("PRERELEASE"), "Non-empty string if prereleasing")
+	// TODO: Commented out since release workflow is broken. Everything will be released on pre-releases, and nothing
+	// will be done on releases. This renders the pre-release logic inside this generator uselees for now.
+	//prerelease := flag.String("prerelease", os.Getenv("PRERELEASE"), "Non-empty string if prereleasing")
+	prerelease := flag.String("prerelease", "", "Non-empty string if prereleasing")
 	flag.Parse()
 
 	tmpl, err := template.ParseFiles("deploy/nri-prometheus.tmpl.yaml")

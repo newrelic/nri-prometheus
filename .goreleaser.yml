@@ -112,8 +112,7 @@ dockers:
       - nri-prometheus
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
-    # auto mean that if version has rc-1 or similar it won't be pushed
-    skip_push: auto
+    skip_push: false
   - 
     goos: linux
     goarch: amd64
