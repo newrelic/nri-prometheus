@@ -4,9 +4,9 @@ github.com/beorn7/perks/quantile
 github.com/cespare/xxhash/v2
 # github.com/davecgh/go-spew v1.1.1
 github.com/davecgh/go-spew/spew
-# github.com/evanphx/json-patch v4.2.0+incompatible
+# github.com/evanphx/json-patch v4.5.0+incompatible
 github.com/evanphx/json-patch
-# github.com/fsnotify/fsnotify v1.4.8-0.20190312181446-1485a34d5d57
+# github.com/fsnotify/fsnotify v1.4.9
 github.com/fsnotify/fsnotify
 # github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
 github.com/gogo/protobuf/proto
@@ -50,13 +50,17 @@ github.com/modern-go/concurrent
 github.com/modern-go/reflect2
 # github.com/newrelic/infra-integrations-sdk v1.0.1-0.20201016141521-6fdfe28ad6c0
 github.com/newrelic/infra-integrations-sdk/args
-github.com/newrelic/infra-integrations-sdk/data/errors
-github.com/newrelic/infra-integrations-sdk/data/event
-github.com/newrelic/infra-integrations-sdk/data/inventory
-github.com/newrelic/infra-integrations-sdk/data/metadata
-github.com/newrelic/infra-integrations-sdk/data/metric
-github.com/newrelic/infra-integrations-sdk/integration
-github.com/newrelic/infra-integrations-sdk/log
+# github.com/newrelic/infra-integrations-sdk/v4 v4.0.0
+github.com/newrelic/infra-integrations-sdk/v4/args
+github.com/newrelic/infra-integrations-sdk/v4/data/errors
+github.com/newrelic/infra-integrations-sdk/v4/data/event
+github.com/newrelic/infra-integrations-sdk/v4/data/inventory
+github.com/newrelic/infra-integrations-sdk/v4/data/metadata
+github.com/newrelic/infra-integrations-sdk/v4/data/metric
+github.com/newrelic/infra-integrations-sdk/v4/integration
+github.com/newrelic/infra-integrations-sdk/v4/log
+# github.com/newrelic/infrastructure-agent v0.0.0-20201127092132-00ac7efc0cc6
+github.com/newrelic/infrastructure-agent/pkg/event
 # github.com/newrelic/newrelic-telemetry-sdk-go v0.5.1
 github.com/newrelic/newrelic-telemetry-sdk-go/cumulative
 github.com/newrelic/newrelic-telemetry-sdk-go/internal
@@ -119,7 +123,7 @@ golang.org/x/oauth2/internal
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
 golang.org/x/sys/windows
-# golang.org/x/text v0.3.2
+# golang.org/x/text v0.3.3-0.20190829152558-3d0f7978add9
 golang.org/x/text/secure/bidirule
 golang.org/x/text/transform
 golang.org/x/text/unicode/bidi

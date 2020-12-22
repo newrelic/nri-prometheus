@@ -13,7 +13,7 @@ import (
 
 	"github.com/newrelic/nri-prometheus/internal/integration"
 
-	"github.com/newrelic/infra-integrations-sdk/args"
+	"github.com/newrelic/infra-integrations-sdk/v4/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"

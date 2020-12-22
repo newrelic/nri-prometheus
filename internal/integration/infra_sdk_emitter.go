@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	infra "github.com/newrelic/infra-integrations-sdk/data/metric"
-	sdk "github.com/newrelic/infra-integrations-sdk/integration"
+	infra "github.com/newrelic/infra-integrations-sdk/v4/data/metric"
+	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"

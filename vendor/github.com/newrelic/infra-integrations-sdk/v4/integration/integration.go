@@ -11,11 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/newrelic/infra-integrations-sdk/data/event"
-	"github.com/newrelic/infra-integrations-sdk/data/metric"
+	"github.com/newrelic/infra-integrations-sdk/v4/data/metric"
 
-	"github.com/newrelic/infra-integrations-sdk/args"
-	"github.com/newrelic/infra-integrations-sdk/log"
+	"github.com/newrelic/infra-integrations-sdk/v4/args"
+	"github.com/newrelic/infra-integrations-sdk/v4/log"
 )
 
 // Custom attribute keys:
@@ -87,6 +86,10 @@ func New(name, version string, opts ...Option) (i *Integration, err error) {
 	defaultArgs := args.GetDefaultArgs(i.args)
 	i.prettyOutput = defaultArgs.Pretty
 
+	if defaultArgs.Verbose {
+		log.SetupLogging(defaultArgs.Verbose)
+	}
+
 	// Setting default values, if not set yet
 	if i.logger == nil {
 		i.logger = log.NewStdErr(defaultArgs.Verbose)
@@ -116,11 +119,6 @@ func (i *Integration) NewEntity(name string, entityType string, displayName stri
 // AddEntity adds an entity to the list of entities. No check for "duplicates" is performed
 func (i *Integration) AddEntity(e *Entity) {
 	i.Entities = append(i.Entities, e)
-}
-
-// NewEvent creates a new event
-func (i *Integration) NewEvent(timestamp time.Time, summary string, category string) (*event.Event, error) {
-	return event.New(timestamp, summary, category)
 }
 
 // Publish writes the data to output (stdout) and resets the integration "object"
@@ -238,7 +236,7 @@ func PrometheusSummary(timestamp time.Time, metricName string, sampleCount uint6
 // -- private
 // is entity empty?
 func notEmpty(entity *Entity) bool {
-	return len(entity.Events) > 0 || len(entity.Metrics) > 0 || len(entity.Inventory.Items()) > 0
+	return len(entity.Events) > 0 || len(entity.Metrics) > 0 || entity.Inventory.Len() > 0
 }
 
 func (i *Integration) checkArguments() error {
