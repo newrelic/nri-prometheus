@@ -1,12 +1,12 @@
 # Release proccess
 
-The releases are triggered by creating a new tag on main.
-[TravisCI](https://travis-ci.org/) will noticed the tag and will proceed to run the job.
-On a successful build the job will run [GoReleaser](https://goreleaser.com). 
-This will publish the build artifacts, push the docker image, and to upload the Kubernetes manifest template to download.newrelic.com.
-The build will also fill in the changelog with commits that aren't filtered by the GoReleaser config found [here](.goreleaser.yml).
-The `Update Helm Chart POMI version` GitHub Action will be triggered creating a new PR on https://github.com/newrelic/helm-charts/ with the version specified in the tag. After POMI is released this PR should be merged and released.
-To documentation to change what appears in the changelog can be found [here](https://goreleaser.com/customization/#Release).
+Releases are triggered by creating a new **pre-release** on github.
+On a successful build the job will run [GoReleaser](https://goreleaser.com).
+This will generate artifacts, docker images, and kubernetes manifest which will be uploaded the same step.
+After verifying everything is correct, the pre-release (already containing the artifacts) can be promoted to a release.
+Pre-release to release promotion will not trigger any additional job, as everything is done in the pre-release step.
+
+The `Update Helm Chart POMI version` (`helm.yml`) GitHub Action will be triggered creating a new PR on https://github.com/newrelic/helm-charts/ with the version specified in the tag. After POMI is released this PR should be merged and released.
  
 To create a new release you need to tag the main branch with the new release version.
 
@@ -43,5 +43,4 @@ You can see the progress of the deployment [here](https://travis-ci.org/newrelic
 4. Set the release title, e.g. 'New release with cool feature'
 5. Then hit *Publish release*
 
-Once the this is done it then triggers a release on [TravisCI](https://travis-ci.org/).
-You can see the progress of the deployment [here](https://travis-ci.org/newrelic/nri-prometheus/builds).
+Pipeline progress can be viewed in the "Actions" tab in Github.
