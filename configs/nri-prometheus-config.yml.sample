@@ -32,6 +32,14 @@ integrations:
       # Length in time to distribute the scraping from the endpoints.
       scrape_duration: "5s"
 
+      # Number of worker threads used for scraping targets.
+      # For large clusters with many (>400) endpoints, slowly increase until scrape
+      # time falls between the desired `scrape_duration`.
+      # Increasing this value too much will result in huge memory consumption if too
+      # many metrics are being scraped.
+      # Default: 4
+      # worker_threads: 4
+
       # Whether the integration should skip TLS verification or not. Defaults to false.
       insecure_skip_verify: false
 
