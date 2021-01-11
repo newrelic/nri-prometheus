@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.4.0
+### Changed
+
+- Upgrade base image to `alpine:3.12` (#135)
+- Expose advanced config flags in sample yaml files (#131)
+- Update infra SDK to v4 stable (#128)
+
+
 ## 2.3.1
 ### Changed
 
