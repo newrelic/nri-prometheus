@@ -2,7 +2,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
     <?define Version = "$(var.IntegrationVersion)" ?>
     <?define ProductId = "*" ?>
-    <?define UpgradeCode = "{e39026bc-1443-11eb-adc1-0242ac120002}" ?>
+    <?define UpgradeCode = "{aaf34f54-a732-4ba8-b85c-d073347d7e99}" ?>
 
     <Product Id="$(var.ProductId)"
              Name="New Relic Infrastructure Integration, nri-$(var.IntegrationName)"
@@ -27,8 +27,6 @@
             <ComponentRef Id="CMP_V1_CUSTOM_PLUGINS"/>
             <ComponentRef Id="CMP_V1_CUSTOM_PLUGINS_BIN"/>
             <ComponentGroupRef Id="CustomPluginsBinComponent"/>
-            <!-- <ComponentGroupRef Id="CustomPluginsComponent"/>
-            <ComponentGroupRef Id="PluginConfigsComponent"/> -->
         </Feature>
     </Product>
 
@@ -49,17 +47,17 @@
 
     <Fragment>
         <DirectoryRef Id="PluginConfigsFolder">
-            <Component Id="CMP_V1_PLUGIN_CONFIGS" Guid="0d8f9370-27d0-4bf1-984a-ae659fff8f4f" KeyPath="yes">
+            <Component Id="CMP_V1_PLUGIN_CONFIGS" Guid="803c978c-b2a1-47c7-bb17-a2de9e6d3145" KeyPath="yes">
                 <CreateFolder/>
             </Component>
         </DirectoryRef>
         <DirectoryRef Id="CustomPluginsFolder">
-            <Component Id="CMP_V1_CUSTOM_PLUGINS" Guid="e482e265-efdc-40be-bad3-6a091f412090" KeyPath="yes">
+            <Component Id="CMP_V1_CUSTOM_PLUGINS" Guid="0ee4aaf4-9923-499c-a1d0-ff55b205a76c" KeyPath="yes">
                 <CreateFolder/>
             </Component>
         </DirectoryRef>
         <DirectoryRef Id="CustomPluginsBinFolder">
-            <Component Id="CMP_V1_CUSTOM_PLUGINS_BIN" Guid="6a493ba5-6d01-4b1d-9d1c-27c231fc3d4c" KeyPath="yes">
+            <Component Id="CMP_V1_CUSTOM_PLUGINS_BIN" Guid="e4509a7a-409e-4a38-8705-37de9cf0d72d" KeyPath="yes">
                 <CreateFolder/>
             </Component>
         </DirectoryRef>
@@ -67,33 +65,16 @@
 
     <Fragment>
         <ComponentGroup Id="CustomPluginsBinComponent" Directory="CustomPluginsBinFolder">
-            <Component Id="CMP_NRI_$(var.IntegrationName)_EXE" Guid="9f89c600-fd0e-406d-8e79-8d1e402a4393" Win64="no">
+            <Component Id="CMP_NRI_$(var.IntegrationName)_EXE" Guid="5cd4cba9-75b1-41e8-8bc8-36b267850f57" Win64="no">
                 <File Id="FILE_NRI_$(var.IntegrationName)_EXE"
                       Source="$(var.BinariesPath)New Relic\newrelic-infra\newrelic-integrations\bin\nri-$(var.IntegrationName).exe"
                       KeyPath="yes"/>
             </Component>
-            <Component Id="CMP_NRI_$(var.IntegrationName)_LICENSE" Guid="4d336ed6-54be-46d9-ad9f-700259a31201" Win64="no">
+            <Component Id="CMP_NRI_$(var.IntegrationName)_LICENSE" Guid="806ceabd-ffeb-4d6a-a8e4-298dd3474f54" Win64="no">
                 <File Id="FILE_NRI_$(var.IntegrationName)_LICENSE"
                       Source="$(var.ProjectRootPath)LICENSE"
                       KeyPath="yes"/>
             </Component>
         </ComponentGroup>
-        <!-- <ComponentGroup Id="CustomPluginsComponent" Directory="CustomPluginsFolder">
-            <Component Id="CMP_NRI_$(var.IntegrationName)_DEFINITION_YML" Guid="f6961b3c-5fe9-45c8-bfe6-2fe78322f921" Win64="no">
-                <File Id="FILE_NRI_$(var.IntegrationName)_DEFINITION_YML"
-                      Name="$(var.IntegrationName)-win-definition.yml"
-                      Source="$(var.BinariesPath)New Relic\newrelic-infra\newrelic-integrations\$(var.IntegrationName)-win-definition.yml"
-                      KeyPath="yes"/>
-            </Component>
-        </ComponentGroup>
-        <ComponentGroup Id="PluginConfigsComponent" Directory="PluginConfigsFolder">
-            <Component Id="CMP_NRI_$(var.IntegrationName)_CONFIG_YML" Guid="829cd54e-8454-44c6-aec6-9e6b38373717" Win64="no"
-                       NeverOverwrite="yes" Permanent="yes">
-                <File Id="FILE_NRI_$(var.IntegrationName)_CONFIG_YML"
-                      Name="$(var.IntegrationName)-win-config.yml.sample"
-                      Source="$(var.BinariesPath)New Relic\newrelic-infra\integrations.d\$(var.IntegrationName)-win-config.yml.sample"
-                      KeyPath="yes"/>
-            </Component>
-        </ComponentGroup> -->
     </Fragment>
 </Wix>
