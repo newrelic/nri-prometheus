@@ -142,9 +142,9 @@ jobs:
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master
         with:
-          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_WEBHOOK }}
-          slack-channel: ${{ env.SLACK_CHANNEL }}
-          slack-text: "Repo: ${{env.REPO_FULL_NAME}}, nix release FAILURE!"
+          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
+          slack-channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
+          slack-text: "❌ `${{ env.REPO_FULL_NAME }}`: prerelease pipeline failed."
 
   package-win:
     name: Create MSI & Upload into GH Release assets
@@ -182,6 +182,6 @@ jobs:
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master
         with:
-          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_WEBHOOK }}
-          slack-channel: ${{ env.SLACK_CHANNEL }}
-          slack-text: "Repo: ${{env.REPO_FULL_NAME}}, Windows release FAILURE!"
+          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
+          slack-channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
+          slack-text: "❌ `${{ env.REPO_FULL_NAME }}`: prerelease pipeline failed."
