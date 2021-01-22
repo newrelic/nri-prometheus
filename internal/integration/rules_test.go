@@ -474,6 +474,32 @@ func TestAddAttributesRules(t *testing.T) {
 	}
 }
 
+func TestDropAttributesRules(t *testing.T) {
+	entity := scrapeString(t, prometheusInput)
+	DropAttributes(&entity, []DropAttributesRule{
+		{
+			MetricPrefix: "",
+			Attributes:   []string{"addr"},
+		},
+		{
+			MetricPrefix: "redis_instance_",
+			Attributes:   []string{"alias"},
+		},
+	})
+	for _, metric := range entity.Metrics {
+		switch metric.name {
+		case "redis_instance_info":
+			assert.NotContains(t, metric.attributes, "addr")
+			assert.NotContains(t, metric.attributes, "alias")
+		case "redis_instantaneous_input_kbps":
+			assert.NotContains(t, metric.attributes, "addr")
+			assert.Contains(t, metric.attributes, "alias")
+		default:
+			assert.NotContains(t, metric.attributes, "addr")
+		}
+	}
+}
+
 func TestIgnoreRules(t *testing.T) {
 	entity := scrapeString(t, prometheusInput)
 	Filter(&entity, []IgnoreRule{
