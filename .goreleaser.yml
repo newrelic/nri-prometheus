@@ -56,6 +56,7 @@ nfpms:
       - deb
     bindir: "/var/db/newrelic-infra/newrelic-integrations/bin"
     files:
+      "configs/prometheus-config.yml.sample": "/etc/newrelic-infra/integrations.d/prometheus-config.yml.sample"
       "CHANGELOG.md": "/usr/share/doc/nri-prometheus/CHANGELOG.md"
       "README.md":  "/usr/share/doc/nri-prometheus/README.md"
       "LICENSE": "/usr/share/doc/nri-prometheus/LICENSE"
@@ -76,6 +77,7 @@ nfpms:
       - rpm
     bindir: "/var/db/newrelic-infra/newrelic-integrations/bin"
     files:
+      "configs/prometheus-config.yml.sample": "/etc/newrelic-infra/integrations.d/prometheus-config.yml.sample"
       "CHANGELOG.md": "/usr/share/doc/nri-prometheus/CHANGELOG.md"
       "README.md":  "/usr/share/doc/nri-prometheus/README.md"
       "LICENSE": "/usr/share/doc/nri-prometheus/LICENSE"
@@ -113,7 +115,7 @@ dockers:
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
     skip_push: false
-  - 
+  -
     goos: linux
     goarch: amd64
     dockerfile: Dockerfile.release
