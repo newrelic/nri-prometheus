@@ -23,6 +23,415 @@ import (
 	"github.com/newrelic/nri-prometheus/internal/retry"
 )
 
+func TestWatch_Endpoints(t *testing.T) {
+	//This test doublecheck as well that endpoints labels are ignored
+	client := fake.NewSimpleClientset()
+	retriever := newFakeKubernetesTargetRetriever(client)
+	err := retriever.Watch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+
+	err = populateFakeEndpointsData(client)
+	if err != nil {
+		t.Fatalf("error populating fake api: %s", err)
+	}
+
+	// As the data processing involved in the watchers is asynchronous, we might not have seen the data yet. So this
+	// retries up to 10 times with an exponential backoff delay.
+	err = retry.Do(func() error {
+		targets, err := retriever.GetTargets()
+		if err != nil {
+			return err
+		}
+		if len(targets) != 6 {
+			return errors.New("targets len didn't match")
+		}
+
+		target := targets[0]
+		if target.Name != "my-endpoints" {
+			return errors.New("target name didn't match")
+		}
+		var listURLs []string
+		for _, t := range targets {
+			listURLs = append(listURLs, t.URL.String())
+		}
+		require.Contains(t, listURLs, "http://1.2.3.4:1/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:2/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:3/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:4/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://5.6.7.8:1/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://5.6.7.8:2/metrics", "this target was expected")
+		require.NotContains(t, listURLs, "http://10.20.30.40:1/metrics", "this target was not expected")
+		require.NotContains(t, listURLs, "http://10.20.30.40:2/metrics", "this target was not expected")
+
+		return nil
+	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWatch_EndpointsSinglePort(t *testing.T) {
+	//This test doublecheck as well that endpoints labels are ignored
+	client := fake.NewSimpleClientset()
+	retriever := newFakeKubernetesTargetRetriever(client)
+	err := retriever.Watch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+
+	err = populateFakeEndpointsDataSinglePort(client)
+	if err != nil {
+		t.Fatalf("error populating fake api: %s", err)
+	}
+
+	// As the data processing involved in the watchers is asynchronous, we might not have seen the data yet. So this
+	// retries up to 10 times with an exponential backoff delay.
+	err = retry.Do(func() error {
+		targets, err := retriever.GetTargets()
+		if err != nil {
+			return err
+		}
+		if len(targets) != 3 {
+			return errors.New("targets len didn't match")
+		}
+
+		target := targets[0]
+		if target.Name != "my-endpoints" {
+			return errors.New("target name didn't match")
+		}
+		var listURLs []string
+		for _, t := range targets {
+			listURLs = append(listURLs, t.URL.String())
+		}
+		require.Contains(t, listURLs, "http://1.2.3.4:1/metrics", "this target was expected")
+		require.NotContains(t, listURLs, "http://1.2.3.4:2/metrics", "this target was not expected")
+		require.NotContains(t, listURLs, "http://1.2.3.4:3/metrics", "this target was not expected")
+		require.NotContains(t, listURLs, "http://1.2.3.4:4/metrics", "this target was not expected")
+		require.Contains(t, listURLs, "http://5.6.7.8:1/metrics", "this target was expected")
+		require.Contains(t, listURLs, "http://my-endpoints.test-ns.svc:1/metrics", "this target was expected")
+		require.NotContains(t, listURLs, "http://5.6.7.8:2/metrics", "this target was not expected")
+		require.NotContains(t, listURLs, "http://10.20.30.40:1/metrics", "this target was not expected")
+		require.NotContains(t, listURLs, "http://10.20.30.40:2/metrics", "this target was not expected")
+
+		return nil
+	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWatch_EndpointsModify(t *testing.T) {
+	client := fake.NewSimpleClientset()
+	retriever := newFakeKubernetesTargetRetriever(client)
+	err := retriever.Watch()
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+
+	err = populateFakeEndpointsDataWithModify(client)
+	if err != nil {
+		t.Fatalf("error populating fake api: %s", err)
+	}
+
+	err = retry.Do(func() error {
+		targets, err := retriever.GetTargets()
+		if err != nil {
+			return err
+		}
+
+		if len(targets) != 8 {
+			return errors.New("targets len didn't match")
+		}
+		target := targets[0]
+		if target.Name != "my-endpoints" {
+			return errors.New("target name didn't match")
+		}
+		var listURLs []string
+		for _, t := range targets {
+			listURLs = append(listURLs, t.URL.String())
+		}
+
+		//Notice that we are testing both update and annotation Override
+		require.Contains(t, listURLs, "http://1.2.3.4:1/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:2/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:3/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://1.2.3.4:4/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://5.6.7.8:1/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://5.6.7.8:2/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "http://10.20.30.40:1/metricsOverride", "this target was not expected")
+		require.Contains(t, listURLs, "http://10.20.30.40:2/metricsOverride", "this target was not expected")
+
+		return nil
+	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func populateFakeEndpointsData(clientset *fake.Clientset) error {
+	e := &v1.Endpoints{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:  types.UID("niceUid"),
+			Name: "my-endpoints",
+			Labels: map[string]string{
+				// this labels should be ignored
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"prometheus.io/port":   "portNotExisting",
+				"app":                  "my-app",
+			},
+			Annotations: map[string]string{
+				// this annotations should be ignored
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"prometheus.io/port":   "portNotExisting",
+				"app":                  "my-app",
+			},
+		},
+		Subsets: []v1.EndpointSubset{
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+					{
+						IP: "5.6.7.8",
+					},
+				},
+				NotReadyAddresses: []v1.EndpointAddress{
+					{
+						IP: "10.20.30.40",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 1,
+					},
+					{
+						Port: 2,
+					},
+				},
+			},
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 3,
+					},
+					{
+						Port: 4,
+					},
+				},
+			},
+		},
+	}
+	s := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my-endpoints",
+			Labels: map[string]string{
+				// This labels should be overwritten
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"app":                  "my-app",
+			},
+			Annotations: map[string]string{
+				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "/metrics",
+			},
+		},
+	}
+
+	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	if err != nil {
+		return err
+	}
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
+	e := &v1.Endpoints{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:  types.UID("niceUid"),
+			Name: "my-endpoints",
+			Labels: map[string]string{
+				// this labels should be ignored
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"prometheus.io/port":   "portNotExisting",
+				"app":                  "my-app",
+			},
+			Annotations: map[string]string{
+				// this annotations should be ignored
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"prometheus.io/port":   "portNotExisting",
+				"app":                  "my-app",
+			},
+		},
+		Subsets: []v1.EndpointSubset{
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+					{
+						IP: "5.6.7.8",
+					},
+				},
+				NotReadyAddresses: []v1.EndpointAddress{
+					{
+						IP: "10.20.30.40",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 1,
+					},
+					{
+						Port: 2,
+					},
+				},
+			},
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 3,
+					},
+					{
+						Port: 4,
+					},
+				},
+			},
+		},
+	}
+	s := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my-endpoints",
+			Labels: map[string]string{
+				// This labels should be overwritten
+				"prometheus.io/scrape": "false",
+				"prometheus.io/path":   "/metricsDifferent",
+				"prometheus.io/port":   "notexisting",
+				"app":                  "my-app",
+			},
+			Annotations: map[string]string{
+				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "/metrics",
+				"prometheus.io/port":   "1",
+			},
+		},
+	}
+
+	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	if err != nil {
+		return err
+	}
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
+	e := &v1.Endpoints{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:  types.UID("niceUid"),
+			Name: "my-endpoints",
+		},
+		Subsets: []v1.EndpointSubset{
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+					{
+						IP: "5.6.7.8",
+					},
+				},
+				NotReadyAddresses: []v1.EndpointAddress{
+					{
+						IP: "10.20.30.40",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 1,
+					},
+					{
+						Port: 2,
+					},
+				},
+			},
+			v1.EndpointSubset{
+				Addresses: []v1.EndpointAddress{
+					{
+						IP: "1.2.3.4",
+					},
+				},
+				Ports: []v1.EndpointPort{
+					{
+						Port: 3,
+					},
+					{
+						Port: 4,
+					},
+				},
+			},
+		},
+	}
+
+	s := &v1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "my-endpoints",
+			Labels: map[string]string{
+				"prometheus.io/scrape": "true",
+				"prometheus.io/path":   "/metrics",
+				"app":                  "my-app",
+			},
+			Annotations: map[string]string{
+				"prometheus.io/path": "/metricsOverride",
+			},
+		},
+	}
+
+	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	if err != nil {
+		return err
+	}
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	if err != nil {
+		return err
+	}
+
+	e.Subsets[0].NotReadyAddresses = nil
+	addr := e.Subsets[0].Addresses
+	e.Subsets[0].Addresses = append(addr, v1.EndpointAddress{IP: "10.20.30.40"})
+	_, err = clientset.CoreV1().Endpoints("test-ns").Update(e)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func TestWatch_Services(t *testing.T) {
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)

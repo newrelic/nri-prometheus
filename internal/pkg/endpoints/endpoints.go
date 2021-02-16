@@ -18,7 +18,7 @@ type TargetRetriever interface {
 	Name() string
 }
 
-// Object represents a kubernetes object like a pod or a service.
+// Object represents a kubernetes object like a pod or a service or an endpoint.
 type Object struct {
 	Name   string
 	Kind   string
