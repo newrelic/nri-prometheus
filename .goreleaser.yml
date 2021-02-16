@@ -104,24 +104,38 @@ release:
   disable: true
 
 dockers:
-  -
-    goos: linux
+  - goos: linux
     goarch: amd64
     dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
+    ids:
+      - nri-prometheus-nix
     image_templates:
-      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+      - 'pgallina/nri-prometheus-test:{{ .Version }}-amd64'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/amd64"
     skip_push: false
-  - 
-    goos: linux
-    goarch: amd64
+  - goos: linux
+    goarch: arm64
     dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
+    ids:
+      - nri-prometheus-nix
     image_templates:
-      - 'newrelic/nri-prometheus:{{ .Version }}'
+      - 'pgallina/nri-prometheus-test:{{ .Version }}-arm64'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/arm64"
     skip_push: false
+
+docker_manifests:
+- name_template: pgallina/nri-prometheus-test:{{ .Version }}
+  image_templates:
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-amd64'
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-arm64'
+- name_template: pgallina/nri-prometheus-test:{{ .Major }}.{{ .Minor }}
+  image_templates:
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-amd64'
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-arm64'
 
 snapshot:
   name_template: "{{ .Tag }}-next"

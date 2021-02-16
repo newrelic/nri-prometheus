@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION := v0.146.0
+GORELEASER_VERSION := v0.155.2
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -33,9 +33,9 @@ ifeq ($(PRERELEASE), true)
 	# goreleaser will compile binaries, dockers, generate manifests, and push docker images
 	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
 	# Copy generated manifests to S3
-	for manifest in $(CURDIR)/target/deploy/*; do \
-		aws s3 cp $$manifest $$S3_PATH/integrations/kubernetes/; \
-	done
+	# for manifest in $(CURDIR)/target/deploy/*; do \
+	# 	aws s3 cp $$manifest $$S3_PATH/integrations/kubernetes/; \
+	# done
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
 	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
