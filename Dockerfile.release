@@ -1,14 +1,11 @@
-FROM alpine:3.12
+FROM alpine:3.13
 ARG TARGETOS
 ARG TARGETARCH
 ARG TINI_VERSION=v0.19.0
 
 RUN apk add --no-cache --upgrade \
         ca-certificates \
-        curl
-
-RUN curl -fsSLo /sbin/tini "https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-${TARGETARCH}" && \
-    chmod +x /sbin/tini
+        tini
 
 COPY ./nri-prometheus /bin/nri-prometheus
 USER nobody

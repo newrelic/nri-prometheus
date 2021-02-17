@@ -126,16 +126,30 @@ dockers:
     build_flag_templates:
     - "--platform=linux/arm64"
     skip_push: false
+  - goos: linux
+    goarch: arm
+    goarm: 6
+    dockerfile: Dockerfile.release
+    ids:
+      - nri-prometheus-nix
+    image_templates:
+      - 'pgallina/nri-prometheus-test:{{ .Version }}-arm'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/arm"
+    skip_push: false
 
 docker_manifests:
 - name_template: pgallina/nri-prometheus-test:{{ .Version }}
   image_templates:
   - 'pgallina/nri-prometheus-test:{{ .Version }}-amd64'
   - 'pgallina/nri-prometheus-test:{{ .Version }}-arm64'
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-arm'
 - name_template: pgallina/nri-prometheus-test:{{ .Major }}.{{ .Minor }}
   image_templates:
   - 'pgallina/nri-prometheus-test:{{ .Version }}-amd64'
   - 'pgallina/nri-prometheus-test:{{ .Version }}-arm64'
+  - 'pgallina/nri-prometheus-test:{{ .Version }}-arm'
 
 snapshot:
   name_template: "{{ .Tag }}-next"
