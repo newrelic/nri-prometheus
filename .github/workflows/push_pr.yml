@@ -12,7 +12,7 @@ env:
   TAG: "v0.0.0" # needed for goreleaser windows builds
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   ORIGINAL_REPO_NAME: "newrelic/nri-prometheus"
-  GO_VERSION: '1.13.15'
+  GO_VERSION: '1.16'
 
 jobs:
 
