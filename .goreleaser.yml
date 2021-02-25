@@ -90,7 +90,7 @@ archives:
   - id: nri-prometheus-nix
     builds:
       - nri-prometheus-nix
-    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}_{{ .Version }}_dirty"
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Version }}_{{ .Arch }}_dirty"
     format: tar.gz
 
   - id: nri-prometheus-win
@@ -104,7 +104,7 @@ release:
   disable: true
 
 dockers:
-  - 
+  -
     goos: linux
     goarch: amd64
     dockerfile: Dockerfile.release
