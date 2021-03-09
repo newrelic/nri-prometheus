@@ -43,9 +43,4 @@ integrations:
       # Whether the integration should skip TLS verification or not. Defaults to false.
       insecure_skip_verify: false
 
-      # integration definition files required to map metrics to entities
-      definition_files_path: /etc/newrelic-infra/definition-files
-
     timeout: 10s
-
-
