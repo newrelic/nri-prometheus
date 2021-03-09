@@ -236,8 +236,6 @@ data:
     #         match_by:
     #           - namespace
     #           - node
-    # integration definition files required to map metrics to entities
-    # definition_files_path: /etc/newrelic-infra/definition-files
 kind: ConfigMap
 metadata:
   name: nri-prometheus-cfg
