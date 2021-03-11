@@ -574,24 +574,9 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 
 	object := event.Object.(metav1.Object)
 
-	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
-	switch obj := object.(type) {
-	case *apiv1.Endpoints:
-		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
-			// For endpoints we need to rely on the service annotations/labels since they are not always propagated
-			scrapable = isObjectScrapable(s, k.scrapeEnabledLabel)
-		}
-	}
+	scrapable := k.isEventScrapable(object)
 	_, seen := k.targets.Load(string(object.GetUID()))
-
-	if klog.Level <= logrus.DebugLevel {
-		klog.WithFields(logrus.Fields{
-			"action": event.Type,
-			"name":   object.GetName(),
-			"uid":    object.GetUID(),
-			"ns":     object.GetNamespace(),
-		}).Trace("kubernetes event received")
-	}
+	setLogLevelEvent(event, object)
 
 	// Please, do not try to reduce the amount of code below or simplify the conditionals.
 	// This logic is very complex and full of different cases, it's better to be more verbose
@@ -645,6 +630,29 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 		k.targets.Delete(string(object.GetUID()))
 		debugLogEvent(klog, event.Type, "deleted", object)
 	}
+}
+
+func setLogLevelEvent(event watch.Event, object metav1.Object) {
+	if klog.Level <= logrus.DebugLevel {
+		klog.WithFields(logrus.Fields{
+			"action": event.Type,
+			"name":   object.GetName(),
+			"uid":    object.GetUID(),
+			"ns":     object.GetNamespace(),
+		}).Trace("kubernetes event received")
+	}
+}
+
+func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool {
+	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
+	switch obj := object.(type) {
+	case *apiv1.Endpoints:
+		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+			// For endpoints we need to rely on the service annotations/labels since they are not always propagated
+			scrapable = isObjectScrapable(s, k.scrapeEnabledLabel)
+		}
+	}
+	return scrapable
 }
 
 // addTarget adds the target to the cache
