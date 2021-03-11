@@ -55,7 +55,5 @@ func main() {
 			logrus.Infof("%s[%s] %s", b.Name, b.Object.Kind, b.URL.String())
 		}
 		logrus.Infof("###################################")
-
-		logrus.Println()
 	}
 }

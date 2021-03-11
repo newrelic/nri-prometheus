@@ -158,7 +158,10 @@ func (k *KubernetesTargetRetriever) listEndpoints() error {
 	}
 
 	for _, e := range endpoints.Items {
-		s := tmp[e.Namespace+"/"+e.Name]
+		s, ok := tmp[e.Namespace+"/"+e.Name]
+		if !ok {
+			continue
+		}
 		// In order to understand if an endpoint is scrapable we need to rely on the service annotations/labels
 		if isObjectScrapable(&s, k.scrapeEnabledLabel) {
 			k.targets.Store(string(e.UID), endpointsTargets(&e, &s))
@@ -233,7 +236,6 @@ func serviceTarget(s *apiv1.Service, port, path string) *Target {
 func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
 
 	var targetList []Target
-	println("########## Computing Endpoints#########")
 	// we need to pass the service since the annotations are not inherited
 	path := getPath(s)
 	portList := getPortList(e, s)
@@ -678,6 +680,9 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 			endpointsTargets := endpointsTargets(e, obj)
 			if len(endpointsTargets) != 0 {
 				k.targets.Store(string(e.GetUID()), endpointsTargets)
+			} else {
+				// When modifying a service it could happen that there are no targets and therefore we should delete the old ones
+				k.targets.Delete(string(e.GetUID()))
 			}
 		}
 

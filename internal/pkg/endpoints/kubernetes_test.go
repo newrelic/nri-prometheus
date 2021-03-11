@@ -50,7 +50,8 @@ func TestWatch_Endpoints(t *testing.T) {
 		}
 
 		target := targets[0]
-		if target.Name != "my-endpoints" {
+
+		if target.Name != endpointsName {
 			return errors.New("target name didn't match")
 		}
 		var listURLs []string
@@ -100,7 +101,7 @@ func TestWatch_EndpointsSinglePort(t *testing.T) {
 		}
 
 		target := targets[0]
-		if target.Name != "my-endpoints" {
+		if target.Name != endpointsName {
 			return errors.New("target name didn't match")
 		}
 		var listURLs []string
@@ -148,7 +149,7 @@ func TestWatch_EndpointsModify(t *testing.T) {
 			return errors.New("targets len didn't match")
 		}
 		target := targets[0]
-		if target.Name != "my-endpoints" {
+		if target.Name != endpointsName {
 			return errors.New("target name didn't match")
 		}
 		var listURLs []string
@@ -173,11 +174,13 @@ func TestWatch_EndpointsModify(t *testing.T) {
 	}
 }
 
+const endpointsName = "my-endpoints"
+
 func populateFakeEndpointsData(clientset *fake.Clientset) error {
 	e := &v1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
-			Name: "my-endpoints",
+			Name: endpointsName,
 			Labels: map[string]string{
 				// this labels should be ignored
 				"prometheus.io/scrape": "false",
@@ -236,7 +239,7 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 	}
 	s := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "my-endpoints",
+			Name: endpointsName,
 			Labels: map[string]string{
 				// This labels should be overwritten
 				"prometheus.io/scrape": "false",
@@ -265,7 +268,7 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 	e := &v1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
-			Name: "my-endpoints",
+			Name: endpointsName,
 			Labels: map[string]string{
 				// this labels should be ignored
 				"prometheus.io/scrape": "false",
@@ -324,7 +327,7 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 	}
 	s := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "my-endpoints",
+			Name: endpointsName,
 			Labels: map[string]string{
 				// This labels should be overwritten
 				"prometheus.io/scrape": "false",
@@ -355,7 +358,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 	e := &v1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
-			Name: "my-endpoints",
+			Name: endpointsName,
 		},
 		Subsets: []v1.EndpointSubset{
 			v1.EndpointSubset{
@@ -401,7 +404,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 
 	s := &v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "my-endpoints",
+			Name: endpointsName,
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
 				"prometheus.io/path":   "/metrics",
