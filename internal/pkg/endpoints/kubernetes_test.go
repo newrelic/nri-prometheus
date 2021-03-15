@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
+	"github.com/newrelic/nri-prometheus/internal/retry"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,9 +20,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes/fake"
-
-	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
-	"github.com/newrelic/nri-prometheus/internal/retry"
 )
 
 func TestWatch_Services(t *testing.T) {
@@ -1473,4 +1472,71 @@ func TestServiceTargetsPathLabel(t *testing.T) {
 			},
 		},
 	)
+}
+
+func Test_isPodCompleted(t *testing.T) {
+	tests := []struct {
+		name string
+		pod  *apiv1.Pod
+		want bool
+	}{
+		{
+			name: "empty pod",
+			pod:  &apiv1.Pod{},
+			want: false,
+		},
+		{
+			name: "all pods dead but restart always",
+			pod: &apiv1.Pod{
+				Spec: apiv1.PodSpec{
+					RestartPolicy: apiv1.RestartPolicyAlways,
+				},
+				Status: apiv1.PodStatus{
+					Phase: apiv1.PodSucceeded,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "pod still running",
+			pod: &apiv1.Pod{
+				Spec: apiv1.PodSpec{
+					RestartPolicy: apiv1.RestartPolicyNever,
+				},
+				Status: apiv1.PodStatus{
+					Phase: apiv1.PodRunning,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "pod failed",
+			pod: &apiv1.Pod{
+				Spec: apiv1.PodSpec{
+					RestartPolicy: apiv1.RestartPolicyNever,
+				},
+				Status: apiv1.PodStatus{
+					Phase: apiv1.PodFailed,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "pod succeeded",
+			pod: &apiv1.Pod{
+				Spec: apiv1.PodSpec{
+					RestartPolicy: apiv1.RestartPolicyNever,
+				},
+				Status: apiv1.PodStatus{
+					Phase: apiv1.PodSucceeded,
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, isPodCompleted(tt.pod))
+		})
+	}
 }
