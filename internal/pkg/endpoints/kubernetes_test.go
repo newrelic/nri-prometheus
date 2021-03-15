@@ -1954,3 +1954,70 @@ func TestServiceTargetsPathLabel(t *testing.T) {
 		},
 	)
 }
+
+func Test_isPodCompleted(t *testing.T) {
+	tests := []struct {
+		name string
+		pod  *corev1.Pod
+		want bool
+	}{
+		{
+			name: "empty pod",
+			pod:  &corev1.Pod{},
+			want: false,
+		},
+		{
+			name: "all pods dead but restart always",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					RestartPolicy: corev1.RestartPolicyAlways,
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodSucceeded,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "pod still running",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodRunning,
+				},
+			},
+			want: false,
+		},
+		{
+			name: "pod failed",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodFailed,
+				},
+			},
+			want: true,
+		},
+		{
+			name: "pod succeeded",
+			pod: &corev1.Pod{
+				Spec: corev1.PodSpec{
+					RestartPolicy: corev1.RestartPolicyNever,
+				},
+				Status: corev1.PodStatus{
+					Phase: corev1.PodSucceeded,
+				},
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.want, isPodCompleted(tt.pod))
+		})
+	}
+}

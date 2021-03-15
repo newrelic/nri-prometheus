@@ -195,6 +195,13 @@ func (k *kubernetesTargetRetriever) listServices() error {
 }
 
 func isObjectScrapable(o metav1.Object, label string) bool {
+	switch obj := o.(type) {
+	case *corev1.Pod:
+		if isPodCompleted(obj) {
+			return false
+		}
+	}
+
 	return o.GetLabels()[label] == trueStr || o.GetAnnotations()[label] == trueStr
 }
 
@@ -366,6 +373,19 @@ func (k *kubernetesTargetRetriever) listPods() error {
 		}
 	}
 	return nil
+}
+
+// Checks if pod is completed and will never start again
+func isPodCompleted(p *corev1.Pod) bool {
+	if p.Spec.RestartPolicy != corev1.RestartPolicyNever {
+		return false
+	}
+
+	if p.Status.Phase != corev1.PodFailed && p.Status.Phase != corev1.PodSucceeded {
+		return false
+	}
+
+	return true
 }
 
 func getPodDeployment(p *corev1.Pod) string {
