@@ -3,8 +3,8 @@ name: Release pipeline
 on:
   release:
     types:
-      # a pre-release is created
       - prereleased
+      - released
     tags:
       - 'v*'
 
@@ -22,6 +22,7 @@ env:
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   TAG: ${{ github.event.release.tag_name }}
   S3_PATH: s3://nr-downloads-main/infrastructure_agent
+  TAG_SUFFIX: "" # This suffix is used for pre-release only
 
 jobs:
   validate:
@@ -110,7 +111,7 @@ jobs:
           GOPATH: ${{ github.workspace }}
         run: make integration-test
 
-  # cant run on container becuase we want to push docker images through goreleaser
+  # cant run on container because we want to push docker images through goreleaser
   release:
     name: Use goreleaser for releasing
     runs-on: ubuntu-20.04
@@ -131,17 +132,23 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
-          password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          username: ${{ secrets.TEST_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.TEST_DOCKERHUB_TOKEN }}
+      # - uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: us-east-1
+      - name: Test for prerelase
+        if: ${{ github.event.release.prerelease }}
+        run: |
+          echo "TAG_SUFFIX=-pre" >> $GITHUB_ENV
+          echo "S3_PATH=s3://nr-downloads-ohai-staging/infrastructure_agent" >> $GITHUB_ENV
       - name: do the release
         run: make release
         env:
-          PRERELEASE: ${{ github.event.release.prerelease }}
+          GENERATE_PACKAGES: true
+          UPLOAD_PACKAGES: ${{ github.event.release.prerelease }}
       - name: Notify failure via Slack
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master
@@ -151,6 +158,7 @@ jobs:
           slack-text: "❌ `${{ env.REPO_FULL_NAME }}`: prerelease pipeline failed."
 
   package-win:
+    if: ${{ github.event.release.prerelease }}
     name: Create MSI & Upload into GH Release assets
     runs-on: windows-2019
     needs: [ release ]
