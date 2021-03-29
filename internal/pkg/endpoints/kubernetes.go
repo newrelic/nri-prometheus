@@ -458,12 +458,14 @@ type KubernetesTargetRetriever struct {
 	client                            kubernetes.Interface
 	targets                           *sync.Map
 	scrapeEnabledLabel                string
+	scrapeServices                    bool
+	scrapeEndpoints                   bool
 	requireScrapeEnabledLabelForNodes bool
 }
 
 // NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
-func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, options ...Option) (*KubernetesTargetRetriever, error) {
+func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (*KubernetesTargetRetriever, error) {
 
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
@@ -472,6 +474,8 @@ func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnable
 	ktr := &KubernetesTargetRetriever{
 		targets:                           new(sync.Map),
 		scrapeEnabledLabel:                scrapeEnabledLabel,
+		scrapeEndpoints:                   scrapeEndpoints,
+		scrapeServices:                    scrapeServices,
 		requireScrapeEnabledLabelForNodes: requireScrapeEnabledLabelForNodes,
 	}
 
@@ -521,7 +525,15 @@ func (k *KubernetesTargetRetriever) GetTargets() ([]Target, error) {
 	})
 	targets := make([]Target, 0, length)
 	k.targets.Range(func(_, y interface{}) bool {
-		targets = append(targets, y.([]Target)...)
+		for _, t := range y.([]Target) {
+			if t.Object.Kind == "service" && !k.scrapeServices {
+				continue
+			}
+			if t.Object.Kind == "endpoints" && !k.scrapeEndpoints {
+				continue
+			}
+			targets = append(targets, t)
+		}
 		return true
 	})
 	return targets, nil
@@ -664,6 +676,7 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 	switch obj := object.(type) {
 	case *apiv1.Endpoints:
 		if obj.Subsets == nil {
+			k.targets.Delete(string(object.GetUID()))
 			return
 		}
 		// In this case we should fetch the service since the path annotation depends on the service
@@ -698,6 +711,8 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 		}
 	}
 	if len(targets) == 0 {
+		k.targets.Delete(string(object.GetUID()))
+		debugLogEvent(klog, event, "deleted", object)
 		return
 	}
 	k.targets.Store(string(object.GetUID()), targets)

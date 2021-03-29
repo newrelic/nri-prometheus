@@ -33,7 +33,7 @@ func main() {
 	}
 
 	kubeconf := endpoints.WithKubeConfig(*kubeConfigFile)
-	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, kubeconf)
+	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, true, true, kubeconf)
 	if err != nil {
 		logrus.Fatalf("could not create KubernetesTargetRetriever: %v", err)
 	}

@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 #Clean away old resources not useful anymore
 cleanOldResources(){
   kubectl delete namespace newrelic-load || true
@@ -29,7 +27,7 @@ retrieveResults(){
   kubectl logs ${POD}
   kubectl exec -n default ${POD} -- wget localhost:8080/metrics -q -O - > ./load-test/load_test.results
   # Debug This might be needed when developing locally
-  # dos2unix ./load-test/load_test.results
+  #dos2unix ./load-test/load_test.results
 }
 
 #Verify the results of the tests (memory, time elapsed, total targets)
@@ -39,12 +37,17 @@ verifyResults(){
 }
 
 runLoadTest(){
-  cleanOldResources
-  deployLoadTestEnvironment
-  deployCurrentNriPrometheus
-  sleep 180
-  retrieveResults
-  verifyResults
+  if [ -z "$NEWRELIC_LICENSE" ]
+  then
+    echo "NEWRELIC_LICENSE environment variable should be set"
+  else
+    cleanOldResources
+    deployLoadTestEnvironment
+    deployCurrentNriPrometheus
+    sleep 180
+    retrieveResults
+    verifyResults
+  fi
 }
 
 

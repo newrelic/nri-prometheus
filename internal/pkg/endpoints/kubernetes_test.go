@@ -681,6 +681,8 @@ func newFakeKubernetesTargetRetriever(client *fake.Clientset) *KubernetesTargetR
 		client:             client,
 		targets:            new(sync.Map),
 		scrapeEnabledLabel: "prometheus.io/scrape",
+		scrapeServices:     true,
+		scrapeEndpoints:    true,
 	}
 }
 
