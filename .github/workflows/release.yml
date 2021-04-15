@@ -135,9 +135,16 @@ jobs:
           username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
           password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
       - uses: aws-actions/configure-aws-credentials@v1
+        if: ${{ !github.event.release.prerelease }}   # Note the *not* operator
         with:
           aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - uses: aws-actions/configure-aws-credentials@v1
+        if: ${{ github.event.release.prerelease }}
+        with:
+          aws-access-key-id: ${{ secrets.OHAI_AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.OHAI_AWS_SECRET_ACCESS_KEY_STAGING }}
           aws-region: us-east-1
       - name: Test for prerelase
         if: ${{ github.event.release.prerelease }}
