@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION := v0.146.0
+GORELEASER_VERSION := v0.155.2
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -23,19 +23,15 @@ release/deps: $(GORELEASER_BIN)
 	@echo "===> $(INTEGRATION) === [release/deps] installing deps"
 	@go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
 	@go mod tidy
-	
 
 .PHONY : release/build
 release/build: release/deps release/clean
-ifeq ($(PRERELEASE), true)
-	@echo "===> $(INTEGRATION) === [release/build] PRE-RELEASE compiling all binaries, creating packages, archives"
-	# Pre-release actually builds and uploads everything
-	# goreleaser will compile binaries, dockers, generate manifests, and push docker images
+ifeq ($(GENERATE_PACKAGES), true)
+	@echo "===> $(INTEGRATION) === [release/build] PRERELEASE/RELEASE compiling all binaries, creating packages, archives"
+	# Pre-release/release actually builds and uploads images
+	# goreleaser will compile binaries, generate manifests, and push multi-arch docker images
+	# TAG_SUFFIX should be set as "-pre" during prereleases
 	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
-	# Copy generated manifests to S3
-	for manifest in $(CURDIR)/target/deploy/*; do \
-		aws s3 cp $$manifest $$S3_PATH/integrations/kubernetes/; \
-	done
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
 	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
@@ -57,13 +53,22 @@ release/sign/nix:
 
 .PHONY : release/publish
 release/publish:
-	@echo "===> $(INTEGRATION) === [release/publish] publishing artifacts"
+ifeq ($(UPLOAD_PACKAGES), true)
+	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
 	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
 	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
+endif
+	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
+	# Copy generated manifests to S3
+	for manifest in $(CURDIR)/target/deploy/*; do \
+		aws s3 cp $$manifest $$S3_PATH/integrations/kubernetes/; \
+	done
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+
 
 .PHONY : release
 release: release/build release/fix-archive release/publish release/clean
-	# release/sign/nix 
+	# release/sign/nix
 	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
 
 OS := $(shell uname -s)

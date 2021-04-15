@@ -108,20 +108,49 @@ dockers:
     goos: linux
     goarch: amd64
     dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
+    ids:
+      - nri-prometheus-nix
     image_templates:
-      - 'newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}'
+      - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/amd64"
     skip_push: false
-  - 
-    goos: linux
-    goarch: amd64
+  - goos: linux
+    goarch: arm64
     dockerfile: Dockerfile.release
-    binaries:
-      - nri-prometheus
+    ids:
+      - nri-prometheus-nix
     image_templates:
-      - 'newrelic/nri-prometheus:{{ .Version }}'
+      - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/arm64"
     skip_push: false
+  - goos: linux
+    goarch: arm
+    goarm: 6
+    dockerfile: Dockerfile.release
+    ids:
+      - nri-prometheus-nix
+    image_templates:
+      - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
+    use_buildx: true
+    build_flag_templates:
+    - "--platform=linux/arm"
+    skip_push: false
+
+docker_manifests:
+- name_template: newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}
+  image_templates:
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
+- name_template: newrelic/nri-prometheus:{{ .Major }}.{{ .Minor }}{{ .Env.TAG_SUFFIX }}
+  image_templates:
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
+  - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
 
 snapshot:
   name_template: "{{ .Tag }}-next"
