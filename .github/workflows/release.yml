@@ -132,8 +132,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.TEST_DOCKERHUB_USERNAME }}
-          password: ${{ secrets.TEST_DOCKERHUB_TOKEN }}
+          username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
