@@ -134,11 +134,11 @@ jobs:
         with:
           username: ${{ secrets.TEST_DOCKERHUB_USERNAME }}
           password: ${{ secrets.TEST_DOCKERHUB_TOKEN }}
-       - uses: aws-actions/configure-aws-credentials@v1
-         with:
-           aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
-           aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
-           aws-region: us-east-1
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.COREINT_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.COREINT_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
       - name: Test for prerelase
         if: ${{ github.event.release.prerelease }}
         run: |
