@@ -207,9 +207,11 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 				metric.value.(float64),
 				now,
 			)
-			if ok {
-				te.harvester.RecordMetric(m)
+			if !ok {
+				logrus.Infof("Got invalid delta for %s=%v, skipping", metric.name, metric.value)
+				continue
 			}
+			te.harvester.RecordMetric(m)
 		case metricType_SUMMARY:
 			if err := te.emitSummary(metric, now); err != nil {
 				if results == nil {
