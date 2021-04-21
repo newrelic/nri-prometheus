@@ -57,9 +57,9 @@ func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
 	if err != nil {
 		return mfs, err
 	}
-	b := bytes.NewBuffer(body)
+	r := bytes.NewReader(body)
 
-	d := expfmt.NewDecoder(b, expfmt.FmtText)
+	d := expfmt.NewDecoder(r, expfmt.FmtText)
 	for {
 		var mf dto.MetricFamily
 		if err := d.Decode(&mf); err != nil {
