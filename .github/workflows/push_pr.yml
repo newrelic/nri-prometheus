@@ -13,15 +13,16 @@ env:
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   ORIGINAL_REPO_NAME: "newrelic/nri-prometheus"
   GO_VERSION: '1.16'
+  DOCKER_LOGIN_AVAILABLE: ${{ secrets.OHAI_DOCKER_HUB_ID }}
 
 jobs:
-
   validate:
     name: Validate code via linters
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Login to DockerHub
+        if: ${{env.DOCKER_LOGIN_AVAILABLE}}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
@@ -35,6 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Login to DockerHub
+        if: ${{env.DOCKER_LOGIN_AVAILABLE}}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
@@ -93,6 +95,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Login to DockerHub
+        if: ${{env.DOCKER_LOGIN_AVAILABLE}}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
@@ -108,6 +111,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Login to DockerHub
+        if: ${{env.DOCKER_LOGIN_AVAILABLE}}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
@@ -125,6 +129,7 @@ jobs:
           go-version: ${{env.GO_VERSION}}
       - uses: actions/checkout@v2
       - name: Login to DockerHub
+        if: ${{env.DOCKER_LOGIN_AVAILABLE}}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
