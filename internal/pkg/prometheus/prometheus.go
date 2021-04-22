@@ -4,8 +4,10 @@
 package prometheus
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -20,21 +22,6 @@ type MetricFamiliesByName map[string]dto.MetricFamily
 // HTTPDoer executes http requests. It is implemented by *http.Client.
 type HTTPDoer interface {
 	Do(req *http.Request) (*http.Response, error)
-}
-
-type countReadCloser struct {
-	innerReadCloser io.ReadCloser
-	count           int
-}
-
-func (rc *countReadCloser) Close() error {
-	return rc.innerReadCloser.Close()
-}
-
-func (rc *countReadCloser) Read(p []byte) (n int, err error) {
-	n, err = rc.innerReadCloser.Read(p)
-	rc.count += n
-	return
 }
 
 // ResetTotalScrapedPayload resets the integration totalScrapedPayload
@@ -62,16 +49,17 @@ func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
 		return mfs, err
 	}
 
-	defer func() {
-		_ = resp.Body.Close()
-	}()
-
 	if resp.StatusCode < 200 || resp.StatusCode > 300 {
 		return nil, fmt.Errorf("status code returned by the prometheus exporter indicates an error occurred: %d", resp.StatusCode)
 	}
 
-	countedBody := &countReadCloser{innerReadCloser: resp.Body}
-	d := expfmt.NewDecoder(countedBody, expfmt.FmtText)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return mfs, err
+	}
+	r := bytes.NewReader(body)
+
+	d := expfmt.NewDecoder(r, expfmt.FmtText)
 	for {
 		var mf dto.MetricFamily
 		if err := d.Decode(&mf); err != nil {
@@ -83,7 +71,7 @@ func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
 		mfs[mf.GetName()] = mf
 	}
 
-	bodySize := float64(countedBody.count)
+	bodySize := float64(len(body))
 	targetSize.With(prom.Labels{"target": url}).Set(bodySize)
 	totalScrapedPayload.Add(bodySize)
 	return mfs, nil
