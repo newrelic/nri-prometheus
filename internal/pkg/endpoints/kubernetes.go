@@ -627,7 +627,7 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 					}
 				}
 			}
-		} else if !requireLabel {
+		} else {
 			// If the object doesn't require label and was not seen before, we add it.
 			if !seen {
 				k.addTarget(object, event.Type)
