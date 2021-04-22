@@ -669,8 +669,10 @@ func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool 
 	return scrapable
 }
 
-// addTarget adds the target to the cache
+// addTarget adds the target to the cache k.targets
 func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
+	// targets variable stores a list of n httpEndpoints linked to an object.
+	// That will be stored into the k.targets map having object.uuid as key
 	var targets []Target
 	var err error
 	switch obj := object.(type) {
