@@ -303,6 +303,7 @@ github.com/nats-io/nuid v1.0.1/go.mod h1:19wcPz3Ph3q0Jbyiqsd0kePYG7A95tJPxeL+1OS
 github.com/newrelic/infra-identity-client-go v1.0.2/go.mod h1:lrG2ompP2Mr6D8WW615/h2AYNs9B9pw2zLuc38LNb4E=
 github.com/newrelic/infra-integrations-sdk/v4 v4.0.0 h1:G88BGEGk6qQ0l2y4bDlzv32+NxMAUMFXdiRKShjPmSA=
 github.com/newrelic/infra-integrations-sdk/v4 v4.0.0/go.mod h1:Xctd58maTLaNbZ1dxfz9h1iSSnVA8llDzGnt59M2dHs=
+github.com/newrelic/infra-integrations-sdk/v4 v4.1.0/go.mod h1:Xctd58maTLaNbZ1dxfz9h1iSSnVA8llDzGnt59M2dHs=
 github.com/newrelic/infrastructure-agent v0.0.0-20201127092132-00ac7efc0cc6 h1:oo3278EfxLk4kp6p8ln4td5AkqgdAM/f+FHYMA8X3o8=
 github.com/newrelic/infrastructure-agent v0.0.0-20201127092132-00ac7efc0cc6/go.mod h1:OC9Em8HnZsHI3JQzMHFqfB4B7OBzQ2+gBffhS0Ip+pk=
 github.com/newrelic/newrelic-telemetry-sdk-go v0.5.1 h1:9YEHXplqlVkOltThchh+RxeODvTb1TBvQ1181aXg3pY=
