@@ -213,10 +213,12 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 1,
+						Port:     1,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 2,
+						Port:     2,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
@@ -228,10 +230,12 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 3,
+						Port:     3,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 4,
+						Port:     4,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
@@ -301,10 +305,12 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 1,
+						Port:     1,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 2,
+						Port:     2,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
@@ -316,10 +322,12 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 3,
+						Port:     3,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 4,
+						Port:     4,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
@@ -377,10 +385,12 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 1,
+						Port:     1,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 2,
+						Port:     2,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
@@ -392,10 +402,12 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 				},
 				Ports: []v1.EndpointPort{
 					{
-						Port: 3,
+						Port:     3,
+						Protocol: v1.ProtocolTCP,
 					},
 					{
-						Port: 4,
+						Port:     4,
+						Protocol: v1.ProtocolTCP,
 					},
 				},
 			},
