@@ -247,6 +247,9 @@ func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
 			if !contains(portList, port) {
 				continue
 			}
+			if eSubPort.Protocol != apiv1.ProtocolTCP {
+				continue
+			}
 
 			// we are skipping eSub.NotReadyAddresses
 			for _, eSubAddr := range subset.Addresses {
@@ -270,6 +273,9 @@ func getPortList(e *apiv1.Endpoints, s *apiv1.Service) []string {
 	} else {
 		for _, subset := range e.Subsets {
 			for _, port := range subset.Ports {
+				if port.Protocol != apiv1.ProtocolTCP {
+					continue
+				}
 				if len(subset.Addresses) != 0 {
 					portList = append(portList, strconv.FormatInt(int64(port.Port), 10))
 				}
