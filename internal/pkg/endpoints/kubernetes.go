@@ -140,17 +140,50 @@ func nodeTargets(n *apiv1.Node) ([]Target, error) {
 	}, nil
 }
 
+// listEndpoints gets the scrapable endpoints that are currently available
+func (k *KubernetesTargetRetriever) listEndpoints() error {
+
+	endpoints, err := k.client.CoreV1().Endpoints("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	services, err := k.client.CoreV1().Services("").List(metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	// we create this tmp data structure only to speed up finding the service related to an endpoint
+	tmp := map[string]apiv1.Service{}
+	for _, s := range services.Items {
+		tmp[s.Namespace+"/"+s.Name] = s
+	}
+
+	for _, e := range endpoints.Items {
+		s, ok := tmp[e.Namespace+"/"+e.Name]
+		if !ok {
+			continue
+		}
+		// In order to understand if an endpoint is scrapable we need to rely on the service annotations/labels
+		if isObjectScrapable(&s, k.scrapeEnabledLabel) {
+			k.targets.Store(string(e.UID), endpointsTargets(&e, &s))
+		}
+	}
+
+	return nil
+}
+
 // listServices gets the scrapable services that are currently available
 func (k *KubernetesTargetRetriever) listServices() error {
 	services, err := k.client.CoreV1().Services("").List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
+
 	for _, s := range services.Items {
 		if isObjectScrapable(&s, k.scrapeEnabledLabel) {
 			k.targets.Store(string(s.UID), serviceTargets(&s))
 		}
 	}
+
 	return nil
 }
 
@@ -158,21 +191,26 @@ func isObjectScrapable(o metav1.Object, label string) bool {
 	return o.GetLabels()[label] == trueStr || o.GetAnnotations()[label] == trueStr
 }
 
-func objectTargets(object metav1.Object) []Target {
-	switch obj := object.(type) {
-	case *apiv1.Service:
-		return serviceTargets(obj)
-	case *apiv1.Pod:
-		return podTargets(obj)
-	case *apiv1.Node:
-		targets, err := nodeTargets(obj)
-		if err != nil {
-			klog.WithError(err).WithField("node", obj.Name).Warn("can't get targets for node. Ignoring")
-			return nil
-		}
-		return targets
+func endpointsTarget(e *apiv1.Endpoints, port string, ip string, path string) *Target {
+	lbls := labels.Set{}
+
+	for lk, lv := range e.Labels {
+		lbls["label."+lk] = lv
 	}
-	return nil
+	// Name and Namespace of services and endpoints collides
+	lbls["serviceName"] = e.Name
+	lbls["namespaceName"] = e.Namespace
+
+	hostname := ip
+	hostAndPort := net.JoinHostPort(hostname, port)
+	fullServiceURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
+	addr, err := url.Parse(fullServiceURL)
+	if err != nil {
+		klog.WithError(err).WithField("endpoints", e.Name).Errorf("couldn't parse endpoint url, skipping: %s", fullServiceURL)
+		return nil
+	}
+	target := New(e.Name, *addr, Object{Name: e.Name, Kind: "endpoints", Labels: lbls})
+	return &target
 }
 
 func serviceTarget(s *apiv1.Service, port, path string) *Target {
@@ -194,19 +232,82 @@ func serviceTarget(s *apiv1.Service, port, path string) *Target {
 	return &target
 }
 
-// returns all the possible targets for a service (1 target per port)
-func serviceTargets(s *apiv1.Service) []Target {
-	// Annotations take precedence over labels.
-	path, ok := s.Annotations[defaultScrapePathLabel]
-	if !ok {
-		path, ok = s.Labels[defaultScrapePathLabel]
-		if !ok {
-			path = defaultScrapePath
+// returns all the possible targets for a endpoint (multiple targets per port)
+func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
+
+	var targetList []Target
+	// we need to pass the service since the annotations are not inherited
+	path := getPath(s)
+	portList := getPortList(e, s)
+
+	for _, subset := range e.Subsets {
+		for _, eSubPort := range subset.Ports {
+			port := strconv.FormatInt(int64(eSubPort.Port), 10)
+			// we are skipping each port we are not interested into
+			if !contains(portList, port) {
+				continue
+			}
+			if eSubPort.Protocol != apiv1.ProtocolTCP {
+				continue
+			}
+
+			// we are skipping eSub.NotReadyAddresses
+			for _, eSubAddr := range subset.Addresses {
+				target := endpointsTarget(e, port, eSubAddr.IP, path)
+				if target != nil {
+					targetList = append(targetList, *target)
+				}
+			}
 		}
 	}
+
+	return targetList
+}
+
+func getPortList(e *apiv1.Endpoints, s *apiv1.Service) []string {
+	var portList []string
+	if port, ok := s.Annotations[defaultScrapePortLabel]; ok {
+		portList = append(portList, port)
+	} else if port, ok := s.Labels[defaultScrapePortLabel]; ok {
+		portList = append(portList, port)
+	} else {
+		for _, subset := range e.Subsets {
+			for _, port := range subset.Ports {
+				if port.Protocol != apiv1.ProtocolTCP {
+					continue
+				}
+				if len(subset.Addresses) != 0 {
+					portList = append(portList, strconv.FormatInt(int64(port.Port), 10))
+				}
+			}
+		}
+	}
+	return portList
+}
+
+func getPath(o metav1.Object) string {
+	var path string
+	var ok bool
+
+	// Annotations take precedence over labels.
+	if _, ok = o.GetAnnotations()[defaultScrapePathLabel]; ok {
+		path, _ = o.GetAnnotations()[defaultScrapePathLabel]
+	} else if path, ok = o.GetLabels()[defaultScrapePathLabel]; ok {
+		path, _ = o.GetLabels()[defaultScrapePathLabel]
+	} else {
+		path = defaultScrapePath
+	}
+
 	if path[0] != '/' {
 		path = "/" + path
 	}
+	return path
+}
+
+// returns all the possible targets for a service (1 target per port)
+func serviceTargets(s *apiv1.Service) []Target {
+
+	path := getPath(s)
 
 	port, ok := s.Annotations[defaultScrapePortLabel]
 	if !ok {
@@ -285,17 +386,7 @@ func podTargets(p *apiv1.Pod) []Target {
 		return nil
 	}
 
-	// Annotations take precedence over labels.
-	path, ok := p.Annotations[defaultScrapePathLabel]
-	if !ok {
-		path, ok = p.Labels[defaultScrapePathLabel]
-		if !ok {
-			path = defaultScrapePath
-		}
-	}
-	if path[0] != '/' {
-		path = "/" + path
-	}
+	path := getPath(p)
 
 	// Annotations take precedence over labels.
 	port, ok := p.Annotations[defaultScrapePortLabel]
@@ -373,12 +464,14 @@ type KubernetesTargetRetriever struct {
 	client                            kubernetes.Interface
 	targets                           *sync.Map
 	scrapeEnabledLabel                string
+	scrapeServices                    bool
+	scrapeEndpoints                   bool
 	requireScrapeEnabledLabelForNodes bool
 }
 
 // NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
-func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, options ...Option) (*KubernetesTargetRetriever, error) {
+func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (*KubernetesTargetRetriever, error) {
 
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
@@ -387,6 +480,8 @@ func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnable
 	ktr := &KubernetesTargetRetriever{
 		targets:                           new(sync.Map),
 		scrapeEnabledLabel:                scrapeEnabledLabel,
+		scrapeEndpoints:                   scrapeEndpoints,
+		scrapeServices:                    scrapeServices,
 		requireScrapeEnabledLabelForNodes: requireScrapeEnabledLabelForNodes,
 	}
 
@@ -436,7 +531,15 @@ func (k *KubernetesTargetRetriever) GetTargets() ([]Target, error) {
 	})
 	targets := make([]Target, 0, length)
 	k.targets.Range(func(_, y interface{}) bool {
-		targets = append(targets, y.([]Target)...)
+		for _, t := range y.([]Target) {
+			if t.Object.Kind == "service" && !k.scrapeServices {
+				continue
+			}
+			if t.Object.Kind == "endpoints" && !k.scrapeEndpoints {
+				continue
+			}
+			targets = append(targets, t)
+		}
 		return true
 	})
 	return targets, nil
@@ -445,6 +548,7 @@ func (k *KubernetesTargetRetriever) GetTargets() ([]Target, error) {
 func (k *KubernetesTargetRetriever) listTargets() {
 	_ = k.listPods()
 	_ = k.listServices()
+	_ = k.listEndpoints()
 	_ = k.listNodes()
 }
 
@@ -476,22 +580,23 @@ func (k *KubernetesTargetRetriever) getWatchableResources() []watchableResource 
 		watchFunction: func() (watch.Interface, error) {
 			return k.client.CoreV1().Services("").Watch(metav1.ListOptions{})
 		},
+	}, {
+		name:                      "endpoints",
+		requireScrapeEnabledLabel: true,
+		listFunction:              k.listEndpoints,
+		watchFunction: func() (watch.Interface, error) {
+			return k.client.CoreV1().Endpoints("").Watch(metav1.ListOptions{})
+		},
 	}}
 }
 
 func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel bool) {
+
 	object := event.Object.(metav1.Object)
-	var seen, scrapable bool
-	_, seen = k.targets.Load(string(object.GetUID()))
-	scrapable = isObjectScrapable(object, k.scrapeEnabledLabel)
-	if klog.Level <= logrus.DebugLevel {
-		klog.WithFields(logrus.Fields{
-			"action": event.Type,
-			"name":   object.GetName(),
-			"uid":    object.GetUID(),
-			"ns":     object.GetNamespace(),
-		}).Trace("kubernetes event received")
-	}
+
+	scrapable := k.isEventScrapable(object)
+	_, seen := k.targets.Load(string(object.GetUID()))
+	setLogLevelEvent(event, object)
 
 	// Please, do not try to reduce the amount of code below or simplify the conditionals.
 	// This logic is very complex and full of different cases, it's better to be more verbose
@@ -511,9 +616,8 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 		}
 	case watch.Modified:
 		if requireLabel {
-			// If the object requires labels, is scrapable and was not seen before,
-			// we add it.
-			if scrapable && !seen {
+			// If the object requires labels, is scrapable we update it
+			if scrapable {
 				k.addTarget(object, event.Type)
 				return
 			}
@@ -521,9 +625,15 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 			if !scrapable && seen {
 				k.targets.Delete(string(object.GetUID()))
 				debugLogEvent(klog, event.Type, "deleted", object)
+				switch obj := object.(type) {
+				case *apiv1.Service:
+					if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+						k.targets.Delete(string(e.GetUID()))
+						debugLogEvent(klog, event.Type, "deleted", e)
+					}
+				}
 			}
-		}
-		if !requireLabel {
+		} else {
 			// If the object doesn't require label and was not seen before, we add it.
 			if !seen {
 				k.addTarget(object, event.Type)
@@ -532,9 +642,8 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 			// If the doesn't doesn't require label and we already have it, update its data.
 			// Things like the IP could be changing.
 			if seen {
-				k.targets.Store(string(object.GetUID()), objectTargets(object))
+				k.addTarget(object, event.Type)
 				debugLogEvent(klog, event.Type, "modified", object)
-				return
 			}
 		}
 	case watch.Deleted, watch.Error:
@@ -543,16 +652,77 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 	}
 }
 
-// addTarget adds the target to the cache
-func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
+func setLogLevelEvent(event watch.Event, object metav1.Object) {
+	if klog.Level <= logrus.DebugLevel {
+		klog.WithFields(logrus.Fields{
+			"action": event.Type,
+			"name":   object.GetName(),
+			"uid":    object.GetUID(),
+			"ns":     object.GetNamespace(),
+		}).Trace("kubernetes event received")
+	}
+}
 
-	targets := objectTargets(object)
-	// zero targets could be for pods that just have been scheduled, but no ipAddress assigned yet
+func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool {
+	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
+	switch obj := object.(type) {
+	case *apiv1.Endpoints:
+		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+			// For endpoints we need to rely on the service annotations/labels since they are not always propagated
+			scrapable = isObjectScrapable(s, k.scrapeEnabledLabel)
+		}
+	}
+	return scrapable
+}
+
+// addTarget adds the target to the cache k.targets
+func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
+	// targets variable stores a list of n httpEndpoints linked to an object.
+	// That will be stored into the k.targets map having object.uuid as key
+	var targets []Target
+	var err error
+	switch obj := object.(type) {
+	case *apiv1.Endpoints:
+		if obj.Subsets == nil {
+			k.targets.Delete(string(object.GetUID()))
+			return
+		}
+		// In this case we should fetch the service since the path annotation depends on the service
+		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+			targets = endpointsTargets(obj, s)
+		}
+
+	case *apiv1.Service:
+		targets = serviceTargets(obj)
+		// In this case we should update as well the endpoints since
+		// the annotation could have been added enabling the scraping not triggering an endpoints events
+		// This is not ideal but its the only way to support annotation since those are not inherited by endpoints
+		if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+			endpointsTargets := endpointsTargets(e, obj)
+			if len(endpointsTargets) != 0 {
+				k.targets.Store(string(e.GetUID()), endpointsTargets)
+			} else {
+				// When modifying a service it could happen that there are no targets and therefore we should delete the old ones
+				k.targets.Delete(string(e.GetUID()))
+			}
+		}
+
+	case *apiv1.Pod:
+		targets = podTargets(obj)
+
+	case *apiv1.Node:
+		targets, err = nodeTargets(obj)
+		if err != nil {
+			klog.WithError(err).WithField("node", obj.Name).Warn("can't get targets for node. Ignoring")
+			debugLogEvent(klog, event, "ignored", object)
+			return
+		}
+	}
 	if len(targets) == 0 {
-		debugLogEvent(klog, event, "ignored", object)
+		k.targets.Delete(string(object.GetUID()))
+		debugLogEvent(klog, event, "deleted", object)
 		return
 	}
-
 	k.targets.Store(string(object.GetUID()), targets)
 	debugLogEvent(klog, event, "added", object)
 }
@@ -599,4 +769,13 @@ func (k *KubernetesTargetRetriever) watchResource(resource watchableResource) {
 			resource.name,
 		)
 	}
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }

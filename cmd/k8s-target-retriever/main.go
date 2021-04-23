@@ -33,7 +33,7 @@ func main() {
 	}
 
 	kubeconf := endpoints.WithKubeConfig(*kubeConfigFile)
-	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, kubeconf)
+	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, true, true, kubeconf)
 	if err != nil {
 		logrus.Fatalf("could not create KubernetesTargetRetriever: %v", err)
 	}
@@ -44,15 +44,16 @@ func main() {
 
 	logrus.Infoln("connected to cluster, watching for targets")
 
-	for range time.Tick(time.Second * 5) {
+	for range time.Tick(time.Second * 7) {
 		targets, err := ktr.GetTargets()
+		logrus.Infof("###################################")
+
 		if err != nil {
 			logrus.Fatalf("could not get targets: %v", err)
 		}
 		for _, b := range targets {
 			logrus.Infof("%s[%s] %s", b.Name, b.Object.Kind, b.URL.String())
 		}
-
-		logrus.Println()
+		logrus.Infof("###################################")
 	}
 }

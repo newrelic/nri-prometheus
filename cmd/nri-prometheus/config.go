@@ -109,6 +109,8 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("insecure_skip_verify", false)
 	viper.SetDefault("standalone", true)
 	viper.SetDefault("disable_autodiscovery", false)
+	viper.SetDefault("scrape_services", true)
+	viper.SetDefault("scrape_endpoints", false)
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 	viper.SetDefault("worker_threads", 4)
 }

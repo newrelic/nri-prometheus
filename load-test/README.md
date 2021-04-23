@@ -12,6 +12,8 @@ source ./load-test/laod_test.sh
 runLoadTest
 ```
 
+In some environment you will need to uncomment the command"dos2unix ./load-test/load_test.results" in load_test.sh
+
 The image is compiled, deployed with `Skaffold`, the load test chart is deployed with 800 targets and the results from the
 prometheus output are collected and parsed with a golang help tool.
 
