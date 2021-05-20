@@ -3,6 +3,7 @@
 package endpoints
 
 import (
+	"context"
 	"net/url"
 	"strconv"
 	"sync"
@@ -24,7 +25,7 @@ import (
 )
 
 func TestWatch_Endpoints(t *testing.T) {
-	//This test doublecheck as well that endpoints labels are ignored
+	// This test doublecheck as well that endpoints labels are ignored
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -75,7 +76,7 @@ func TestWatch_Endpoints(t *testing.T) {
 }
 
 func TestWatch_EndpointsSinglePort(t *testing.T) {
-	//This test doublecheck as well that endpoints labels are ignored
+	// This test doublecheck as well that endpoints labels are ignored
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -157,7 +158,7 @@ func TestWatch_EndpointsModify(t *testing.T) {
 			listURLs = append(listURLs, t.URL.String())
 		}
 
-		//Notice that we are testing both update and annotation Override
+		// Notice that we are testing both update and annotation Override
 		require.Contains(t, listURLs, "http://1.2.3.4:1/metricsOverride", "this target was expected")
 		require.Contains(t, listURLs, "http://1.2.3.4:2/metricsOverride", "this target was expected")
 		require.Contains(t, listURLs, "http://1.2.3.4:3/metricsOverride", "this target was expected")
@@ -197,7 +198,7 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 			},
 		},
 		Subsets: []v1.EndpointSubset{
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -222,7 +223,7 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 					},
 				},
 			},
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -257,11 +258,11 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	_, err := clientset.CoreV1().Services("test-ns").Create(context.TODO(), s, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(context.TODO(), e, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -289,7 +290,7 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 			},
 		},
 		Subsets: []v1.EndpointSubset{
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -314,7 +315,7 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 					},
 				},
 			},
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -351,11 +352,11 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	_, err := clientset.CoreV1().Services("test-ns").Create(context.TODO(), s, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(context.TODO(), e, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -369,7 +370,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 			Name: endpointsName,
 		},
 		Subsets: []v1.EndpointSubset{
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -394,7 +395,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 					},
 				},
 			},
-			v1.EndpointSubset{
+			{
 				Addresses: []v1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
@@ -428,11 +429,11 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	_, err := clientset.CoreV1().Services("test-ns").Create(context.TODO(), s, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-	_, err = clientset.CoreV1().Endpoints("test-ns").Create(e)
+	_, err = clientset.CoreV1().Endpoints("test-ns").Create(context.TODO(), e, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -440,7 +441,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 	e.Subsets[0].NotReadyAddresses = nil
 	addr := e.Subsets[0].Addresses
 	e.Subsets[0].Addresses = append(addr, v1.EndpointAddress{IP: "10.20.30.40"})
-	_, err = clientset.CoreV1().Endpoints("test-ns").Update(e)
+	_, err = clientset.CoreV1().Endpoints("test-ns").Update(context.TODO(), e, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
@@ -685,7 +686,6 @@ func TestWatch_Nodes_NodesWithNoScrapeLabelAreNotBeingScraped(t *testing.T) {
 
 		return nil
 	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
-
 }
 
 func newFakeKubernetesTargetRetriever(client *fake.Clientset) *KubernetesTargetRetriever {
@@ -700,7 +700,7 @@ func newFakeKubernetesTargetRetriever(client *fake.Clientset) *KubernetesTargetR
 
 func fakeNodeData() []*v1.Node {
 	return []*v1.Node{
-		&v1.Node{
+		{
 			ObjectMeta: metav1.ObjectMeta{
 				UID:    types.UID("zetano"),
 				Name:   "my-node",
@@ -715,7 +715,7 @@ func fakeNodeData() []*v1.Node {
 				},
 			},
 		},
-		&v1.Node{
+		{
 			ObjectMeta: metav1.ObjectMeta{
 				UID:    types.UID("perengano"),
 				Name:   "my-node2",
@@ -735,12 +735,12 @@ func fakeNodeData() []*v1.Node {
 
 func populateFakeNodeData(clientset *fake.Clientset) error {
 	ns := fakeNodeData()
-	_, err := clientset.CoreV1().Nodes().Create(ns[0])
+	_, err := clientset.CoreV1().Nodes().Create(context.TODO(), ns[0], metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Nodes().Create(ns[1])
+	_, err = clientset.CoreV1().Nodes().Create(context.TODO(), ns[1], metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -822,17 +822,17 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Pods("test-ns").Create(p)
+	_, err := clientset.CoreV1().Pods("test-ns").Create(context.TODO(), p, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Pods("test-ns").Create(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(context.TODO(), p2, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Pods("test-ns").Create(p3)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(context.TODO(), p3, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -841,17 +841,17 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 	p2.ObjectMeta.Labels["prometheus.io/scrape"] = "true"
 	delete(p3.ObjectMeta.Labels, "prometheus.io/scrape")
 
-	_, err = clientset.CoreV1().Pods("test-ns").Update(p)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(context.TODO(), p, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Pods("test-ns").Update(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(context.TODO(), p2, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Pods("test-ns").Update(p3)
+	_, err = clientset.CoreV1().Pods("test-ns").Update(context.TODO(), p3, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
@@ -911,12 +911,12 @@ func populateFakePodData(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Pods("test-ns").Create(p)
+	_, err := clientset.CoreV1().Pods("test-ns").Create(context.TODO(), p, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = clientset.CoreV1().Pods("test-ns").Create(p2)
+	_, err = clientset.CoreV1().Pods("test-ns").Create(context.TODO(), p2, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -952,11 +952,11 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 		},
 	}
 
-	_, err := clientset.CoreV1().Services("test-ns").Create(s)
+	_, err := clientset.CoreV1().Services("test-ns").Create(context.TODO(), s, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
-	_, err = clientset.CoreV1().Services("test-ns").Create(s2)
+	_, err = clientset.CoreV1().Services("test-ns").Create(context.TODO(), s2, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
