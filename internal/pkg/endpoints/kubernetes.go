@@ -4,6 +4,7 @@
 package endpoints
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/url"
@@ -84,7 +85,7 @@ func nodeAddress(node *apiv1.Node) (string, map[apiv1.NodeAddressType][]string, 
 
 // listNodes gets all the scrapable nodes that are currently available
 func (k *KubernetesTargetRetriever) listNodes() error {
-	nodes, err := k.client.CoreV1().Nodes().List(metav1.ListOptions{})
+	nodes, err := k.client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -142,12 +143,11 @@ func nodeTargets(n *apiv1.Node) ([]Target, error) {
 
 // listEndpoints gets the scrapable endpoints that are currently available
 func (k *KubernetesTargetRetriever) listEndpoints() error {
-
-	endpoints, err := k.client.CoreV1().Endpoints("").List(metav1.ListOptions{})
+	endpoints, err := k.client.CoreV1().Endpoints("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	services, err := k.client.CoreV1().Services("").List(metav1.ListOptions{})
+	services, err := k.client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (k *KubernetesTargetRetriever) listEndpoints() error {
 
 // listServices gets the scrapable services that are currently available
 func (k *KubernetesTargetRetriever) listServices() error {
-	services, err := k.client.CoreV1().Services("").List(metav1.ListOptions{})
+	services, err := k.client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -234,7 +234,6 @@ func serviceTarget(s *apiv1.Service, port, path string) *Target {
 
 // returns all the possible targets for a endpoint (multiple targets per port)
 func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
-
 	var targetList []Target
 	// we need to pass the service since the annotations are not inherited
 	path := getPath(s)
@@ -306,7 +305,6 @@ func getPath(o metav1.Object) string {
 
 // returns all the possible targets for a service (1 target per port)
 func serviceTargets(s *apiv1.Service) []Target {
-
 	path := getPath(s)
 
 	port, ok := s.Annotations[defaultScrapePortLabel]
@@ -335,7 +333,7 @@ func serviceTargets(s *apiv1.Service) []Target {
 }
 
 func (k *KubernetesTargetRetriever) listPods() error {
-	pods, err := k.client.CoreV1().Pods("").List(metav1.ListOptions{})
+	pods, err := k.client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -380,7 +378,7 @@ func podTarget(p *apiv1.Pod, port, path string) *Target {
 }
 
 func podTargets(p *apiv1.Pod) []Target {
-	//if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
+	// if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
 	// the pod is not yet scrapable.
 	if p.Status.PodIP == "" {
 		return nil
@@ -472,7 +470,6 @@ type KubernetesTargetRetriever struct {
 // NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
 func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (*KubernetesTargetRetriever, error) {
-
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
 	}
@@ -564,34 +561,33 @@ func (k *KubernetesTargetRetriever) getWatchableResources() []watchableResource 
 		listFunction:              k.listPods,
 		requireScrapeEnabledLabel: true,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Pods("").Watch(metav1.ListOptions{})
+			return k.client.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}, {
 		name:                      "node",
 		listFunction:              k.listNodes,
 		requireScrapeEnabledLabel: k.requireScrapeEnabledLabelForNodes,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Nodes().Watch(metav1.ListOptions{})
+			return k.client.CoreV1().Nodes().Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}, {
 		name:                      "service",
 		requireScrapeEnabledLabel: true,
 		listFunction:              k.listServices,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Services("").Watch(metav1.ListOptions{})
+			return k.client.CoreV1().Services("").Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}, {
 		name:                      "endpoints",
 		requireScrapeEnabledLabel: true,
 		listFunction:              k.listEndpoints,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Endpoints("").Watch(metav1.ListOptions{})
+			return k.client.CoreV1().Endpoints("").Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}}
 }
 
 func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel bool) {
-
 	object := event.Object.(metav1.Object)
 
 	scrapable := k.isEventScrapable(object)
@@ -627,7 +623,7 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 				debugLogEvent(klog, event.Type, "deleted", object)
 				switch obj := object.(type) {
 				case *apiv1.Service:
-					if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+					if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 						k.targets.Delete(string(e.GetUID()))
 						debugLogEvent(klog, event.Type, "deleted", e)
 					}
@@ -667,7 +663,7 @@ func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool 
 	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
 	switch obj := object.(type) {
 	case *apiv1.Endpoints:
-		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 			// For endpoints we need to rely on the service annotations/labels since they are not always propagated
 			scrapable = isObjectScrapable(s, k.scrapeEnabledLabel)
 		}
@@ -688,7 +684,7 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 			return
 		}
 		// In this case we should fetch the service since the path annotation depends on the service
-		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 			targets = endpointsTargets(obj, s)
 		}
 
@@ -697,7 +693,7 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 		// In this case we should update as well the endpoints since
 		// the annotation could have been added enabling the scraping not triggering an endpoints events
 		// This is not ideal but its the only way to support annotation since those are not inherited by endpoints
-		if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(obj.Name, metav1.GetOptions{}); err == nil {
+		if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 			endpointsTargets := endpointsTargets(e, obj)
 			if len(endpointsTargets) != 0 {
 				k.targets.Store(string(e.GetUID()), endpointsTargets)
