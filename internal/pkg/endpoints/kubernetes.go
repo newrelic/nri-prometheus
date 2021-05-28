@@ -286,20 +286,20 @@ func getPortList(e *apiv1.Endpoints, s *apiv1.Service) []string {
 
 func getPath(o metav1.Object) string {
 	var path string
-	var ok bool
 
 	// Annotations take precedence over labels.
-	if _, ok = o.GetAnnotations()[defaultScrapePathLabel]; ok {
-		path, _ = o.GetAnnotations()[defaultScrapePathLabel]
-	} else if path, ok = o.GetLabels()[defaultScrapePathLabel]; ok {
-		path, _ = o.GetLabels()[defaultScrapePathLabel]
+	if annotation, ok := o.GetAnnotations()[defaultScrapePathLabel]; ok {
+		path = annotation
+	} else if label, ok := o.GetLabels()[defaultScrapePathLabel]; ok {
+		path = label
 	} else {
 		path = defaultScrapePath
 	}
 
-	if path[0] != '/' {
+	if !strings.HasPrefix(path, "/") {
 		path = "/" + path
 	}
+
 	return path
 }
 
