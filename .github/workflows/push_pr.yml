@@ -14,19 +14,21 @@ env:
   DOCKER_LOGIN_AVAILABLE: ${{ secrets.OHAI_DOCKER_HUB_ID }}
 
 jobs:
-  validate:
-    name: Validate code via linters
+  static-analysis:
+    name: Run all static analysis checks
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - name: Login to DockerHub
-        if: ${{ env.DOCKER_LOGIN_AVAILABLE }}
-        uses: docker/login-action@v1
+      - uses: newrelic/newrelic-infra-checkers@v1
+      - name: Semgrep
+        uses: returntocorp/semgrep-action@v1
         with:
-          username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
-          password: ${{ secrets.OHAI_DOCKER_HUB_PASSWORD }}
-      - name: Validate code
-        run: make ci/validate
+          auditOn: push
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        continue-on-error: ${{ github.event_name != 'pull_request' }}
+        with:
+          only-new-issues: true
 
   test-nix:
     name: Run unit tests on *Nix

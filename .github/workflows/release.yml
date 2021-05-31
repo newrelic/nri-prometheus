@@ -25,19 +25,6 @@ env:
   TAG_SUFFIX: "" # This suffix is used for pre-release only
 
 jobs:
-  validate:
-    name: Validate code via linters
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
-          password: ${{ secrets.OHAI_DOCKER_HUB_PASSWORD }}
-      - name: Validate code
-        run: make ci/validate
-
   # this might not be necessary
   snyk:
     name: Run security checks via snyk
@@ -115,7 +102,7 @@ jobs:
   release:
     name: Use goreleaser for releasing
     runs-on: ubuntu-20.04
-    needs: [ validate, test-nix, test-windows, test-integration-nix ]
+    needs: [ test-nix, test-windows, test-integration-nix ]
     steps:
       - name: checkout
         uses: actions/checkout@v2
