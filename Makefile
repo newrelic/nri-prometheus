@@ -7,8 +7,8 @@ CONFIG_DIR       = /etc/newrelic-infra/integrations.d
 GO_FILES        := ./
 BIN_FILES       := ./cmd/nri-prometheus/
 TARGET          := target
-GOLANGCI_LINT_VERSION := v1.30.0
-GOLANGCI_LINT_BIN = $(GOPATH)/bin/golangci-lint
+GOFLAGS          = -mod=readonly
+GOLANGCI_LINT    = github.com/golangci/golangci-lint/cmd/golangci-lint
 
 all: build
 
@@ -23,14 +23,11 @@ $(GOLANGCI_LINT_BIN):
 	@echo "installing GolangCI version $(GOLANGCI_LINT_VERSION)"
 	@(curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin $(GOLANGCI_LINT_VERSION))
 
-validate-deps: $(GOLANGCI_LINT_BIN)
-	@echo "=== $(INTEGRATION) === [ validate-deps ]: installing validation dependencies..."
-
-validate-only:
-	@echo "=== $(INTEGRATION) === [ lint ]: Running golangci-lint version $(GOLANGCI_LINT_VERSION)..."
-	@$(GOLANGCI_LINT_BIN) run --verbose --timeout 90s
-
-validate: validate-deps validate-only
+validate:
+	@printf "=== $(INTEGRATION) === [ validate ]: running golangci-lint & semgrep... "
+	@go run  $(GOFLAGS) $(GOLANGCI_LINT) run --verbose
+	@[ -f .semgrep.yml ] && semgrep_config=".semgrep.yml" || semgrep_config="p/golang" ; \
+	docker run --rm -v "${PWD}:/src:ro" --workdir /src returntocorp/semgrep -c "$$semgrep_config"
 
 compile-deps:
 	@echo "=== $(INTEGRATION) === [ compile-deps ]: installing build dependencies..."
@@ -73,4 +70,4 @@ install: bin/$(BINARY_NAME)
 include $(CURDIR)/build/ci.mk
 include $(CURDIR)/build/release.mk
 
-.PHONY: all build clean validate-deps validate-only validate compile-deps compile test-deps test-only test integration-test install
+.PHONY: all build clean validate compile-deps compile test-deps test-only test integration-test install
