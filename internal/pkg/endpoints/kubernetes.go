@@ -135,8 +135,16 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 	object := Object{Name: n.Name, Kind: "node", Labels: lbls}
 
 	return []Target{
-		New(n.Name, nodeURL, object),
-		New("cadvisor_"+n.Name, cadvisorURL, object),
+		{
+			Name:   n.Name,
+			URL:    nodeURL,
+			Object: object,
+		},
+		{
+			Name:   "cadvisor_" + n.Name,
+			URL:    cadvisorURL,
+			Object: object,
+		},
 	}, nil
 }
 
@@ -208,8 +216,16 @@ func endpointsTarget(e *corev1.Endpoints, port string, ip string, path string) *
 		klog.WithError(err).WithField("endpoints", e.Name).Errorf("couldn't parse endpoint url, skipping: %s", fullServiceURL)
 		return nil
 	}
-	target := New(e.Name, *addr, Object{Name: e.Name, Kind: "endpoints", Labels: lbls})
-	return &target
+
+	return &Target{
+		Name: e.Name,
+		URL:  *addr,
+		Object: Object{
+			Name:   e.Name,
+			Kind:   "endpoints",
+			Labels: lbls,
+		},
+	}
 }
 
 func serviceTarget(s *corev1.Service, port, path string) *Target {
@@ -227,8 +243,16 @@ func serviceTarget(s *corev1.Service, port, path string) *Target {
 	}
 	lbls["serviceName"] = s.Name
 	lbls["namespaceName"] = s.Namespace
-	target := New(s.Name, *addr, Object{Name: s.Name, Kind: "service", Labels: lbls})
-	return &target
+
+	return &Target{
+		Name: s.Name,
+		URL:  *addr,
+		Object: Object{
+			Name:   s.Name,
+			Kind:   "service",
+			Labels: lbls,
+		},
+	}
 }
 
 // returns all the possible targets for a endpoint (multiple targets per port)
@@ -372,8 +396,16 @@ func podTarget(p *corev1.Pod, port, path string) *Target {
 	lbls["namespaceName"] = p.Namespace
 	lbls["nodeName"] = p.Spec.NodeName
 	lbls["deploymentName"] = getPodDeployment(p)
-	target := New(p.Name, *addr, Object{Name: p.Name, Kind: "pod", Labels: lbls})
-	return &target
+
+	return &Target{
+		Name: p.Name,
+		URL:  *addr,
+		Object: Object{
+			Name:   p.Name,
+			Kind:   "pod",
+			Labels: lbls,
+		},
+	}
 }
 
 func podTargets(p *corev1.Pod) []Target {

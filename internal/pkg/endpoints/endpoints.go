@@ -69,15 +69,6 @@ func redactedURLString(u *url.URL) string {
 	return ru.String()
 }
 
-// New returns a Target from the discovered information
-func New(name string, addr url.URL, object Object) Target {
-	return Target{
-		Name:   name,
-		Object: object,
-		URL:    addr,
-	}
-}
-
 // endpointToTarget returns a list of Targets from the provided TargetConfig struct.
 // The URL processing for every Target follows the next conventions:
 // - if no schema is provided, it assumes http
