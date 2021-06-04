@@ -204,11 +204,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{10}).x,
 								SampleSum:   &(&struct{ x float64 }{42}).x,
 								Bucket: []*dto.Bucket{
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{42}).x,
 										UpperBound:      &(&struct{ x float64 }{100}).x,
 									},
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{24}).x,
 										UpperBound:      &(&struct{ x float64 }{50}).x,
 									},
@@ -234,11 +234,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{10}).x,
 								SampleSum:   &(&struct{ x float64 }{42}).x,
 								Quantile: []*dto.Quantile{
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.5}).x,
 										Value:    &(&struct{ x float64 }{100}).x,
 									},
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.9}).x,
 										Value:    &(&struct{ x float64 }{200}).x,
 									},
@@ -279,11 +279,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{10}).x,
 						SampleSum:   &(&struct{ x float64 }{42}).x,
 						Bucket: []*dto.Bucket{
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{42}).x,
 								UpperBound:      &(&struct{ x float64 }{100}).x,
 							},
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{24}).x,
 								UpperBound:      &(&struct{ x float64 }{50}).x,
 							},
@@ -304,11 +304,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{10}).x,
 						SampleSum:   &(&struct{ x float64 }{42}).x,
 						Quantile: []*dto.Quantile{
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.5}).x,
 								Value:    &(&struct{ x float64 }{100}).x,
 							},
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.9}).x,
 								Value:    &(&struct{ x float64 }{200}).x,
 							},
@@ -376,11 +376,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{20}).x,
 								SampleSum:   &(&struct{ x float64 }{52}).x,
 								Bucket: []*dto.Bucket{
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{52}).x,
 										UpperBound:      &(&struct{ x float64 }{200}).x,
 									},
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{34}).x,
 										UpperBound:      &(&struct{ x float64 }{60}).x,
 									},
@@ -406,11 +406,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{20}).x,
 								SampleSum:   &(&struct{ x float64 }{52}).x,
 								Quantile: []*dto.Quantile{
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.5}).x,
 										Value:    &(&struct{ x float64 }{42}).x,
 									},
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.9}).x,
 										Value:    &(&struct{ x float64 }{24}).x,
 									},
@@ -451,11 +451,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{20}).x,
 						SampleSum:   &(&struct{ x float64 }{52}).x,
 						Bucket: []*dto.Bucket{
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{52}).x,
 								UpperBound:      &(&struct{ x float64 }{200}).x,
 							},
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{34}).x,
 								UpperBound:      &(&struct{ x float64 }{60}).x,
 							},
@@ -476,11 +476,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{20}).x,
 						SampleSum:   &(&struct{ x float64 }{52}).x,
 						Quantile: []*dto.Quantile{
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.5}).x,
 								Value:    &(&struct{ x float64 }{42}).x,
 							},
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.9}).x,
 								Value:    &(&struct{ x float64 }{24}).x,
 							},

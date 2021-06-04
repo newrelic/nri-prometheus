@@ -13,7 +13,6 @@ type mockedRoundTripper struct {
 }
 
 func (m *mockedRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-
 	m.Called(req)
 	return &http.Response{}, nil
 }

@@ -383,7 +383,6 @@ func TestDecorate(t *testing.T) {
 
 	assert.Equal(t, se[0].Metrics[0].attributes, labels.Set{"hello": "friend", "bye": "boy", "md1": "v1", "md2": "v2", "attr1": "val1", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
 	assert.Equal(t, se[0].Metrics[1].attributes, labels.Set{"hello": "friend", "bye": "boy", "md3": "v3", "md4": "v4", "attr2": "val2", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
-
 }
 
 func TestRenameRules(t *testing.T) {
