@@ -42,7 +42,11 @@ func TestFetcher(t *testing.T) {
 
 	// When it fetches data synchronously
 	addr := url.URL{Scheme: "http", Path: "hello/metrics"}
-	pairsCh := fetcher.Fetch([]endpoints.Target{endpoints.New("", addr, endpoints.Object{})})
+	pairsCh := fetcher.Fetch([]endpoints.Target{
+		{
+			URL: addr,
+		},
+	})
 
 	var pair TargetMetrics
 	select {
@@ -81,8 +85,12 @@ func TestFetcher_Error(t *testing.T) {
 	fail := url.URL{Scheme: "http", Path: "fail/metrics"}
 	hello := url.URL{Scheme: "http", Path: "hello/metrics"}
 	pairsCh := fetcher.Fetch([]endpoints.Target{
-		endpoints.New("", fail, endpoints.Object{}),
-		endpoints.New("", hello, endpoints.Object{}),
+		{
+			URL: fail,
+		},
+		{
+			URL: hello,
+		},
 	})
 
 	var pair TargetMetrics
@@ -128,7 +136,7 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 	targets := make([]endpoints.Target, 0, queueLength)
 	for i := 0; i < queueLength; i++ {
 		addr := url.URL{Scheme: "http", Host: fmt.Sprintf("target%v", i), Path: "/metrics"}
-		targets = append(targets, endpoints.New("", addr, endpoints.Object{}))
+		targets = append(targets, endpoints.Target{URL: addr})
 	}
 	fetcher.Fetch(targets)
 
