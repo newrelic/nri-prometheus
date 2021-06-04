@@ -16,7 +16,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 
-	apiv1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
@@ -62,22 +62,22 @@ type watchableResource struct {
 //
 // Derived from k8s.io/kubernetes/pkg/util/node/node.go
 // COPIED FROM Prometheus code
-func nodeAddress(node *apiv1.Node) (string, map[apiv1.NodeAddressType][]string, error) {
-	m := map[apiv1.NodeAddressType][]string{}
+func nodeAddress(node *corev1.Node) (string, map[corev1.NodeAddressType][]string, error) {
+	m := map[corev1.NodeAddressType][]string{}
 	for _, a := range node.Status.Addresses {
 		m[a.Type] = append(m[a.Type], a.Address)
 	}
 
-	if addresses, ok := m[apiv1.NodeInternalIP]; ok {
+	if addresses, ok := m[corev1.NodeInternalIP]; ok {
 		return addresses[0], m, nil
 	}
-	if addresses, ok := m[apiv1.NodeExternalIP]; ok {
+	if addresses, ok := m[corev1.NodeExternalIP]; ok {
 		return addresses[0], m, nil
 	}
-	if addresses, ok := m[apiv1.NodeAddressType(NodeLegacyHostIP)]; ok {
+	if addresses, ok := m[corev1.NodeAddressType(NodeLegacyHostIP)]; ok {
 		return addresses[0], m, nil
 	}
-	if addresses, ok := m[apiv1.NodeHostName]; ok {
+	if addresses, ok := m[corev1.NodeHostName]; ok {
 		return addresses[0], m, nil
 	}
 	return "", m, fmt.Errorf("host address unknown")
@@ -105,7 +105,7 @@ func (k *KubernetesTargetRetriever) listNodes() error {
 	return nil
 }
 
-func nodeTargets(n *apiv1.Node) ([]Target, error) {
+func nodeTargets(n *corev1.Node) ([]Target, error) {
 	nodeURL := url.URL{
 		Scheme: "https",
 		Host:   "kubernetes.default.svc",
@@ -152,7 +152,7 @@ func (k *KubernetesTargetRetriever) listEndpoints() error {
 		return err
 	}
 	// we create this tmp data structure only to speed up finding the service related to an endpoint
-	tmp := map[string]apiv1.Service{}
+	tmp := map[string]corev1.Service{}
 	for _, s := range services.Items {
 		tmp[s.Namespace+"/"+s.Name] = s
 	}
@@ -191,7 +191,7 @@ func isObjectScrapable(o metav1.Object, label string) bool {
 	return o.GetLabels()[label] == trueStr || o.GetAnnotations()[label] == trueStr
 }
 
-func endpointsTarget(e *apiv1.Endpoints, port string, ip string, path string) *Target {
+func endpointsTarget(e *corev1.Endpoints, port string, ip string, path string) *Target {
 	lbls := labels.Set{}
 
 	for lk, lv := range e.Labels {
@@ -213,7 +213,7 @@ func endpointsTarget(e *apiv1.Endpoints, port string, ip string, path string) *T
 	return &target
 }
 
-func serviceTarget(s *apiv1.Service, port, path string) *Target {
+func serviceTarget(s *corev1.Service, port, path string) *Target {
 	lbls := labels.Set{}
 	hostname := fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace)
 	hostAndPort := net.JoinHostPort(hostname, port)
@@ -233,7 +233,7 @@ func serviceTarget(s *apiv1.Service, port, path string) *Target {
 }
 
 // returns all the possible targets for a endpoint (multiple targets per port)
-func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
+func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 	var targetList []Target
 	// we need to pass the service since the annotations are not inherited
 	path := getPath(s)
@@ -246,7 +246,7 @@ func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
 			if !contains(portList, port) {
 				continue
 			}
-			if eSubPort.Protocol != apiv1.ProtocolTCP {
+			if eSubPort.Protocol != corev1.ProtocolTCP {
 				continue
 			}
 
@@ -263,7 +263,7 @@ func endpointsTargets(e *apiv1.Endpoints, s *apiv1.Service) []Target {
 	return targetList
 }
 
-func getPortList(e *apiv1.Endpoints, s *apiv1.Service) []string {
+func getPortList(e *corev1.Endpoints, s *corev1.Service) []string {
 	var portList []string
 	if port, ok := s.Annotations[defaultScrapePortLabel]; ok {
 		portList = append(portList, port)
@@ -272,7 +272,7 @@ func getPortList(e *apiv1.Endpoints, s *apiv1.Service) []string {
 	} else {
 		for _, subset := range e.Subsets {
 			for _, port := range subset.Ports {
-				if port.Protocol != apiv1.ProtocolTCP {
+				if port.Protocol != corev1.ProtocolTCP {
 					continue
 				}
 				if len(subset.Addresses) != 0 {
@@ -304,7 +304,7 @@ func getPath(o metav1.Object) string {
 }
 
 // returns all the possible targets for a service (1 target per port)
-func serviceTargets(s *apiv1.Service) []Target {
+func serviceTargets(s *corev1.Service) []Target {
 	path := getPath(s)
 
 	port, ok := s.Annotations[defaultScrapePortLabel]
@@ -345,7 +345,7 @@ func (k *KubernetesTargetRetriever) listPods() error {
 	return nil
 }
 
-func getPodDeployment(p *apiv1.Pod) string {
+func getPodDeployment(p *corev1.Pod) string {
 	var deploymentName string
 	if len(p.OwnerReferences) > 0 {
 		podOwner := p.OwnerReferences[0]
@@ -357,7 +357,7 @@ func getPodDeployment(p *apiv1.Pod) string {
 	return deploymentName
 }
 
-func podTarget(p *apiv1.Pod, port, path string) *Target {
+func podTarget(p *corev1.Pod, port, path string) *Target {
 	lbls := labels.Set{}
 	hostAndPort := net.JoinHostPort(p.Status.PodIP, port)
 	fullPodURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
@@ -377,7 +377,7 @@ func podTarget(p *apiv1.Pod, port, path string) *Target {
 	return &target
 }
 
-func podTargets(p *apiv1.Pod) []Target {
+func podTargets(p *corev1.Pod) []Target {
 	// if the Pod has not yet been allocated to a Node, or Kubelet/CNI has not yet assigned an ipAddress,
 	// the pod is not yet scrapable.
 	if p.Status.PodIP == "" {
@@ -469,7 +469,7 @@ type KubernetesTargetRetriever struct {
 
 // NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
-func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (*KubernetesTargetRetriever, error) {
+func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (TargetRetriever, error) {
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
 	}
@@ -622,7 +622,7 @@ func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel
 				k.targets.Delete(string(object.GetUID()))
 				debugLogEvent(klog, event.Type, "deleted", object)
 				switch obj := object.(type) {
-				case *apiv1.Service:
+				case *corev1.Service:
 					if e, err := k.client.CoreV1().Endpoints(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 						k.targets.Delete(string(e.GetUID()))
 						debugLogEvent(klog, event.Type, "deleted", e)
@@ -662,7 +662,7 @@ func setLogLevelEvent(event watch.Event, object metav1.Object) {
 func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool {
 	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
 	switch obj := object.(type) {
-	case *apiv1.Endpoints:
+	case *corev1.Endpoints:
 		if s, err := k.client.CoreV1().Services(obj.Namespace).Get(context.TODO(), obj.Name, metav1.GetOptions{}); err == nil {
 			// For endpoints we need to rely on the service annotations/labels since they are not always propagated
 			scrapable = isObjectScrapable(s, k.scrapeEnabledLabel)
@@ -678,7 +678,7 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 	var targets []Target
 	var err error
 	switch obj := object.(type) {
-	case *apiv1.Endpoints:
+	case *corev1.Endpoints:
 		if obj.Subsets == nil {
 			k.targets.Delete(string(object.GetUID()))
 			return
@@ -688,7 +688,7 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 			targets = endpointsTargets(obj, s)
 		}
 
-	case *apiv1.Service:
+	case *corev1.Service:
 		targets = serviceTargets(obj)
 		// In this case we should update as well the endpoints since
 		// the annotation could have been added enabling the scraping not triggering an endpoints events
@@ -703,10 +703,10 @@ func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.
 			}
 		}
 
-	case *apiv1.Pod:
+	case *corev1.Pod:
 		targets = podTargets(obj)
 
-	case *apiv1.Node:
+	case *corev1.Node:
 		targets, err = nodeTargets(obj)
 		if err != nil {
 			klog.WithError(err).WithField("node", obj.Name).Warn("can't get targets for node. Ignoring")

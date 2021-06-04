@@ -13,8 +13,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	apiv1 "k8s.io/api/core/v1"
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/watch"
@@ -184,7 +183,7 @@ func TestWatch_EndpointsModify(t *testing.T) {
 const endpointsName = "my-endpoints"
 
 func populateFakeEndpointsData(clientset *fake.Clientset) error {
-	e := &v1.Endpoints{
+	e := &corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
 			Name: endpointsName,
@@ -203,9 +202,9 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 				"app":                  "my-app",
 			},
 		},
-		Subsets: []v1.EndpointSubset{
+		Subsets: []corev1.EndpointSubset{
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
@@ -213,42 +212,42 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 						IP: "5.6.7.8",
 					},
 				},
-				NotReadyAddresses: []v1.EndpointAddress{
+				NotReadyAddresses: []corev1.EndpointAddress{
 					{
 						IP: "10.20.30.40",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     1,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     2,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     3,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     4,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 		},
 	}
-	s := &v1.Service{
+	s := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: endpointsName,
 			Labels: map[string]string{
@@ -276,7 +275,7 @@ func populateFakeEndpointsData(clientset *fake.Clientset) error {
 }
 
 func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
-	e := &v1.Endpoints{
+	e := &corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
 			Name: endpointsName,
@@ -295,9 +294,9 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 				"app":                  "my-app",
 			},
 		},
-		Subsets: []v1.EndpointSubset{
+		Subsets: []corev1.EndpointSubset{
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
@@ -305,42 +304,42 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 						IP: "5.6.7.8",
 					},
 				},
-				NotReadyAddresses: []v1.EndpointAddress{
+				NotReadyAddresses: []corev1.EndpointAddress{
 					{
 						IP: "10.20.30.40",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     1,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     2,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     3,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     4,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 		},
 	}
-	s := &v1.Service{
+	s := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: endpointsName,
 			Labels: map[string]string{
@@ -370,14 +369,14 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 }
 
 func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
-	e := &v1.Endpoints{
+	e := &corev1.Endpoints{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
 			Name: endpointsName,
 		},
-		Subsets: []v1.EndpointSubset{
+		Subsets: []corev1.EndpointSubset{
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
@@ -385,43 +384,43 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 						IP: "5.6.7.8",
 					},
 				},
-				NotReadyAddresses: []v1.EndpointAddress{
+				NotReadyAddresses: []corev1.EndpointAddress{
 					{
 						IP: "10.20.30.40",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     1,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     2,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 			{
-				Addresses: []v1.EndpointAddress{
+				Addresses: []corev1.EndpointAddress{
 					{
 						IP: "1.2.3.4",
 					},
 				},
-				Ports: []v1.EndpointPort{
+				Ports: []corev1.EndpointPort{
 					{
 						Port:     3,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 					{
 						Port:     4,
-						Protocol: v1.ProtocolTCP,
+						Protocol: corev1.ProtocolTCP,
 					},
 				},
 			},
 		},
 	}
 
-	s := &v1.Service{
+	s := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: endpointsName,
 			Labels: map[string]string{
@@ -446,7 +445,7 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 
 	e.Subsets[0].NotReadyAddresses = nil
 	addr := e.Subsets[0].Addresses
-	e.Subsets[0].Addresses = append(addr, v1.EndpointAddress{IP: "10.20.30.40"})
+	e.Subsets[0].Addresses = append(addr, corev1.EndpointAddress{IP: "10.20.30.40"})
 	_, err = clientset.CoreV1().Endpoints("test-ns").Update(context.TODO(), e, metav1.UpdateOptions{})
 	if err != nil {
 		return err
@@ -716,18 +715,18 @@ func newFakeKubernetesTargetRetriever(client *fake.Clientset) *KubernetesTargetR
 	}
 }
 
-func fakeNodeData() []*v1.Node {
-	return []*v1.Node{
+func fakeNodeData() []*corev1.Node {
+	return []*corev1.Node{
 		{
 			ObjectMeta: metav1.ObjectMeta{
 				UID:    types.UID("zetano"),
 				Name:   "my-node",
 				Labels: map[string]string{},
 			},
-			Status: v1.NodeStatus{
-				Addresses: []v1.NodeAddress{
+			Status: corev1.NodeStatus{
+				Addresses: []corev1.NodeAddress{
 					{
-						Type:    v1.NodeInternalIP,
+						Type:    corev1.NodeInternalIP,
 						Address: "127.0.0.1",
 					},
 				},
@@ -739,10 +738,10 @@ func fakeNodeData() []*v1.Node {
 				Name:   "my-node2",
 				Labels: map[string]string{},
 			},
-			Status: v1.NodeStatus{
-				Addresses: []v1.NodeAddress{
+			Status: corev1.NodeStatus{
+				Addresses: []corev1.NodeAddress{
 					{
-						Type:    v1.NodeInternalIP,
+						Type:    corev1.NodeInternalIP,
 						Address: "127.0.0.2",
 					},
 				},
@@ -766,7 +765,7 @@ func populateFakeNodeData(clientset *fake.Clientset) error {
 }
 
 func populateFakePodDataModify(clientset *fake.Clientset) error {
-	p := &v1.Pod{
+	p := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("mengano"),
 			Name: "my-pod",
@@ -775,22 +774,22 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				"app":                  "pod-my-app",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{
+		Status: corev1.PodStatus{
 			PodIP: "10.10.10.1",
 		},
 	}
-	p2 := &v1.Pod{
+	p2 := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("zutano"),
 			Name: "my-pod-2",
@@ -799,23 +798,23 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				"app":                  "pod-my-app-2",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{
+		Status: corev1.PodStatus{
 			PodIP: "10.10.10.2",
 		},
 	}
 
-	p3 := &v1.Pod{
+	p3 := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("pepito"),
 			Name: "my-pod-3",
@@ -824,18 +823,18 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 				"app":                  "pod-my-app-3",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{
+		Status: corev1.PodStatus{
 			PodIP: "10.10.10.3",
 		},
 	}
@@ -878,7 +877,7 @@ func populateFakePodDataModify(clientset *fake.Clientset) error {
 }
 
 func populateFakePodData(clientset *fake.Clientset) error {
-	p := &v1.Pod{
+	p := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("mengano"),
 			Name: "my-pod",
@@ -888,23 +887,23 @@ func populateFakePodData(clientset *fake.Clientset) error {
 				"app":                  "pod-my-app",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{
+		Status: corev1.PodStatus{
 			PodIP: "10.10.10.1",
 		},
 	}
 
-	p2 := &v1.Pod{
+	p2 := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("zutano"),
 			Name: "my-pod-2",
@@ -913,18 +912,18 @@ func populateFakePodData(clientset *fake.Clientset) error {
 				"app":                  "pod-my-app-2",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{
+		Status: corev1.PodStatus{
 			PodIP: "10.10.10.2",
 		},
 	}
@@ -942,7 +941,7 @@ func populateFakePodData(clientset *fake.Clientset) error {
 }
 
 func populateFakeServiceData(clientset *fake.Clientset) error {
-	s := &v1.Service{
+	s := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("niceUid"),
 			Name: "my-service",
@@ -952,17 +951,17 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 				"app":                  "my-app",
 			},
 		},
-		Spec: v1.ServiceSpec{
-			Ports: []v1.ServicePort{
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
 				{
 					Name:     "http-metrics",
-					Protocol: v1.ProtocolTCP,
+					Protocol: corev1.ProtocolTCP,
 					Port:     8080,
 				},
 			},
 		},
 	}
-	s2 := &v1.Service{
+	s2 := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:    types.UID("notNiceUid"),
 			Name:   "my-service-no-scrapeable",
@@ -986,7 +985,7 @@ func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -999,12 +998,12 @@ func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 					"prometheus.io/port": "80",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1017,7 +1016,7 @@ func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1050,17 +1049,17 @@ func TestPodTargetsNoPort(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1073,7 +1072,7 @@ func TestPodTargetsNoPort(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1123,7 +1122,7 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1132,12 +1131,12 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 					"prometheus.io/port":   "8080",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1150,7 +1149,7 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1182,7 +1181,7 @@ func TestPodTargetsInvalidURL(t *testing.T) {
 
 	assert.Empty(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1191,12 +1190,12 @@ func TestPodTargetsInvalidURL(t *testing.T) {
 					"prometheus.io/port":   "foobar",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1209,7 +1208,7 @@ func TestPodTargetsInvalidURL(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1221,7 +1220,7 @@ func TestPodTargetsPortLabels(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1230,12 +1229,12 @@ func TestPodTargetsPortLabels(t *testing.T) {
 					"prometheus.io/port":   "8080",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1248,7 +1247,7 @@ func TestPodTargetsPortLabels(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1282,7 +1281,7 @@ func TestServiceTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1295,8 +1294,8 @@ func TestServiceTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 					"prometheus.io/port": "80",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-app",
 						Port: 80,
@@ -1335,7 +1334,7 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1344,8 +1343,8 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 					"prometheus.io/port":   "8080",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-app",
 						Port: 80,
@@ -1383,7 +1382,7 @@ func TestServiceTargetsInvalidURL(t *testing.T) {
 
 	assert.Empty(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1392,8 +1391,8 @@ func TestServiceTargetsInvalidURL(t *testing.T) {
 					"prometheus.io/port":   "foobar",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-app",
 						Port: 80,
@@ -1413,13 +1412,13 @@ func TestServiceTargetsNoPort(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-app",
 						Port: 80,
@@ -1473,7 +1472,7 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1482,8 +1481,8 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 					"prometheus.io/port":   "8080",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-app",
 						Port: 80,
@@ -1527,7 +1526,7 @@ func TestProcessEventPodWithoutPodIP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	pod := &v1.Pod{
+	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("seed"),
 			Name: "test-pod",
@@ -1535,12 +1534,12 @@ func TestProcessEventPodWithoutPodIP(t *testing.T) {
 				"prometheus.io/scrape": "true",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
@@ -1555,7 +1554,7 @@ func TestProcessEventPodWithoutPodIP(t *testing.T) {
 	assert.Nil(t, actual)
 
 	// The pod has been updated, and has a PodIP assigned
-	pod.Status = v1.PodStatus{PodIP: "10.10.10.10"}
+	pod.Status = corev1.PodStatus{PodIP: "10.10.10.10"}
 
 	// We process the message again, and check if it now successfully caches the Pod
 	event = watch.Event{Type: watch.Modified, Object: pod}
@@ -1574,7 +1573,7 @@ func TestProcessEvent(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	pod := &v1.Pod{
+	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			UID:  types.UID("seed"),
 			Name: "test-pod",
@@ -1582,18 +1581,18 @@ func TestProcessEvent(t *testing.T) {
 				"prometheus.io/scrape": "true",
 			},
 		},
-		Spec: v1.PodSpec{Containers: []v1.Container{
+		Spec: corev1.PodSpec{Containers: []corev1.Container{
 			{
-				Ports: []v1.ContainerPort{
+				Ports: []corev1.ContainerPort{
 					{
 						Name:          "http-metrics",
-						Protocol:      v1.ProtocolTCP,
+						Protocol:      corev1.ProtocolTCP,
 						ContainerPort: 8080,
 					},
 				},
 			},
 		}},
-		Status: v1.PodStatus{PodIP: "10.10.10.10"},
+		Status: corev1.PodStatus{PodIP: "10.10.10.10"},
 	}
 
 	// Add the event.
@@ -1657,7 +1656,7 @@ func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1669,12 +1668,12 @@ func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 					"prometheus.io/path": "/metrics/0",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1683,7 +1682,7 @@ func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1716,7 +1715,7 @@ func TestPodTargetsPathAnnotations(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1724,12 +1723,12 @@ func TestPodTargetsPathAnnotations(t *testing.T) {
 					"prometheus.io/path": "/metrics/1",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1738,7 +1737,7 @@ func TestPodTargetsPathAnnotations(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1770,7 +1769,7 @@ func TestPodTargetsPathLabel(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		podTargets(&apiv1.Pod{
+		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-pod",
 				Namespace: "test-ns",
@@ -1778,12 +1777,12 @@ func TestPodTargetsPathLabel(t *testing.T) {
 					"prometheus.io/path": "/metrics/1",
 				},
 			},
-			Spec: apiv1.PodSpec{
+			Spec: corev1.PodSpec{
 				NodeName: "node-a",
-				Containers: []apiv1.Container{
+				Containers: []corev1.Container{
 					{
 						Name: "app",
-						Ports: []apiv1.ContainerPort{
+						Ports: []corev1.ContainerPort{
 							{
 								Name:          "http-app",
 								ContainerPort: 80,
@@ -1792,7 +1791,7 @@ func TestPodTargetsPathLabel(t *testing.T) {
 					},
 				},
 			},
-			Status: apiv1.PodStatus{
+			Status: corev1.PodStatus{
 				PodIP: "10.0.0.1",
 			},
 		}),
@@ -1825,7 +1824,7 @@ func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1837,8 +1836,8 @@ func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 					"prometheus.io/path": "/metrics/0",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-metrics",
 						Port: 8080,
@@ -1873,7 +1872,7 @@ func TestServiceTargetsPathAnnotations(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1881,8 +1880,8 @@ func TestServiceTargetsPathAnnotations(t *testing.T) {
 					"prometheus.io/path": "/metrics/1",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-metrics",
 						Port: 8080,
@@ -1916,7 +1915,7 @@ func TestServiceTargetsPathLabel(t *testing.T) {
 
 	assert.ElementsMatch(
 		t,
-		serviceTargets(&apiv1.Service{
+		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "my-service",
 				Namespace: "test-ns",
@@ -1924,8 +1923,8 @@ func TestServiceTargetsPathLabel(t *testing.T) {
 					"prometheus.io/path": "/metrics/1",
 				},
 			},
-			Spec: apiv1.ServiceSpec{
-				Ports: []apiv1.ServicePort{
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
 					{
 						Name: "http-metrics",
 						Port: 8080,
