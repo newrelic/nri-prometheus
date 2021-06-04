@@ -28,7 +28,7 @@ type TLSConfig struct {
 func FixedRetriever(targetCfgs ...TargetConfig) (TargetRetriever, error) {
 	fixed := make([]Target, 0, len(targetCfgs))
 	for _, targetCfg := range targetCfgs {
-		targets, err := EndpointToTarget(targetCfg)
+		targets, err := endpointToTarget(targetCfg)
 		if err != nil {
 			return nil, fmt.Errorf("parsing target %v: %v", targetCfg, err.Error())
 		}
