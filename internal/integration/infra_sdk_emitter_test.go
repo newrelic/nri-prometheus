@@ -11,6 +11,8 @@ import (
 )
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
+	t.Parallel()
+
 	// given
 	e := NewInfraSdkEmitter(Specs{})
 	assert.NotNil(t, e)
@@ -157,6 +159,8 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
+	t.Parallel()
+
 	e := NewInfraSdkEmitter(Specs{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
@@ -209,6 +213,7 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 }
 
 func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
+	t.Parallel()
 
 	specs := Specs{
 		SpecsByName: map[string]SpecDef{
@@ -289,6 +294,7 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 }
 
 func Test_ResizeToLimit(t *testing.T) {
+	t.Parallel()
 
 	var sb strings.Builder
 	for i := 0; i < 10; i++ {

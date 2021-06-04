@@ -10,6 +10,8 @@ import (
 )
 
 func Test_EmitterCanEmit(t *testing.T) {
+	t.Parallel()
+
 	summary, err := newSummary(3, 10, []*quantile{{0.5, 10}, {0.999, 100}})
 	if err != nil {
 		t.Fatal(err)

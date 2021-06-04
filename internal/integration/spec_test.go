@@ -10,19 +10,25 @@ import (
 )
 
 func TestLoadSpecFilesOk(t *testing.T) {
+	t.Parallel()
+
 	specs, err := LoadSpecFiles("./test/")
 	assert.NoError(t, err)
 	assert.Contains(t, specs.SpecsByName, "ibmmq")
 	assert.Contains(t, specs.SpecsByName, "ravendb")
 	assert.Contains(t, specs.SpecsByName, "redis")
 }
+
 func TestLoadSpecFilesNoFiles(t *testing.T) {
+	t.Parallel()
+
 	specs, err := LoadSpecFiles(".")
 	assert.NoError(t, err)
 	assert.Len(t, specs.SpecsByName, 0)
 }
 
 func TestSpecs_getEntity(t *testing.T) {
+	t.Parallel()
 
 	specs, err := LoadSpecFiles("./test/")
 	assert.NoError(t, err)
@@ -158,7 +164,11 @@ func TestSpecs_getEntity(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			s := &Specs{
 				SpecsByName: tt.fields.SpecsByName,
 			}

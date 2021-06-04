@@ -28,6 +28,8 @@ const (
 )
 
 func TestFetcher(t *testing.T) {
+	t.Parallel()
+
 	// Given a fetcher
 	fetcher := NewFetcher(fetchDuration, fetchTimeout, workerThreads, "", "", true, queueLength)
 	var invokedURL string
@@ -59,6 +61,8 @@ func TestFetcher(t *testing.T) {
 }
 
 func TestFetcher_Error(t *testing.T) {
+	t.Parallel()
+
 	// Given a fetcher
 	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
 
@@ -102,6 +106,8 @@ func TestFetcher_Error(t *testing.T) {
 }
 
 func TestFetcher_ConcurrencyLimit(t *testing.T) {
+	t.Parallel()
+
 	// This test fetches a lot of targets and verifies that no more than "workerThreads" are executed in
 	// parallel
 	parallelTasks := int32(0)
@@ -144,6 +150,8 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 }
 
 func TestConvertPromMetrics(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		target string
 		mfs    prometheus.MetricFamiliesByName
@@ -497,12 +505,20 @@ func TestConvertPromMetrics(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		assert.ElementsMatch(t, test.want, convertPromMetrics(nil, test.target, test.mfs))
+	for i, test := range tests {
+		test := test
+
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			t.Parallel()
+
+			assert.ElementsMatch(t, test.want, convertPromMetrics(nil, test.target, test.mfs))
+		})
 	}
 }
 
 func TestConvertPromMetricsMultiTargetCollisions(t *testing.T) {
+	t.Parallel()
+
 	metric := dto.Metric{
 		Label: []*dto.LabelPair{
 			{

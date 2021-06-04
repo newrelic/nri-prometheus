@@ -18,6 +18,8 @@ func (m *mockedRoundTripper) RoundTrip(req *http.Request) (*http.Response, error
 }
 
 func TestRoundTripHeaderDecoration(t *testing.T) {
+	t.Parallel()
+
 	licenseKey := "myLicenseKey"
 	req := &http.Request{Header: make(http.Header)}
 	req.Header.Add("Api-Key", licenseKey)

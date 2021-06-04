@@ -81,6 +81,8 @@ func BenchmarkTelemetrySDKEmitter(b *testing.B) {
 }
 
 func TestTelemetryEmitterEmit(t *testing.T) {
+	t.Parallel()
+
 	hist, err := newHistogram([]int64{0, 0, 0})
 	if err != nil {
 		t.Fatal(err)
@@ -353,6 +355,8 @@ func TestTelemetryEmitterEmit(t *testing.T) {
 }
 
 func TestTelemetryHarvesterWithTLSConfig(t *testing.T) {
+	t.Parallel()
+
 	tlsConfig := &tls.Config{InsecureSkipVerify: true}
 	cfg := &telemetry.Config{Client: &http.Client{}}
 	TelemetryHarvesterWithTLSConfig(tlsConfig)(cfg)
@@ -368,6 +372,8 @@ func TestTelemetryHarvesterWithTLSConfig(t *testing.T) {
 }
 
 func TestTelemetryHarvesterWithProxy(t *testing.T) {
+	t.Parallel()
+
 	proxyStr := "http://myproxy:444"
 	proxyURL, err := url.Parse(proxyStr)
 	require.NoError(t, err)

@@ -24,6 +24,8 @@ func (h *mockHarvester) HarvestNow(ctx context.Context) {
 // Checks that bindHarvester returns a harvester, correctly overriding settings
 // Also check the async routine is spawned
 func TestBindHarvester(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		MetricCap:                0,
 		HarvestPeriod:            1,
@@ -59,6 +61,8 @@ func TestBindHarvester(t *testing.T) {
 }
 
 func TestHarvestRoutine(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		HarvestPeriod:     300 * time.Millisecond,
 		MinReportInterval: BoundedHarvesterDefaultMinReportInterval,
@@ -80,6 +84,8 @@ func TestHarvestRoutine(t *testing.T) {
 }
 
 func TestRoutineStopChannel(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		HarvestPeriod:     300 * time.Millisecond,
 		MinReportInterval: BoundedHarvesterDefaultMinReportInterval,
@@ -105,6 +111,8 @@ func TestRoutineStopChannel(t *testing.T) {
 }
 
 func TestRoutineStopFlag(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		HarvestPeriod:     300 * time.Millisecond,
 		MinReportInterval: BoundedHarvesterDefaultMinReportInterval,
@@ -130,6 +138,8 @@ func TestRoutineStopFlag(t *testing.T) {
 }
 
 func TestHarvestNow(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		DisablePeriodicReporting: true,
 	}
@@ -151,6 +161,8 @@ func TestHarvestNow(t *testing.T) {
 }
 
 func TestMetricCap(t *testing.T) {
+	t.Parallel()
+
 	cfg := BoundedHarvesterCfg{
 		HarvestPeriod: time.Hour,
 		MetricCap:     3,
