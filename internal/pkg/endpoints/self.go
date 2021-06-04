@@ -7,8 +7,10 @@ import (
 	"fmt"
 )
 
-const selfEndpoint = "localhost:8080"
-const selfDescription = "nri-prometheus"
+const (
+	selfEndpoint    = "localhost:8080"
+	selfDescription = "nri-prometheus"
+)
 
 type selfRetriever struct {
 	targets []Target
