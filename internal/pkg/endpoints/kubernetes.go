@@ -83,7 +83,7 @@ func nodeAddress(node *corev1.Node) (string, map[corev1.NodeAddressType][]string
 }
 
 // listNodes gets all the scrapable nodes that are currently available
-func (k *KubernetesTargetRetriever) listNodes() error {
+func (k *kubernetesTargetRetriever) listNodes() error {
 	nodes, err := k.client.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -141,7 +141,7 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 }
 
 // listEndpoints gets the scrapable endpoints that are currently available
-func (k *KubernetesTargetRetriever) listEndpoints() error {
+func (k *kubernetesTargetRetriever) listEndpoints() error {
 	endpoints, err := k.client.CoreV1().Endpoints("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -171,7 +171,7 @@ func (k *KubernetesTargetRetriever) listEndpoints() error {
 }
 
 // listServices gets the scrapable services that are currently available
-func (k *KubernetesTargetRetriever) listServices() error {
+func (k *kubernetesTargetRetriever) listServices() error {
 	services, err := k.client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -331,7 +331,7 @@ func serviceTargets(s *corev1.Service) []Target {
 	return targets
 }
 
-func (k *KubernetesTargetRetriever) listPods() error {
+func (k *kubernetesTargetRetriever) listPods() error {
 	pods, err := k.client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
@@ -413,13 +413,13 @@ func podTargets(p *corev1.Pod) []Target {
 	return targets
 }
 
-// Option is implemented by functions that configure the KubernetesTargetRetriever
-type Option func(*KubernetesTargetRetriever) error
+// Option is implemented by functions that configure the kubernetesTargetRetriever
+type Option func(*kubernetesTargetRetriever) error
 
-// WithKubeConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// WithKubeConfig configures the kubernetesTargetRetriever to load the Kubernetes configuration
 // from a kubeconfig file. This file is usually found in ~/.kube/config
 func WithKubeConfig(kubeConfigFile string) Option {
-	return func(ktr *KubernetesTargetRetriever) error {
+	return func(ktr *kubernetesTargetRetriever) error {
 		config, err := clientcmd.BuildConfigFromFlags("", kubeConfigFile)
 		if err != nil {
 			return fmt.Errorf("could not read kubeconfig file: %w", err)
@@ -435,10 +435,10 @@ func WithKubeConfig(kubeConfigFile string) Option {
 	}
 }
 
-// WithInClusterConfig configures the KubernetesTargetRetriever to load the Kubernetes configuration
+// WithInClusterConfig configures the kubernetesTargetRetriever to load the Kubernetes configuration
 // from within a running pod in the cluster (/var/run/secrets/kubernetes.io/serviceaccount/*)
 func WithInClusterConfig() Option {
-	return func(ktr *KubernetesTargetRetriever) error {
+	return func(ktr *kubernetesTargetRetriever) error {
 		config, err := rest.InClusterConfig()
 		if err != nil {
 			return fmt.Errorf("could not read inclusterconfig: %w", err)
@@ -454,9 +454,9 @@ func WithInClusterConfig() Option {
 	}
 }
 
-// KubernetesTargetRetriever sets the watchers for the different Targets
+// kubernetesTargetRetriever sets the watchers for the different Targets
 // and listens for the arrival of new data from them.
-type KubernetesTargetRetriever struct {
+type kubernetesTargetRetriever struct {
 	watching                          bool
 	client                            kubernetes.Interface
 	targets                           *sync.Map
@@ -466,14 +466,14 @@ type KubernetesTargetRetriever struct {
 	requireScrapeEnabledLabelForNodes bool
 }
 
-// NewKubernetesTargetRetriever creates a new KubernetesTargetRetriever
+// NewKubernetesTargetRetriever creates a new kubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
 func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (TargetRetriever, error) {
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
 	}
 
-	ktr := &KubernetesTargetRetriever{
+	ktr := &kubernetesTargetRetriever{
 		targets:                           new(sync.Map),
 		scrapeEnabledLabel:                scrapeEnabledLabel,
 		scrapeEndpoints:                   scrapeEndpoints,
@@ -495,7 +495,7 @@ func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnable
 }
 
 // Watch retrieves and caches an initial list of URLs and triggers a process in background
-func (k *KubernetesTargetRetriever) Watch() error {
+func (k *kubernetesTargetRetriever) Watch() error {
 	if k.watching {
 		return errors.New("already watching")
 	}
@@ -513,13 +513,13 @@ func (k *KubernetesTargetRetriever) Watch() error {
 	return nil
 }
 
-// Name returns the identifying name of the KubernetesTargetRetriever.
-func (k *KubernetesTargetRetriever) Name() string {
+// Name returns the identifying name of the kubernetesTargetRetriever.
+func (k *kubernetesTargetRetriever) Name() string {
 	return "kubernetes"
 }
 
 // GetTargets returns a slice with all the targets currently registered.
-func (k *KubernetesTargetRetriever) GetTargets() ([]Target, error) {
+func (k *kubernetesTargetRetriever) GetTargets() ([]Target, error) {
 	length := 0
 	k.targets.Range(func(_, _ interface{}) bool {
 		length++
@@ -541,20 +541,20 @@ func (k *KubernetesTargetRetriever) GetTargets() ([]Target, error) {
 	return targets, nil
 }
 
-func (k *KubernetesTargetRetriever) listTargets() {
+func (k *kubernetesTargetRetriever) listTargets() {
 	_ = k.listPods()
 	_ = k.listServices()
 	_ = k.listEndpoints()
 	_ = k.listNodes()
 }
 
-func (k *KubernetesTargetRetriever) watchTargets() {
+func (k *kubernetesTargetRetriever) watchTargets() {
 	for _, r := range k.getWatchableResources() {
 		go k.watchResource(r)
 	}
 }
 
-func (k *KubernetesTargetRetriever) getWatchableResources() []watchableResource {
+func (k *kubernetesTargetRetriever) getWatchableResources() []watchableResource {
 	return []watchableResource{{
 		name:                      "pod",
 		listFunction:              k.listPods,
@@ -586,7 +586,7 @@ func (k *KubernetesTargetRetriever) getWatchableResources() []watchableResource 
 	}}
 }
 
-func (k *KubernetesTargetRetriever) processEvent(event watch.Event, requireLabel bool) {
+func (k *kubernetesTargetRetriever) processEvent(event watch.Event, requireLabel bool) {
 	object := event.Object.(metav1.Object)
 
 	scrapable := k.isEventScrapable(object)
@@ -658,7 +658,7 @@ func setLogLevelEvent(event watch.Event, object metav1.Object) {
 	}
 }
 
-func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool {
+func (k *kubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool {
 	scrapable := isObjectScrapable(object, k.scrapeEnabledLabel)
 	switch obj := object.(type) {
 	case *corev1.Endpoints:
@@ -671,7 +671,7 @@ func (k *KubernetesTargetRetriever) isEventScrapable(object metav1.Object) bool 
 }
 
 // addTarget adds the target to the cache k.targets
-func (k *KubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
+func (k *kubernetesTargetRetriever) addTarget(object metav1.Object, event watch.EventType) {
 	// targets variable stores a list of n httpEndpoints linked to an object.
 	// That will be stored into the k.targets map having object.uuid as key
 	var targets []Target
@@ -734,7 +734,7 @@ func debugLogEvent(log *logrus.Entry, event watch.EventType, action string, obje
 // watchResource retrieves the scrapable resources and watches for changes
 // on such resources. If the watch connection is terminated, the process is
 // started again to ensure no updates are lost between watch restarts.
-func (k *KubernetesTargetRetriever) watchResource(resource watchableResource) {
+func (k *kubernetesTargetRetriever) watchResource(resource watchableResource) {
 	for {
 		timer := prometheus.NewTimer(
 			prometheus.ObserverFunc(

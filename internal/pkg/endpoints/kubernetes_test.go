@@ -706,8 +706,8 @@ func TestWatch_Nodes_NodesWithNoScrapeLabelAreNotBeingScraped(t *testing.T) {
 	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
 }
 
-func newFakeKubernetesTargetRetriever(client *fake.Clientset) *KubernetesTargetRetriever {
-	return &KubernetesTargetRetriever{
+func newFakeKubernetesTargetRetriever(client *fake.Clientset) *kubernetesTargetRetriever {
+	return &kubernetesTargetRetriever{
 		client:             client,
 		targets:            new(sync.Map),
 		scrapeEnabledLabel: "prometheus.io/scrape",
