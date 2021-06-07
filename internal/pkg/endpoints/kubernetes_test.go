@@ -25,6 +25,8 @@ import (
 )
 
 func TestWatch_Endpoints(t *testing.T) {
+	t.Parallel()
+
 	// This test doublecheck as well that endpoints labels are ignored
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
@@ -76,6 +78,8 @@ func TestWatch_Endpoints(t *testing.T) {
 }
 
 func TestWatch_EndpointsSinglePort(t *testing.T) {
+	t.Parallel()
+
 	// This test doublecheck as well that endpoints labels are ignored
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
@@ -127,6 +131,8 @@ func TestWatch_EndpointsSinglePort(t *testing.T) {
 }
 
 func TestWatch_EndpointsModify(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -449,6 +455,8 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 }
 
 func TestWatch_Services(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -489,6 +497,8 @@ func TestWatch_Services(t *testing.T) {
 }
 
 func TestWatch_Pods(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -527,6 +537,8 @@ func TestWatch_Pods(t *testing.T) {
 }
 
 func TestWatch_PodsModify(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -565,6 +577,8 @@ func TestWatch_PodsModify(t *testing.T) {
 }
 
 func TestWatch_NodeReconnect(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	retriever.watching = true
@@ -628,6 +642,8 @@ func TestWatch_NodeReconnect(t *testing.T) {
 }
 
 func TestWatch_Nodes(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -659,6 +675,8 @@ func TestWatch_Nodes(t *testing.T) {
 }
 
 func TestWatch_Nodes_NodesWithNoScrapeLabelAreNotBeingScraped(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	retriever.requireScrapeEnabledLabelForNodes = true
@@ -964,6 +982,8 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 }
 
 func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1026,6 +1046,8 @@ func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 }
 
 func TestPodTargetsNoPort(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1097,6 +1119,8 @@ func TestPodTargetsNoPort(t *testing.T) {
 }
 
 func TestPodTargetsPortAnnotation(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1154,6 +1178,8 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 }
 
 func TestPodTargetsInvalidURL(t *testing.T) {
+	t.Parallel()
+
 	assert.Empty(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1191,6 +1217,8 @@ func TestPodTargetsInvalidURL(t *testing.T) {
 }
 
 func TestPodTargetsPortLabels(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1250,6 +1278,8 @@ func TestPodTargetsPortLabels(t *testing.T) {
 }
 
 func TestServiceTargetsPortAnnotationsOverrideLabels(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1301,6 +1331,8 @@ func TestServiceTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 }
 
 func TestServiceTargetsPortAnnotation(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1347,6 +1379,8 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 }
 
 func TestServiceTargetsInvalidURL(t *testing.T) {
+	t.Parallel()
+
 	assert.Empty(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1375,6 +1409,8 @@ func TestServiceTargetsInvalidURL(t *testing.T) {
 }
 
 func TestServiceTargetsNoPort(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1433,6 +1469,8 @@ func TestServiceTargetsNoPort(t *testing.T) {
 }
 
 func TestServiceTargetsPortLabel(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1481,6 +1519,8 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 }
 
 func TestProcessEventPodWithoutPodIP(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -1525,6 +1565,8 @@ func TestProcessEventPodWithoutPodIP(t *testing.T) {
 }
 
 func TestProcessEvent(t *testing.T) {
+	t.Parallel()
+
 	client := fake.NewSimpleClientset()
 	retriever := newFakeKubernetesTargetRetriever(client)
 	err := retriever.Watch()
@@ -1611,6 +1653,8 @@ func TestProcessEvent(t *testing.T) {
 }
 
 func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1668,6 +1712,8 @@ func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 }
 
 func TestPodTargetsPathAnnotations(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1720,6 +1766,8 @@ func TestPodTargetsPathAnnotations(t *testing.T) {
 }
 
 func TestPodTargetsPathLabel(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		podTargets(&apiv1.Pod{
@@ -1773,6 +1821,8 @@ func TestPodTargetsPathLabel(t *testing.T) {
 }
 
 func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1819,6 +1869,8 @@ func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 }
 
 func TestServiceTargetsPathAnnotations(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{
@@ -1860,6 +1912,8 @@ func TestServiceTargetsPathAnnotations(t *testing.T) {
 }
 
 func TestServiceTargetsPathLabel(t *testing.T) {
+	t.Parallel()
+
 	assert.ElementsMatch(
 		t,
 		serviceTargets(&apiv1.Service{

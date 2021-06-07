@@ -9,6 +9,8 @@ import (
 )
 
 func TestFromURL(t *testing.T) {
+	t.Parallel()
+
 	cases := []struct {
 		testName     string
 		input        string
@@ -53,7 +55,11 @@ func TestFromURL(t *testing.T) {
 		},
 	}
 	for _, c := range cases {
+		c := c
+
 		t.Run(c.testName, func(t *testing.T) {
+			t.Parallel()
+
 			targets, err := EndpointToTarget(TargetConfig{URLs: []string{c.input}})
 			assert.NoError(t, err)
 			assert.Len(t, targets, 1)
