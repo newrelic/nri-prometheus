@@ -1,6 +1,7 @@
-// Package endpoints ...
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
+// Package endpoints ...
 package endpoints
 
 import (
@@ -68,21 +69,12 @@ func redactedURLString(u *url.URL) string {
 	return ru.String()
 }
 
-// New returns a Target from the discovered information
-func New(name string, addr url.URL, object Object) Target {
-	return Target{
-		Name:   name,
-		Object: object,
-		URL:    addr,
-	}
-}
-
-// EndpointToTarget returns a list of Targets from the provided TargetConfig struct.
+// endpointToTarget returns a list of Targets from the provided TargetConfig struct.
 // The URL processing for every Target follows the next conventions:
 // - if no schema is provided, it assumes http
 // - if no path is provided, it assumes /metrics
 // For example, hostname:8080 will be interpreted as http://hostname:8080/metrics
-func EndpointToTarget(tc TargetConfig) ([]Target, error) {
+func endpointToTarget(tc TargetConfig) ([]Target, error) {
 	targets := make([]Target, 0, len(tc.URLs))
 	for _, URL := range tc.URLs {
 		t, err := urlToTarget(URL, tc.TLSConfig)

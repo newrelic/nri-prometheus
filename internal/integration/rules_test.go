@@ -17,6 +17,8 @@ import (
 )
 
 func TestConsolideLabels(t *testing.T) {
+	t.Parallel()
+
 	t.Skip("Auto-decoration isn't used at this moment.")
 	pair := scrapeString(t, prometheusInput)
 	AutoDecorateLabels(&pair)
@@ -86,6 +88,8 @@ func AssertContainsTree(t *testing.T, containing, contained labels.Set) {
 }
 
 func TestMatchingRules(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 	dc := MatchingDecorate(&entity, []DecorateRule{
 		{
@@ -120,6 +124,8 @@ func TestMatchingRules(t *testing.T) {
 }
 
 func TestCopyAttributes(t *testing.T) {
+	t.Parallel()
+
 	input := fmt.Sprintf("%s\n%s", prometheusInput,
 		`# HELP some_undecorated_stuff
 # TYPE some_undecorated_stuff gauge
@@ -201,6 +207,8 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 }
 
 func TestCopyAttributes_withPrefix(t *testing.T) {
+	t.Parallel()
+
 	input := fmt.Sprintf("%s\n%s", prometheusInput,
 		`# HELP some_undecorated_stuff
 # TYPE some_undecorated_stuff gauge
@@ -282,6 +290,8 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 }
 
 func TestCopyAttributes_SelectAttributes(t *testing.T) {
+	t.Parallel()
+
 	input := fmt.Sprintf("%s\n%s", prometheusInput,
 		`# HELP some_undecorated_stuff
 # TYPE some_undecorated_stuff gauge
@@ -361,6 +371,8 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 }
 
 func TestDecorate(t *testing.T) {
+	t.Parallel()
+
 	targetURL, _ := url.Parse("https://user:password@newrelic.com")
 	se := []TargetMetrics{{
 		Target: endpoints.Target{
@@ -383,10 +395,11 @@ func TestDecorate(t *testing.T) {
 
 	assert.Equal(t, se[0].Metrics[0].attributes, labels.Set{"hello": "friend", "bye": "boy", "md1": "v1", "md2": "v2", "attr1": "val1", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
 	assert.Equal(t, se[0].Metrics[1].attributes, labels.Set{"hello": "friend", "bye": "boy", "md3": "v3", "md4": "v4", "attr2": "val2", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
-
 }
 
 func TestRenameRules(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 
 	rules := []RenameRule{
@@ -444,6 +457,8 @@ func TestRenameRules(t *testing.T) {
 }
 
 func TestAddAttributesRules(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 	AddAttributes(&entity, []AddAttributesRule{
 		{
@@ -475,6 +490,8 @@ func TestAddAttributesRules(t *testing.T) {
 }
 
 func TestIgnoreRules(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 	Filter(&entity, []IgnoreRule{
 		{
@@ -505,6 +522,8 @@ func TestIgnoreRules(t *testing.T) {
 }
 
 func TestIgnoreRules_PrefixesWithExceptions(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 	Filter(&entity, []IgnoreRule{
 		{
@@ -537,6 +556,8 @@ func TestIgnoreRules_PrefixesWithExceptions(t *testing.T) {
 }
 
 func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
+	t.Parallel()
+
 	entity := scrapeString(t, prometheusInput)
 	Filter(&entity, []IgnoreRule{
 		{

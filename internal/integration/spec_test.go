@@ -10,19 +10,25 @@ import (
 )
 
 func TestLoadSpecFilesOk(t *testing.T) {
+	t.Parallel()
+
 	specs, err := LoadSpecFiles("./test/")
 	assert.NoError(t, err)
 	assert.Contains(t, specs.SpecsByName, "ibmmq")
 	assert.Contains(t, specs.SpecsByName, "ravendb")
 	assert.Contains(t, specs.SpecsByName, "redis")
 }
+
 func TestLoadSpecFilesNoFiles(t *testing.T) {
+	t.Parallel()
+
 	specs, err := LoadSpecFiles(".")
 	assert.NoError(t, err)
 	assert.Len(t, specs.SpecsByName, 0)
 }
 
 func TestSpecs_getEntity(t *testing.T) {
+	t.Parallel()
 
 	specs, err := LoadSpecFiles("./test/")
 	assert.NoError(t, err)
@@ -49,9 +55,12 @@ func TestSpecs_getEntity(t *testing.T) {
 					attributes: labels.Set{
 						"database": "test",
 					},
-				}},
-			wantProps: entityNameProps{Service: "ravendb", Name: "database", DisplayName: "Database", Type: "RAVENDB_DATABASE",
-				Labels: []keyValue{{"database", "test"}}},
+				},
+			},
+			wantProps: entityNameProps{
+				Service: "ravendb", Name: "database", DisplayName: "Database", Type: "RAVENDB_DATABASE",
+				Labels: []keyValue{{"database", "test"}},
+			},
 			wantErr: false,
 		},
 		{
@@ -61,7 +70,8 @@ func TestSpecs_getEntity(t *testing.T) {
 				Metric{
 					name:       "ravendb_document_put_bytes_total",
 					attributes: labels.Set{},
-				}},
+				},
+			},
 			wantProps: entityNameProps{Service: "ravendb", Name: "node", DisplayName: "RavenDb Node", Type: "RAVENDB_NODE", Labels: []keyValue{}},
 			wantErr:   false,
 		},
@@ -75,9 +85,12 @@ func TestSpecs_getEntity(t *testing.T) {
 						"dim1": "first",
 						"dim2": "second",
 					},
-				}},
-			wantProps: entityNameProps{Service: "ravendb", Name: "testentity", DisplayName: "testEntity", Type: "RAVENDB_TESTENTITY",
-				Labels: []keyValue{{"dim1", "first"}, {"dim2", "second"}}},
+				},
+			},
+			wantProps: entityNameProps{
+				Service: "ravendb", Name: "testentity", DisplayName: "testEntity", Type: "RAVENDB_TESTENTITY",
+				Labels: []keyValue{{"dim1", "first"}, {"dim2", "second"}},
+			},
 			wantErr: false,
 		},
 		{
@@ -87,9 +100,12 @@ func TestSpecs_getEntity(t *testing.T) {
 				Metric{
 					name:       "redis_commands_duration_seconds_total",
 					attributes: labels.Set{},
-				}},
-			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "REDIS_INSTANCE",
-				Labels: []keyValue{}},
+				},
+			},
+			wantProps: entityNameProps{
+				Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "REDIS_INSTANCE",
+				Labels: []keyValue{},
+			},
 			wantErr: false,
 		},
 		{
@@ -99,9 +115,12 @@ func TestSpecs_getEntity(t *testing.T) {
 				Metric{
 					name:       "redis_repl_backlog_is_active",
 					attributes: labels.Set{},
-				}},
-			wantProps: entityNameProps{Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "REDIS_INSTANCE",
-				Labels: []keyValue{}},
+				},
+			},
+			wantProps: entityNameProps{
+				Service: "redis", Name: "instance", DisplayName: "Redis Instance", Type: "REDIS_INSTANCE",
+				Labels: []keyValue{},
+			},
 			wantErr: false,
 		},
 		{
@@ -111,9 +130,12 @@ func TestSpecs_getEntity(t *testing.T) {
 				Metric{
 					name:       "redis_metric_bis",
 					attributes: labels.Set{},
-				}},
-			wantProps: entityNameProps{Service: "redis", Name: "testbisredis", DisplayName: "Redis test bis", Type: "REDIS_TESTBISREDIS",
-				Labels: []keyValue{}},
+				},
+			},
+			wantProps: entityNameProps{
+				Service: "redis", Name: "testbisredis", DisplayName: "Redis test bis", Type: "REDIS_TESTBISREDIS",
+				Labels: []keyValue{},
+			},
 			wantErr: false,
 		},
 		{
@@ -142,7 +164,11 @@ func TestSpecs_getEntity(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
 			s := &Specs{
 				SpecsByName: tt.fields.SpecsByName,
 			}

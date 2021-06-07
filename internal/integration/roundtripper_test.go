@@ -13,12 +13,13 @@ type mockedRoundTripper struct {
 }
 
 func (m *mockedRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-
 	m.Called(req)
 	return &http.Response{}, nil
 }
 
 func TestRoundTripHeaderDecoration(t *testing.T) {
+	t.Parallel()
+
 	licenseKey := "myLicenseKey"
 	req := &http.Request{Header: make(http.Header)}
 	req.Header.Add("Api-Key", licenseKey)

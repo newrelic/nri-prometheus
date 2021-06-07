@@ -28,6 +28,8 @@ const (
 )
 
 func TestFetcher(t *testing.T) {
+	t.Parallel()
+
 	// Given a fetcher
 	fetcher := NewFetcher(fetchDuration, fetchTimeout, workerThreads, "", "", true, queueLength)
 	var invokedURL string
@@ -40,7 +42,11 @@ func TestFetcher(t *testing.T) {
 
 	// When it fetches data synchronously
 	addr := url.URL{Scheme: "http", Path: "hello/metrics"}
-	pairsCh := fetcher.Fetch([]endpoints.Target{endpoints.New("", addr, endpoints.Object{})})
+	pairsCh := fetcher.Fetch([]endpoints.Target{
+		{
+			URL: addr,
+		},
+	})
 
 	var pair TargetMetrics
 	select {
@@ -59,6 +65,8 @@ func TestFetcher(t *testing.T) {
 }
 
 func TestFetcher_Error(t *testing.T) {
+	t.Parallel()
+
 	// Given a fetcher
 	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
 
@@ -77,8 +85,12 @@ func TestFetcher_Error(t *testing.T) {
 	fail := url.URL{Scheme: "http", Path: "fail/metrics"}
 	hello := url.URL{Scheme: "http", Path: "hello/metrics"}
 	pairsCh := fetcher.Fetch([]endpoints.Target{
-		endpoints.New("", fail, endpoints.Object{}),
-		endpoints.New("", hello, endpoints.Object{}),
+		{
+			URL: fail,
+		},
+		{
+			URL: hello,
+		},
 	})
 
 	var pair TargetMetrics
@@ -102,6 +114,8 @@ func TestFetcher_Error(t *testing.T) {
 }
 
 func TestFetcher_ConcurrencyLimit(t *testing.T) {
+	t.Parallel()
+
 	// This test fetches a lot of targets and verifies that no more than "workerThreads" are executed in
 	// parallel
 	parallelTasks := int32(0)
@@ -122,7 +136,7 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 	targets := make([]endpoints.Target, 0, queueLength)
 	for i := 0; i < queueLength; i++ {
 		addr := url.URL{Scheme: "http", Host: fmt.Sprintf("target%v", i), Path: "/metrics"}
-		targets = append(targets, endpoints.New("", addr, endpoints.Object{}))
+		targets = append(targets, endpoints.Target{URL: addr})
 	}
 	fetcher.Fetch(targets)
 
@@ -144,6 +158,8 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 }
 
 func TestConvertPromMetrics(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		target string
 		mfs    prometheus.MetricFamiliesByName
@@ -204,11 +220,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{10}).x,
 								SampleSum:   &(&struct{ x float64 }{42}).x,
 								Bucket: []*dto.Bucket{
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{42}).x,
 										UpperBound:      &(&struct{ x float64 }{100}).x,
 									},
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{24}).x,
 										UpperBound:      &(&struct{ x float64 }{50}).x,
 									},
@@ -234,11 +250,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{10}).x,
 								SampleSum:   &(&struct{ x float64 }{42}).x,
 								Quantile: []*dto.Quantile{
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.5}).x,
 										Value:    &(&struct{ x float64 }{100}).x,
 									},
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.9}).x,
 										Value:    &(&struct{ x float64 }{200}).x,
 									},
@@ -279,11 +295,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{10}).x,
 						SampleSum:   &(&struct{ x float64 }{42}).x,
 						Bucket: []*dto.Bucket{
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{42}).x,
 								UpperBound:      &(&struct{ x float64 }{100}).x,
 							},
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{24}).x,
 								UpperBound:      &(&struct{ x float64 }{50}).x,
 							},
@@ -304,11 +320,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{10}).x,
 						SampleSum:   &(&struct{ x float64 }{42}).x,
 						Quantile: []*dto.Quantile{
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.5}).x,
 								Value:    &(&struct{ x float64 }{100}).x,
 							},
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.9}).x,
 								Value:    &(&struct{ x float64 }{200}).x,
 							},
@@ -376,11 +392,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{20}).x,
 								SampleSum:   &(&struct{ x float64 }{52}).x,
 								Bucket: []*dto.Bucket{
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{52}).x,
 										UpperBound:      &(&struct{ x float64 }{200}).x,
 									},
-									&dto.Bucket{
+									{
 										CumulativeCount: &(&struct{ x uint64 }{34}).x,
 										UpperBound:      &(&struct{ x float64 }{60}).x,
 									},
@@ -406,11 +422,11 @@ func TestConvertPromMetrics(t *testing.T) {
 								SampleCount: &(&struct{ x uint64 }{20}).x,
 								SampleSum:   &(&struct{ x float64 }{52}).x,
 								Quantile: []*dto.Quantile{
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.5}).x,
 										Value:    &(&struct{ x float64 }{42}).x,
 									},
-									&dto.Quantile{
+									{
 										Quantile: &(&struct{ x float64 }{0.9}).x,
 										Value:    &(&struct{ x float64 }{24}).x,
 									},
@@ -451,11 +467,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{20}).x,
 						SampleSum:   &(&struct{ x float64 }{52}).x,
 						Bucket: []*dto.Bucket{
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{52}).x,
 								UpperBound:      &(&struct{ x float64 }{200}).x,
 							},
-							&dto.Bucket{
+							{
 								CumulativeCount: &(&struct{ x uint64 }{34}).x,
 								UpperBound:      &(&struct{ x float64 }{60}).x,
 							},
@@ -476,11 +492,11 @@ func TestConvertPromMetrics(t *testing.T) {
 						SampleCount: &(&struct{ x uint64 }{20}).x,
 						SampleSum:   &(&struct{ x float64 }{52}).x,
 						Quantile: []*dto.Quantile{
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.5}).x,
 								Value:    &(&struct{ x float64 }{42}).x,
 							},
-							&dto.Quantile{
+							{
 								Quantile: &(&struct{ x float64 }{0.9}).x,
 								Value:    &(&struct{ x float64 }{24}).x,
 							},
@@ -497,12 +513,20 @@ func TestConvertPromMetrics(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		assert.ElementsMatch(t, test.want, convertPromMetrics(nil, test.target, test.mfs))
+	for i, test := range tests {
+		test := test
+
+		t.Run(fmt.Sprintf("%d", i), func(t *testing.T) {
+			t.Parallel()
+
+			assert.ElementsMatch(t, test.want, convertPromMetrics(nil, test.target, test.mfs))
+		})
 	}
 }
 
 func TestConvertPromMetricsMultiTargetCollisions(t *testing.T) {
+	t.Parallel()
+
 	metric := dto.Metric{
 		Label: []*dto.LabelPair{
 			{

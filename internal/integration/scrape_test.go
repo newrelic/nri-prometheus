@@ -12,6 +12,8 @@ import (
 )
 
 func TestScrape(t *testing.T) {
+	t.Parallel()
+
 	// Given a set of fetched metrics
 	input := `# HELP redis_exporter_build_info redis exporter build_info
 # TYPE redis_exporter_build_info gauge

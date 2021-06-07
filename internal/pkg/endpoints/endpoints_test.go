@@ -1,5 +1,6 @@
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package endpoints
 
 import (
@@ -60,7 +61,7 @@ func TestFromURL(t *testing.T) {
 		t.Run(c.testName, func(t *testing.T) {
 			t.Parallel()
 
-			targets, err := EndpointToTarget(TargetConfig{URLs: []string{c.input}})
+			targets, err := endpointToTarget(TargetConfig{URLs: []string{c.input}})
 			assert.NoError(t, err)
 			assert.Len(t, targets, 1)
 			assert.Equal(t, c.expectedName, targets[0].Name)

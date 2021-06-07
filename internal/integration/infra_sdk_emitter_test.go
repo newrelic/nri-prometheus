@@ -11,6 +11,8 @@ import (
 )
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
+	t.Parallel()
+
 	// given
 	e := NewInfraSdkEmitter(Specs{})
 	assert.NotNil(t, e)
@@ -110,7 +112,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 	e := NewInfraSdkEmitter(Specs{})
 
-	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
+	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
 
 	rescueStdout := os.Stdout
@@ -121,7 +123,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 	err := e.Emit(metrics)
 	_ = w.Close()
 
-	//then
+	// then
 	assert.NoError(t, err)
 	bytes, _ := ioutil.ReadAll(r)
 	assert.NotEmpty(t, bytes)
@@ -157,9 +159,11 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
+	t.Parallel()
+
 	e := NewInfraSdkEmitter(Specs{})
 
-	//TODO find way to emit with different values so we can test the delta calculation on the hist sum
+	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
 
 	rescueStdout := os.Stdout
@@ -170,7 +174,7 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	err := e.Emit(metrics)
 	_ = w.Close()
 
-	//then
+	// then
 	assert.NoError(t, err)
 	bytes, _ := ioutil.ReadAll(r)
 	assert.NotEmpty(t, bytes)
@@ -209,6 +213,7 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 }
 
 func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
+	t.Parallel()
 
 	specs := Specs{
 		SpecsByName: map[string]SpecDef{
@@ -256,7 +261,7 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 	err := emitter.Emit(metrics)
 	_ = w.Close()
 
-	//then
+	// then
 	assert.NoError(t, err)
 	bytes, _ := ioutil.ReadAll(r)
 	assert.NotEmpty(t, bytes)
@@ -289,6 +294,7 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 }
 
 func Test_ResizeToLimit(t *testing.T) {
+	t.Parallel()
 
 	var sb strings.Builder
 	for i := 0; i < 10; i++ {
@@ -315,7 +321,6 @@ func Test_ResizeToLimit(t *testing.T) {
 	// should have been resized
 	assert.True(t, resized)
 	assert.Less(t, sb.Len(), original)
-
 }
 
 func getHistogram(t *testing.T) []Metric {
@@ -432,6 +437,7 @@ type metricData struct {
 	Labels    map[string]string   `json:"attributes"`
 	Value     PrometheusMockValue `json:"value,omitempty"`
 }
+
 type PrometheusMockValue struct {
 	SampleCount uint64  `json:"sample_count,omitempty"`
 	SampleSum   float64 `json:"sample_sum,omitempty"`
@@ -447,6 +453,7 @@ type entityDef struct {
 	Type     string         `json:"type"`
 	Metadata entityMetadata `json:"metadata,omitempty"`
 }
+
 type entity struct {
 	Common  common       `json:"common"`
 	Entity  entityDef    `json:"entity,omitempty"`
