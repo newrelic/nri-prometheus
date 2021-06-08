@@ -14,7 +14,7 @@ import (
 	"sync"
 	"time"
 
-	io_prometheus_client "github.com/prometheus/client_model/go"
+	dto "github.com/prometheus/client_model/go"
 
 	promcli "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -308,12 +308,12 @@ type Metric struct {
 	attributes labels.Set
 }
 
-var supportedMetricTypes = map[io_prometheus_client.MetricType]string{
-	io_prometheus_client.MetricType_COUNTER:   "counter",
-	io_prometheus_client.MetricType_GAUGE:     "gauge",
-	io_prometheus_client.MetricType_HISTOGRAM: "histogram",
-	io_prometheus_client.MetricType_SUMMARY:   "summary",
-	io_prometheus_client.MetricType_UNTYPED:   "untyped",
+var supportedMetricTypes = map[dto.MetricType]string{
+	dto.MetricType_COUNTER:   "counter",
+	dto.MetricType_GAUGE:     "gauge",
+	dto.MetricType_HISTOGRAM: "histogram",
+	dto.MetricType_SUMMARY:   "summary",
+	dto.MetricType_UNTYPED:   "untyped",
 }
 
 func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.MetricFamiliesByName) []Metric {
@@ -341,19 +341,19 @@ func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.Met
 			var value interface{}
 			var nrType metricType
 			switch ntype {
-			case io_prometheus_client.MetricType_UNTYPED:
+			case dto.MetricType_UNTYPED:
 				value = m.GetUntyped().GetValue()
 				nrType = metricType_GAUGE
-			case io_prometheus_client.MetricType_COUNTER:
+			case dto.MetricType_COUNTER:
 				value = m.GetCounter().GetValue()
 				nrType = metricType_COUNTER
-			case io_prometheus_client.MetricType_GAUGE:
+			case dto.MetricType_GAUGE:
 				value = m.GetGauge().GetValue()
 				nrType = metricType_GAUGE
-			case io_prometheus_client.MetricType_SUMMARY:
+			case dto.MetricType_SUMMARY:
 				value = m.GetSummary()
 				nrType = metricType_SUMMARY
-			case io_prometheus_client.MetricType_HISTOGRAM:
+			case dto.MetricType_HISTOGRAM:
 				value = m.GetHistogram()
 				nrType = metricType_HISTOGRAM
 			default:
