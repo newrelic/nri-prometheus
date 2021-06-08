@@ -18,10 +18,8 @@ const (
 	Name = "nri-prometheus"
 )
 
-var (
-	// Version of the integration
-	Version = "dev"
-)
+// Version of the integration
+var Version = "dev"
 
 var ilog = logrus.WithField("component", "integration.Execute")
 
