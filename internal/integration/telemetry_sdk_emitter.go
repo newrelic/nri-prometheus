@@ -82,7 +82,6 @@ func TelemetryHarvesterWithLicenseKeyRoundTripper(licenseKey string) TelemetryHa
 // TelemetryHarvesterWithTLSConfig sets the TLS configuration to the
 // emitter client transport.
 func TelemetryHarvesterWithTLSConfig(tlsConfig *tls.Config) TelemetryHarvesterOpt {
-
 	return func(cfg *telemetry.Config) {
 		rt := cfg.Client.Transport
 		if rt == nil {
@@ -191,7 +190,6 @@ func (te *TelemetryEmitter) Emit(metrics []Metric) error {
 	// the measurement that already took place.
 	now := time.Now()
 	for _, metric := range metrics {
-
 		switch metric.metricType {
 		case metricType_GAUGE:
 			te.harvester.RecordMetric(telemetry.Gauge{

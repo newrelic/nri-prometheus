@@ -22,7 +22,6 @@ func newLicenseKeyRoundTripper(
 	rt http.RoundTripper,
 	licenseKey string,
 ) http.RoundTripper {
-
 	if rt == nil {
 		rt = http.DefaultTransport
 	}

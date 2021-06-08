@@ -286,8 +286,10 @@ func NewMutualTLSRoundTripper(cfg endpoints.TLSConfig) (http.RoundTripper, error
 	return rt, nil
 }
 
-type metricValue interface{}
-type metricType string
+type (
+	metricValue interface{}
+	metricType  string
+)
 
 //nolint:golint
 const (

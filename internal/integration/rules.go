@@ -109,7 +109,6 @@ type DecorateRule struct {
 
 // CopyAttributes decorate the labels of an entity
 func CopyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
-
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -215,7 +214,6 @@ func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
 
 // Rename apply the given rename rules to the entities metrics
 func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
-
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -238,7 +236,6 @@ func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
 // AddAttributes applies the AddAttributeRule. It adds the attributes defined
 // in the rules to the metrics that match.
 func AddAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
-
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -283,7 +280,6 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 
 // Filter removes the metrics whose name matches the prefixes in the given ignore rules
 func Filter(targetMetrics *TargetMetrics, rules ignoreRules) {
-
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
