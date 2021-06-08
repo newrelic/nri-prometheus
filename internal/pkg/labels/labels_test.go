@@ -134,8 +134,10 @@ func TestToAdd(t *testing.T) {
 			},
 			dst: Set{"a": "b", "c": "d", "f": "g"},
 			// All the labels from info sources are going to be added. Please observe that some labels will be added by duplicate
-			exp: Set{"container.some_info": "c1", "container_id.some_info": "cid1", "image.some_info": "i1", "image_id.some_info": "iid1", "namespace.some_info": "ns1", "pod.some_info": "p1",
-				"container.other_info": "c1", "node.other_info": "n1", "pod.other_info": "p1", "stuff.other_info": 356},
+			exp: Set{
+				"container.some_info": "c1", "container_id.some_info": "cid1", "image.some_info": "i1", "image_id.some_info": "iid1", "namespace.some_info": "ns1", "pod.some_info": "p1",
+				"container.other_info": "c1", "node.other_info": "n1", "pod.other_info": "p1", "stuff.other_info": 356,
+			},
 		},
 		{
 			name: "definitely not belonging to the same entity",

@@ -3,19 +3,22 @@
 package main
 
 import (
-	dto "github.com/prometheus/client_model/go"
-	"github.com/prometheus/common/expfmt"
-	"github.com/stretchr/testify/require"
 	"io"
 	"log"
 	"os"
 	"testing"
+
+	dto "github.com/prometheus/client_model/go"
+	"github.com/prometheus/common/expfmt"
+	"github.com/stretchr/testify/require"
 )
 
-const timeLimit = 40
-const targetExpected = 800
-const memoryLimit = 2 * 1e9
-const filename = "load_test.results"
+const (
+	timeLimit      = 40
+	targetExpected = 800
+	memoryLimit    = 2 * 1e9
+	filename       = "load_test.results"
+)
 
 func TestLoad(t *testing.T) {
 	mfs := parsePrometheusFile(t, filename)
@@ -32,7 +35,6 @@ func TestLoad(t *testing.T) {
 			log.Printf("Number of targets scraped: %f", *m.Gauge.Value)
 		}
 	}
-
 }
 
 // MetricFamiliesByName is a map of Prometheus metrics family names and their representation.

@@ -25,6 +25,7 @@ func init() {
 		flag.PrintDefaults()
 	}
 }
+
 func main() {
 	flag.Parse()
 
