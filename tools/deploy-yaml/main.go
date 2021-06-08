@@ -23,7 +23,7 @@ func main() {
 	// It is retrieved from $PRERELEASE, which is currently set by Github Actions
 	// TODO: Commented out since release workflow is broken. Everything will be released on pre-releases, and nothing
 	// will be done on releases. This renders the pre-release logic inside this generator uselees for now.
-	//prerelease := flag.String("prerelease", os.Getenv("PRERELEASE"), "Non-empty string if prereleasing")
+	// prerelease := flag.String("prerelease", os.Getenv("PRERELEASE"), "Non-empty string if prereleasing")
 	prerelease := flag.String("prerelease", "", "Non-empty string if prereleasing")
 	flag.Parse()
 
@@ -65,7 +65,7 @@ func writeTemplate(tmpl *template.Template, version string, yamlVersion string) 
 	err = ioutil.WriteFile(
 		fmt.Sprintf("target/deploy/nri-prometheus-%s.yaml", yamlVersion),
 		bf.Bytes(),
-		0644)
+		0o644)
 
 	if nil != err {
 		log.Fatal(err)

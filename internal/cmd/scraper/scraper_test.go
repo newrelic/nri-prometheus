@@ -22,7 +22,6 @@ import (
 )
 
 func TestLicenseKeyMasking(t *testing.T) {
-
 	const licenseKeyString = "secret"
 	licenseKey := LicenseKey(licenseKeyString)
 
@@ -53,7 +52,6 @@ func TestLicenseKeyMasking(t *testing.T) {
 }
 
 func TestLogrusDebugPrintMasksLicenseKey(t *testing.T) {
-
 	const licenseKey = "SECRET_LICENSE_KEY"
 
 	cfg := Config{
@@ -76,7 +74,6 @@ func TestLogrusDebugPrintMasksLicenseKey(t *testing.T) {
 }
 
 func TestConfigParseWithCustomType(t *testing.T) {
-
 	const licenseKey = "MY_LICENSE_KEY"
 	cfgStr := []byte(fmt.Sprintf(`LICENSE_KEY: %s`, licenseKey))
 
@@ -118,7 +115,6 @@ func TestRunIntegrationOnce(t *testing.T) {
 	err = Run(c)
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
-
 }
 
 func TestScrapingAnsweringWithError(t *testing.T) {
@@ -147,7 +143,6 @@ func TestScrapingAnsweringWithError(t *testing.T) {
 	// Currently no error is returned in case a scraper does not return any data / err status code
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
-
 }
 
 func TestScrapingAnsweringUnexpectedData(t *testing.T) {
@@ -176,11 +171,9 @@ func TestScrapingAnsweringUnexpectedData(t *testing.T) {
 	// Currently no error is returned in case a scraper does not return any data / err status code
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
-
 }
 
 func TestScrapingNotAnswering(t *testing.T) {
-
 	c := &Config{
 		TargetConfigs: []endpoints.TargetConfig{
 			{
@@ -197,7 +190,6 @@ func TestScrapingNotAnswering(t *testing.T) {
 	// when
 	err := Run(c)
 
-	//then
+	// then
 	require.NoError(t, err)
-
 }
