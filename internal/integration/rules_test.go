@@ -73,7 +73,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source: "redis_instance_info",
 			Dest:   []string{"redis_instantaneous_input_kbps"},
@@ -156,7 +156,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source: "redis_instance_info",
 			Dest:   []string{"redis_instantaneous_"}, // this is only a prefix
@@ -239,7 +239,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source:     "redis_instance_info",
 			Dest:       []string{"redis_instantaneous_"}, // this is only a prefix

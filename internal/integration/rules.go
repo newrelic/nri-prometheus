@@ -62,8 +62,8 @@ type DecorateRule struct {
 	Attributes labels.Set // Only attributes here will be copied. If empty: all the attributes are copied
 }
 
-// CopyAttributes decorate the labels of an entity
-func CopyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
+// copyAttributes decorate the labels of an entity
+func copyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -161,7 +161,7 @@ func appendLabels(m map[string][]labels.Set, key string, ls labels.Set) {
 
 // Decorate merges the entity and metrics metadata into each metric label
 func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
-	CopyAttributes(targetMetrics, decorateRules)
+	copyAttributes(targetMetrics, decorateRules)
 	for mi := range targetMetrics.Metrics {
 		labels.Accumulate(targetMetrics.Metrics[mi].attributes, targetMetrics.Target.Metadata())
 	}
