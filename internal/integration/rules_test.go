@@ -399,7 +399,7 @@ func TestAddAttributesRules(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	AddAttributes(&entity, []AddAttributesRule{
+	addAttributes(&entity, []AddAttributesRule{
 		{
 			MetricPrefix: "",
 			Attributes: map[string]interface{}{

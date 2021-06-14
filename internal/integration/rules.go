@@ -188,9 +188,9 @@ func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
 	}
 }
 
-// AddAttributes applies the AddAttributeRule. It adds the attributes defined
+// addAttributes applies the AddAttributeRule. It adds the attributes defined
 // in the rules to the metrics that match.
-func AddAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
+func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -293,7 +293,7 @@ func RuleProcessor(processingRules []ProcessingRule, queueLength int) Processor 
 
 			for pair := range targetMetrics {
 				Filter(&pair, ignoreRules)
-				AddAttributes(&pair, addAttributesRules)
+				addAttributes(&pair, addAttributesRules)
 				Decorate(&pair, decorateRules)
 				Rename(&pair, renameRules)
 
