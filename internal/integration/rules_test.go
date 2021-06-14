@@ -432,7 +432,7 @@ func TestIgnoreRules(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Prefixes: []string{"redis_exporter_scrapes"},
 		},
@@ -464,7 +464,7 @@ func TestIgnoreRules_PrefixesWithExceptions(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Prefixes: []string{"redis_exporter_scrapes"},
 		},
@@ -498,7 +498,7 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Except: []string{"redis_exporter_build"},
 		},

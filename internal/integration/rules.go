@@ -233,8 +233,8 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 	return exceptRulesLen > 0
 }
 
-// Filter removes the metrics whose name matches the prefixes in the given ignore rules
-func Filter(targetMetrics *TargetMetrics, rules ignoreRules) {
+// filter removes the metrics whose name matches the prefixes in the given ignore rules
+func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -292,7 +292,7 @@ func RuleProcessor(processingRules []ProcessingRule, queueLength int) Processor 
 			defer close(processedPairs)
 
 			for pair := range targetMetrics {
-				Filter(&pair, ignoreRules)
+				filter(&pair, ignoreRules)
 				addAttributes(&pair, addAttributesRules)
 				decorate(&pair, decorateRules)
 				Rename(&pair, renameRules)
