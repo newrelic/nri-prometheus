@@ -1,6 +1,6 @@
-// Package integration ...
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package integration
 
 import (
@@ -54,9 +54,9 @@ func NewTLSConfig(CAFile string, InsecureSkipVerify bool) (*tls.Config, error) {
 	return tlsConfig, nil
 }
 
-// NewRoundTripper creates a new roundtripper with the specified TLS
+// newRoundTripper creates a new roundtripper with the specified TLS
 // configuration.
-func NewRoundTripper(BearerTokenFile string, CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
+func newRoundTripper(BearerTokenFile string, CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
 	tlsConfig, err := NewTLSConfig(CaFile, InsecureSkipVerify)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func cloneRequest(r *http.Request) *http.Request {
 
 // NewFetcher returns the default Fetcher implementation
 func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
-	tr, _ := NewRoundTripper(BearerTokenFile, CaFile, InsecureSkipVerify)
+	tr, _ := newRoundTripper(BearerTokenFile, CaFile, InsecureSkipVerify)
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   fetchTimeout,
