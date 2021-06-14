@@ -159,8 +159,8 @@ func appendLabels(m map[string][]labels.Set, key string, ls labels.Set) {
 	m[key] = append(la, ls)
 }
 
-// Decorate merges the entity and metrics metadata into each metric label
-func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
+// decorate merges the entity and metrics metadata into each metric label
+func decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
 	copyAttributes(targetMetrics, decorateRules)
 	for mi := range targetMetrics.Metrics {
 		labels.Accumulate(targetMetrics.Metrics[mi].attributes, targetMetrics.Target.Metadata())
@@ -294,7 +294,7 @@ func RuleProcessor(processingRules []ProcessingRule, queueLength int) Processor 
 			for pair := range targetMetrics {
 				Filter(&pair, ignoreRules)
 				addAttributes(&pair, addAttributesRules)
-				Decorate(&pair, decorateRules)
+				decorate(&pair, decorateRules)
 				Rename(&pair, renameRules)
 
 				processedPairs <- pair
