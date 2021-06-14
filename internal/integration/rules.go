@@ -53,51 +53,6 @@ type AddAttributesRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
-// AutoDecorateLabels mixes automatically all the "_info" labels within the other metrics, when correspond, according to
-// the following rules:
-// - For each "non-info" metric:
-//   1. Check the largest label set whose label names coincide with any of the infos.
-//   2. If the label set coinciding by name, also coincide by value, all the labels from the "info" will be added to the metric.
-//
-// - The added labels will be suffixed by the name of the info_metric (e.g. version.nginx_info)
-// - If the intersection of label names is an empty set, it is counted as coincidence and all the labels from the "info" will be added to the metric.
-// - If the labels coincide with more than a same info metric, we don't do join because we assume they are not vinculating. For example:
-//
-//     stuff_info{os="linux", version="1.2.3", id="12345"} 1
-//     stuff_info{os="linux", version="3.3.3", id="4432"} 1
-//     stuff_metric{os="linux"} 3
-//
-//     Result: Stuff metric won't have added metrics
-//
-// - If the labels coincide with diverse info metrics, we can add them because they will be suffixed differently:
-//
-//     stuff_info{os="linux", version="1.2.3", id="12345"} 1
-//     thing_info{os="linux", version="3.3.3", id="4432"} 1
-//     stuff_metric{os="linux"} 3
-//
-//     Result: Stuff metric will be exported as:
-//     stuff_metric{os="linux", version.stuff_info="1.2.3", id.stuff_info="12345", version.thing_info="3.3.3", id.thing_info="4432"}
-//
-func AutoDecorateLabels(targetMetrics *TargetMetrics) {
-	// Get all the labels from the _info metrics
-	infos := make([]labels.InfoSource, 0)
-	for _, metric := range targetMetrics.Metrics {
-		if strings.HasSuffix(metric.name, "_info") {
-			infos = append(infos, labels.InfoSource{
-				Name:   metric.name,
-				Labels: metric.attributes,
-			})
-		}
-	}
-
-	// For any other non-info metric, try to consolidate the info labels, when apply
-	for _, metric := range targetMetrics.Metrics {
-		if !strings.HasSuffix(metric.name, "_info") {
-			labels.Accumulate(metric.attributes, labels.ToAdd(infos, metric.attributes))
-		}
-	}
-}
-
 // DecorateRule specifies a label decoration rule: a Source metric may decorate a set of Dest metrics if they have in common
 // the labels that are named in the Join keyset
 type DecorateRule struct {
