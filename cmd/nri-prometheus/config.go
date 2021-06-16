@@ -31,7 +31,6 @@ const (
 )
 
 func loadConfig() (*scraper.Config, error) {
-
 	c := ArgumentList{}
 	err := args.SetupArgs(&c)
 	if err != nil {

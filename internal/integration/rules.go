@@ -1,6 +1,6 @@
-// Package integration ...
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package integration
 
 import (
@@ -53,51 +53,6 @@ type AddAttributesRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
-// AutoDecorateLabels mixes automatically all the "_info" labels within the other metrics, when correspond, according to
-// the following rules:
-// - For each "non-info" metric:
-//   1. Check the largest label set whose label names coincide with any of the infos.
-//   2. If the label set coinciding by name, also coincide by value, all the labels from the "info" will be added to the metric.
-//
-// - The added labels will be suffixed by the name of the info_metric (e.g. version.nginx_info)
-// - If the intersection of label names is an empty set, it is counted as coincidence and all the labels from the "info" will be added to the metric.
-// - If the labels coincide with more than a same info metric, we don't do join because we assume they are not vinculating. For example:
-//
-//     stuff_info{os="linux", version="1.2.3", id="12345"} 1
-//     stuff_info{os="linux", version="3.3.3", id="4432"} 1
-//     stuff_metric{os="linux"} 3
-//
-//     Result: Stuff metric won't have added metrics
-//
-// - If the labels coincide with diverse info metrics, we can add them because they will be suffixed differently:
-//
-//     stuff_info{os="linux", version="1.2.3", id="12345"} 1
-//     thing_info{os="linux", version="3.3.3", id="4432"} 1
-//     stuff_metric{os="linux"} 3
-//
-//     Result: Stuff metric will be exported as:
-//     stuff_metric{os="linux", version.stuff_info="1.2.3", id.stuff_info="12345", version.thing_info="3.3.3", id.thing_info="4432"}
-//
-func AutoDecorateLabels(targetMetrics *TargetMetrics) {
-	// Get all the labels from the _info metrics
-	infos := make([]labels.InfoSource, 0)
-	for _, metric := range targetMetrics.Metrics {
-		if strings.HasSuffix(metric.name, "_info") {
-			infos = append(infos, labels.InfoSource{
-				Name:   metric.name,
-				Labels: metric.attributes,
-			})
-		}
-	}
-
-	// For any other non-info metric, try to consolidate the info labels, when apply
-	for _, metric := range targetMetrics.Metrics {
-		if !strings.HasSuffix(metric.name, "_info") {
-			labels.Accumulate(metric.attributes, labels.ToAdd(infos, metric.attributes))
-		}
-	}
-}
-
 // DecorateRule specifies a label decoration rule: a Source metric may decorate a set of Dest metrics if they have in common
 // the labels that are named in the Join keyset
 type DecorateRule struct {
@@ -107,9 +62,8 @@ type DecorateRule struct {
 	Attributes labels.Set // Only attributes here will be copied. If empty: all the attributes are copied
 }
 
-// CopyAttributes decorate the labels of an entity
-func CopyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
-
+// copyAttributes decorate the labels of an entity
+func copyAttributes(targetMetrics *TargetMetrics, rules []DecorateRule) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -205,9 +159,9 @@ func appendLabels(m map[string][]labels.Set, key string, ls labels.Set) {
 	m[key] = append(la, ls)
 }
 
-// Decorate merges the entity and metrics metadata into each metric label
-func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
-	CopyAttributes(targetMetrics, decorateRules)
+// decorate merges the entity and metrics metadata into each metric label
+func decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
+	copyAttributes(targetMetrics, decorateRules)
 	for mi := range targetMetrics.Metrics {
 		labels.Accumulate(targetMetrics.Metrics[mi].attributes, targetMetrics.Target.Metadata())
 	}
@@ -215,7 +169,6 @@ func Decorate(targetMetrics *TargetMetrics, decorateRules []DecorateRule) {
 
 // Rename apply the given rename rules to the entities metrics
 func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
-
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -235,10 +188,9 @@ func Rename(targetMetrics *TargetMetrics, rules []RenameRule) {
 	}
 }
 
-// AddAttributes applies the AddAttributeRule. It adds the attributes defined
+// addAttributes applies the AddAttributeRule. It adds the attributes defined
 // in the rules to the metrics that match.
-func AddAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
-
+func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -281,9 +233,8 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 	return exceptRulesLen > 0
 }
 
-// Filter removes the metrics whose name matches the prefixes in the given ignore rules
-func Filter(targetMetrics *TargetMetrics, rules ignoreRules) {
-
+// filter removes the metrics whose name matches the prefixes in the given ignore rules
+func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 	// Fast path, quickly exit if there are no rules defined.
 	if len(rules) == 0 {
 		return
@@ -341,9 +292,9 @@ func RuleProcessor(processingRules []ProcessingRule, queueLength int) Processor 
 			defer close(processedPairs)
 
 			for pair := range targetMetrics {
-				Filter(&pair, ignoreRules)
-				AddAttributes(&pair, addAttributesRules)
-				Decorate(&pair, decorateRules)
+				filter(&pair, ignoreRules)
+				addAttributes(&pair, addAttributesRules)
+				decorate(&pair, decorateRules)
 				Rename(&pair, renameRules)
 
 				processedPairs <- pair

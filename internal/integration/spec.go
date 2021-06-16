@@ -1,6 +1,6 @@
-// Package integration ...
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package integration
 
 import (
@@ -94,7 +94,7 @@ func LoadSpecFiles(filesPath string) (Specs, error) {
 		if spec, ok := specs.SpecsByName[sd.Service]; ok {
 			spec.Entities = append(spec.Entities, sd.Entities...)
 			specs.SpecsByName[sd.Service] = spec
-			//TODO how to manage defaultEntity for each spec?
+			// TODO how to manage defaultEntity for each spec?
 		} else {
 			specs.SpecsByName[sd.Service] = sd
 		}

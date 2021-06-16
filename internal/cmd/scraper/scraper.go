@@ -110,7 +110,6 @@ func validateConfig(cfg *Config) error {
 
 // RunWithEmitters runs the scraper with preselected emitters.
 func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
-
 	if len(emitters) == 0 {
 		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
@@ -142,10 +141,10 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 				Attributes: map[string]interface{}{
 					"k8s.cluster.name": cfg.ClusterName,
 					"clusterName":      cfg.ClusterName,
-					//Keeping these for backward compatibility
+					// Keeping these for backward compatibility
 					"integrationVersion": integration.Version,
 					"integrationName":    integration.Name,
-					//Since the agent is not used we add the attributes manually
+					// Since the agent is not used we add the attributes manually
 					"collector.name":           integration.Name,
 					"collector.version":        integration.Version,
 					"instrumentation.name":     integration.Name,
@@ -222,7 +221,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		)
 	}
 
-	//fetch duration is hardcoded to 1 since the target is scraped only once
+	// fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),

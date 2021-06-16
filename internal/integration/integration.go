@@ -1,6 +1,7 @@
-// Package integration ...
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
+// Package integration ...
 package integration
 
 import (
@@ -18,10 +19,8 @@ const (
 	Name = "nri-prometheus"
 )
 
-var (
-	// Version of the integration
-	Version = "dev"
-)
+// Version of the integration
+var Version = "dev"
 
 var ilog = logrus.WithField("component", "integration.Execute")
 

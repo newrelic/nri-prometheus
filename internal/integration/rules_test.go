@@ -1,5 +1,6 @@
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 //nolint:goconst
 package integration
 
@@ -15,68 +16,6 @@ import (
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 )
-
-func TestConsolideLabels(t *testing.T) {
-	t.Parallel()
-
-	t.Skip("Auto-decoration isn't used at this moment.")
-	pair := scrapeString(t, prometheusInput)
-	AutoDecorateLabels(&pair)
-	fmt.Println("PAIR: ", pair.Metrics)
-	for _, metric := range pair.Metrics {
-		switch metric.name {
-		case "redis_exporter_scrapes_total":
-			expected := labels.Set{
-				"build_date.redis_exporter_build_info":     "2018-07-03-14:18:56",
-				"commit_sha.redis_exporter_build_info":     "3e15af27aac37e114b32a07f5e9dc0510f4cbfc4",
-				"golang_version.redis_exporter_build_info": "go1.9.4",
-				"version.redis_exporter_build_info":        "v0.20.2",
-			}
-			AssertContainsTree(t, metric.attributes, expected)
-		case "redis_instantaneous_input_kbps":
-			switch metric.attributes["addr"] {
-			case "ohai-playground-redis-slave:6379":
-				expected := labels.Set{
-					"addr":  "ohai-playground-redis-slave:6379",
-					"alias": "ohai-playground-redis",
-					// Fields added from redis_exporter_build_info
-					"build_date.redis_exporter_build_info":     "2018-07-03-14:18:56",
-					"commit_sha.redis_exporter_build_info":     "3e15af27aac37e114b32a07f5e9dc0510f4cbfc4",
-					"golang_version.redis_exporter_build_info": "go1.9.4",
-					"version.redis_exporter_build_info":        "v0.20.2",
-					// Fields added from the corresponding redis_instance_info entry
-					"os.redis_instance_info":             "Linux 4.15.0 x86_64",
-					"redis_build_id.redis_instance_info": "c701a4acd98ea64a",
-					"redis_mode.redis_instance_info":     "standalone",
-					"redis_version.redis_instance_info":  "4.0.10",
-					"role.redis_instance_info":           "slave",
-				}
-				AssertContainsTree(t, metric.attributes, expected)
-			case "ohai-playground-redis-master:6379":
-				expected := labels.Set{
-					"addr":  "ohai-playground-redis-master:6379",
-					"alias": "ohai-playground-redis",
-					// Fields added from redis_exporter_build_info
-					"build_date.redis_exporter_build_info":     "2018-07-03-14:18:56",
-					"commit_sha.redis_exporter_build_info":     "3e15af27aac37e114b32a07f5e9dc0510f4cbfc4",
-					"golang_version.redis_exporter_build_info": "go1.9.4",
-					"version.redis_exporter_build_info":        "v0.20.2",
-					// Fields added from the corresponding redis_instance_info entry
-					"os.redis_instance_info":             "Linux 4.15.0 x86_64",
-					"redis_build_id.redis_instance_info": "c701a4acd98ea64a",
-					"redis_mode.redis_instance_info":     "standalone",
-					"redis_version.redis_instance_info":  "4.0.10",
-					"role.redis_instance_info":           "master",
-				}
-				AssertContainsTree(t, metric.attributes, expected)
-			default:
-				assert.Failf(t, "unexpected addr field:", "%#v", metric.attributes)
-			}
-		default:
-			assert.True(t, strings.HasSuffix(metric.name, "_info"), "unexpected metric %s", metric.name)
-		}
-	}
-}
 
 func AssertContainsTree(t *testing.T, containing, contained labels.Set) {
 	t.Helper()
@@ -134,7 +73,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source: "redis_instance_info",
 			Dest:   []string{"redis_instantaneous_input_kbps"},
@@ -217,7 +156,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source: "redis_instance_info",
 			Dest:   []string{"redis_instantaneous_"}, // this is only a prefix
@@ -300,7 +239,7 @@ some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playg
 
 	entity := scrapeString(t, input)
 
-	CopyAttributes(&entity, []DecorateRule{
+	copyAttributes(&entity, []DecorateRule{
 		{
 			Source:     "redis_instance_info",
 			Dest:       []string{"redis_instantaneous_"}, // this is only a prefix
@@ -391,7 +330,7 @@ func TestDecorate(t *testing.T) {
 		},
 	}}
 
-	Decorate(&se[0], []DecorateRule{})
+	decorate(&se[0], []DecorateRule{})
 
 	assert.Equal(t, se[0].Metrics[0].attributes, labels.Set{"hello": "friend", "bye": "boy", "md1": "v1", "md2": "v2", "attr1": "val1", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
 	assert.Equal(t, se[0].Metrics[1].attributes, labels.Set{"hello": "friend", "bye": "boy", "md3": "v3", "md4": "v4", "attr2": "val2", "scrapedTargetURL": "https://user:xxxxx@newrelic.com"})
@@ -460,7 +399,7 @@ func TestAddAttributesRules(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	AddAttributes(&entity, []AddAttributesRule{
+	addAttributes(&entity, []AddAttributesRule{
 		{
 			MetricPrefix: "",
 			Attributes: map[string]interface{}{
@@ -493,7 +432,7 @@ func TestIgnoreRules(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Prefixes: []string{"redis_exporter_scrapes"},
 		},
@@ -525,7 +464,7 @@ func TestIgnoreRules_PrefixesWithExceptions(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Prefixes: []string{"redis_exporter_scrapes"},
 		},
@@ -559,7 +498,7 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 	t.Parallel()
 
 	entity := scrapeString(t, prometheusInput)
-	Filter(&entity, []IgnoreRule{
+	filter(&entity, []IgnoreRule{
 		{
 			Except: []string{"redis_exporter_build"},
 		},
