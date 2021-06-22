@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
-	"runtime"
 	"strings"
 	"time"
 
@@ -24,11 +23,6 @@ type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
 	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
 }
-
-const (
-	windowsDefinitionPath = "C:\\Program Files\\New Relic\\newrelic-infra\\definition-files"
-	linuxDefinitionPath   = "/etc/newrelic-infra/definition-files"
-)
 
 func loadConfig() (*scraper.Config, error) {
 
@@ -75,14 +69,6 @@ func loadConfig() (*scraper.Config, error) {
 			scraperCfg.Emitters = append(scraperCfg.Emitters, "telemetry")
 		} else {
 			scraperCfg.Emitters = append(scraperCfg.Emitters, "infra-sdk")
-		}
-	}
-
-	if scraperCfg.DefinitionFilesPath == "" {
-		if runtime.GOOS == "windows" {
-			scraperCfg.DefinitionFilesPath = windowsDefinitionPath
-		} else {
-			scraperCfg.DefinitionFilesPath = linuxDefinitionPath
 		}
 	}
 

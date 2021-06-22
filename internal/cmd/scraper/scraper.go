@@ -54,7 +54,6 @@ type Config struct {
 	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
 	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	DefinitionFilesPath                          string        `mapstructure:"definition_files_path"`
 	WorkerThreads                                int           `mapstructure:"worker_threads"`
 }
 

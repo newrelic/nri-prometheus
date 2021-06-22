@@ -59,7 +59,6 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 		}
 	}
 	logrus.Debugf("%d metrics processed", len(metrics))
-	logrus.Debugf("%d metrics not found in definition file and added to the Host Entity", len(i.HostEntity.Metrics))
 
 	return i.Publish()
 }
