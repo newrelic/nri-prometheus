@@ -325,11 +325,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			specs, err := integration.LoadSpecFiles(cfg.DefinitionFilesPath)
-			if err != nil {
-				logrus.Errorf("error loading definition files: %s", err)
-			}
-			emitter := integration.NewInfraSdkEmitter(specs)
+			emitter := integration.NewInfraSdkEmitter(integration.Synthesis{})
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)

@@ -2,7 +2,6 @@ package integration
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -15,12 +14,12 @@ import (
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	definitions Specs
+	synthesisRules Synthesis
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(specs Specs) *InfraSdkEmitter {
-	return &InfraSdkEmitter{definitions: specs}
+func NewInfraSdkEmitter(synthesisRules Synthesis) *InfraSdkEmitter {
+	return &InfraSdkEmitter{synthesisRules: synthesisRules}
 }
 
 // Name is the InfraSdkEmitter name.
@@ -126,68 +125,34 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	entityProps, err := e.definitions.getEntity(metric)
+	entityMetadata := e.synthesisRules.GetEntityMetadata(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
-	if err != nil {
+	if entityMetadata == nil {
 		i.HostEntity.AddMetric(m)
 		return nil
 	}
 
-	entityName := buildEntityName(entityProps, m)
 	// try to find the entity and add the metric to it
 	// if there's no entity with the same name yet, create it and add it to the integration
-	entity, ok := i.FindEntity(entityName)
+	entity, ok := i.FindEntity(entityMetadata.Name)
 	if !ok {
-		entity, err = i.NewEntity(entityName, entityProps.Type, entityProps.DisplayName)
+		var err error
+		entity, err = i.NewEntity(entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
 		if err != nil {
-			logrus.WithError(err).Errorf("failed to create entity %v", entityName)
+			logrus.WithError(err).Errorf("failed to create entity name:%s type:%s displayName:%s", entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
 			return err
 		}
 		i.AddEntity(entity)
 	}
-
-	entity.AddMetric(m)
-	return nil
-}
-
-// build the entity name based on various properties
-// the format should be as follows:
-//  serviceName:exporterHost:exporterPort:entityName:dimension1:dimension2..
-func buildEntityName(props entityNameProps, m infra.Metric) string {
-	var sb strings.Builder
-
-	sb.WriteString(props.Service)
-
-	tn := m.Dimension("scrapedTargetURL")
-	if tn != "" {
-		u, err := url.Parse(tn)
-		if err != nil {
-			logrus.WithError(err).Warnf("'scrapedTargetURL' metric dimension is not a proper URL")
-		} else {
-			sb.WriteRune(':')
-			sb.WriteString(u.Host)
+	// entity metadata could be dispersed on different metrics so we add found tags from each entity.
+	for k, v := range entityMetadata.Metadata {
+		if err := entity.AddMetadata(k, v); err != nil {
+			logrus.WithError(err).Debugf("fail to add metadata k:%s v:%v ", k, v)
 		}
 	}
 
-	sb.WriteRune(':')
-	sb.WriteString(props.Name)
-
-	for _, v := range props.Labels {
-		sb.WriteRune(':')
-		sb.WriteString(v.Value)
-	}
-
-	original := sb.String()
-	// make sure entity name length is less than 500.
-	resized := resizeToLimit(&sb)
-	if resized {
-		logrus.
-			WithField("original", original).
-			WithField("resized", sb.String()).
-			Warn("entity was over the limit of '500' and has been resized")
-	}
-
-	return sb.String()
+	entity.AddMetric(m)
+	return nil
 }
 
 // resizeToLimit makes sure that the entity name is lee than the limit of 500

@@ -7,14 +7,16 @@ import (
 	"strings"
 	"testing"
 
+	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(Specs{})
+	e := NewInfraSdkEmitter(Synthesis{})
 	assert.NotNil(t, e)
 
 	// when
@@ -64,7 +66,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(Specs{})
+			e := NewInfraSdkEmitter(Synthesis{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -110,7 +112,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(Specs{})
+	e := NewInfraSdkEmitter(Synthesis{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -161,7 +163,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(Specs{})
+	e := NewInfraSdkEmitter(Synthesis{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -212,53 +214,57 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	}
 }
 
-func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
+func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
-	specs := Specs{
-		SpecsByName: map[string]SpecDef{
-			"redis": {
-				Service: "redis",
-				Entities: []EntityDef{
+	// Given a new sdk emitter with this synthesis rules
+	emitter := NewInfraSdkEmitter(Synthesis{
+		[]EntityRule{
+			{
+				EntityType: "REDIS",
+				Identifier: "targetName",
+				Name:       "targetName",
+				Conditions: []Conditions{
 					{
-						Name:       "instance",
-						Properties: PropertiesDef{},
-						Metrics: []MetricDef{
-							{Name: "metric1"},
-							{Name: "metric2"},
-						},
-					},
-					{
-						Name:       "database",
-						Properties: PropertiesDef{},
-						Metrics: []MetricDef{
-							{Name: "redis_database_metric3"},
-						},
+						Attribute: "metricName",
+						Prefix:    "redis_",
 					},
 				},
-				DefaultEntity: "instance",
+				Tags: Tags{
+					"version":     nil,
+					"env":         nil,
+					"uniquelabel": nil,
+				},
 			},
 		},
-	}
-
-	emitter := NewInfraSdkEmitter(specs)
-
-	gauges := getGauges(t)
-	counters := getCounters(t)
-	metrics := append(gauges, counters...)
-	metrics = append(metrics, Metric{
-		name:       "redis_database_metric3",
-		value:      0.0,
-		metricType: "gauge",
-		attributes: nil,
 	})
+	// and this exporter input metrics
+	input := `
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total{hostname="localhost",env="dev"} 0.04
+# HELP go_goroutines Number of goroutines that currently exist.
+# TYPE go_goroutines gauge
+go_goroutines{hostname="localhost",env="dev"} 7
+# HELP redis_exporter_build_info redis exporter build_info
+# TYPE redis_exporter_build_info gauge
+redis_exporter_build_info{hostname="localhost",env="dev",build_date="2020-08-18-01:07:46",commit_sha="bac1cfead5cdb77dbce3ad567c9786f11424cf02",golang_version="go1.14.7",version="v1.10.0"} 1
+# HELP redis_exporter_last_scrape_connect_time_seconds exporter_last_scrape_connect_time_seconds metric
+# TYPE redis_exporter_last_scrape_connect_time_seconds gauge
+redis_exporter_last_scrape_connect_time_seconds{hostname="localhost",env="dev"} 0.003180941
+# HELP redis_exporter_scrapes_total Current total redis scrapes.
+# TYPE redis_exporter_scrapes_total counter
+redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 3
+`
+	// when they are scraped
+	metrics := scrapeString(t, input)
 
 	rescueStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	// when
-	err := emitter.Emit(metrics)
+	// and processed by the sdk emitter
+	err := emitter.Emit(metrics.Metrics)
 	_ = w.Close()
 
 	// then
@@ -270,27 +276,27 @@ func Test_Emitter_EmitsCorrectEntity(t *testing.T) {
 	// print json for debug purposes
 	t.Log(string(bytes))
 
-	// convert the json into a similar metric structure so we can assert more easily
-	var result Result
-	err = json.Unmarshal(bytes, &result)
-	// errors from unmarshal not checked since Result struct is a Mock for summary and histogram
-	if err != nil {
-		t.Log(err)
-	}
+	var result sdk.Integration
+	// metrics fails to unmarshall since Entity.data.metrics is an interface.
+	assert.Error(t, json.Unmarshal(bytes, &result))
 
-	assert.NotEmpty(t, result.ProtocolVersion)
-	assert.NotNil(t, result.Metadata)
-	assert.NotEmpty(t, result.Metadata.Name)
-	assert.NotEmpty(t, result.Metadata.Version)
-	// 2 entities: instance, database, "host"
-	assert.Len(t, result.Entities, 3)
+	assert.Len(t, result.Entities, 2)
+	e, ok := result.FindEntity(metrics.Target.Name)
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 3)
+	assert.Contains(t, e.Metadata.GetMetadata("tags.version"), "v1.10.0")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
+
+	var hostEntity *sdk.Entity
 	for _, e := range result.Entities {
-		assert.NotNil(t, e.Entity)
-		// we cannot assert on the entity name and type being present
-		// some metrics may be associated with the "host" entity because there is no service declared for their prefix.
-		// for example: go_*
-		assert.NotEmpty(t, e.Metrics)
+		if e.Metadata == nil {
+			hostEntity = e
+			break
+		}
 	}
+	require.NotNil(t, hostEntity)
+	assert.Len(t, hostEntity.Metrics, 2)
 }
 
 func Test_ResizeToLimit(t *testing.T) {
@@ -399,7 +405,7 @@ go_memstats_mallocs_total{hostname="localhost",env="dev"} 4705
 process_cpu_seconds_total{hostname="localhost",env="dev"} 0.04
 # HELP redis_exporter_scrapes_total Current total redis scrapes.
 # TYPE redis_exporter_scrapes_total counter
-redis_exporter_scrapes_total{hostname="localhost",env="dev"} 3
+redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 3
 `
 	// when they are scraped
 	metrics := scrapeString(t, input)
