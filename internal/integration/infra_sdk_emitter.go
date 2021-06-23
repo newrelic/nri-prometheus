@@ -124,9 +124,9 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	entityMetadata := e.synthesisRules.GetEntityMetadata(metric)
+	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric)
 	// if we can't find an entity for the metric, add it to the "host" entity
-	if entityMetadata == nil {
+	if !found {
 		i.HostEntity.AddMetric(m)
 		return nil
 	}

@@ -218,42 +218,41 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
 	// Given a new sdk emitter with this synthesis rules
-	emitter := NewInfraSdkEmitter(Synthesizer{
-		[]EntityRule{
-			{
-				EntityType: "REDIS",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []Conditions{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_",
-					},
-				},
-				Tags: Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
+	er := []EntityRule{
+		{
+			EntityType: "REDIS",
+			Identifier: "targetName",
+			Name:       "targetName",
+			Conditions: []Condition{
+				{
+					Attribute: "metricName",
+					Prefix:    "redis_",
 				},
 			},
-			{
-				EntityType: "REDIS_FOO",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []Conditions{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_foo",
-					},
-				},
-				Tags: Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
-				},
+			Tags: Tags{
+				"version":     nil,
+				"env":         nil,
+				"uniquelabel": nil,
 			},
 		},
-	})
+		{
+			EntityType: "REDIS_FOO",
+			Identifier: "targetName",
+			Name:       "targetName",
+			Conditions: []Condition{
+				{
+					Attribute: "metricName",
+					Prefix:    "redis_foo",
+				},
+			},
+			Tags: Tags{
+				"version":     nil,
+				"env":         nil,
+				"uniquelabel": nil,
+			},
+		},
+	}
+	emitter := NewInfraSdkEmitter(NewSynthesizer(er))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
