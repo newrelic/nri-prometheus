@@ -14,11 +14,11 @@ import (
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	synthesisRules Synthesis
+	synthesisRules Synthesizer
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(synthesisRules Synthesis) *InfraSdkEmitter {
+func NewInfraSdkEmitter(synthesisRules Synthesizer) *InfraSdkEmitter {
 	return &InfraSdkEmitter{synthesisRules: synthesisRules}
 }
 

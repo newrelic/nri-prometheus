@@ -9,8 +9,7 @@ import (
 	sdk_metadata "github.com/newrelic/infra-integrations-sdk/v4/data/metadata"
 )
 
-type Synthesis struct {
-	EntityRules []EntityRule `yaml:"synthesis"`
+type Synthesizer struct {
 }
 
 type EntityRule struct {
@@ -46,7 +45,7 @@ func (m *matcher) match(attribute string, condition string, er EntityRule) bool 
 	return false
 }
 
-func (s *Synthesis) GetEntityMetadata(m Metric) *sdk_metadata.Metadata {
+func (s *Synthesizer) GetEntityMetadata(m Metric) *sdk_metadata.Metadata {
 	var matcher matcher
 	for i, er := range s.EntityRules {
 		for _, c := range er.Conditions {

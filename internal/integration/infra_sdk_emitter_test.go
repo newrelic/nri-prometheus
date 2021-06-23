@@ -16,7 +16,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(Synthesis{})
+	e := NewInfraSdkEmitter(Synthesizer{})
 	assert.NotNil(t, e)
 
 	// when
@@ -66,7 +66,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(Synthesis{})
+			e := NewInfraSdkEmitter(Synthesizer{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -112,7 +112,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(Synthesis{})
+	e := NewInfraSdkEmitter(Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -163,7 +163,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(Synthesis{})
+	e := NewInfraSdkEmitter(Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -218,7 +218,7 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
 	// Given a new sdk emitter with this synthesis rules
-	emitter := NewInfraSdkEmitter(Synthesis{
+	emitter := NewInfraSdkEmitter(Synthesizer{
 		[]EntityRule{
 			{
 				EntityType: "REDIS",

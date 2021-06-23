@@ -136,7 +136,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &Synthesis{
+			s := &Synthesizer{
 				EntityRules: tt.entityRules,
 			}
 			assert.EqualValues(t, tt.want, s.GetEntityMetadata(tt.metric))
