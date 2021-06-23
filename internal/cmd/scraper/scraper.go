@@ -50,11 +50,12 @@ type Config struct {
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
 	EmitterProxyURL                              *url.URL
-	EmitterCAFile                                string        `mapstructure:"emitter_ca_file"`
-	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
-	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
-	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	WorkerThreads                                int           `mapstructure:"worker_threads"`
+	EmitterCAFile                                string                   `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify                    bool                     `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	TelemetryEmitterDeltaExpirationAge           time.Duration            `mapstructure:"telemetry_emitter_delta_expiration_age"`
+	TelemetryEmitterDeltaExpirationCheckInterval time.Duration            `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	WorkerThreads                                int                      `mapstructure:"worker_threads"`
+	EntitySynthesis                              []integration.EntityRule `mapstructure:"entity_synthesis"`
 }
 
 const maskedLicenseKey = "****"
@@ -324,7 +325,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			emitter := integration.NewInfraSdkEmitter(integration.Synthesis{})
+			emitter := integration.NewInfraSdkEmitter(integration.Synthesizer{EntityRules: cfg.EntitySynthesis})
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)

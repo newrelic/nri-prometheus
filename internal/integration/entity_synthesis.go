@@ -10,19 +10,20 @@ import (
 )
 
 type Synthesizer struct {
+	EntityRules []EntityRule
 }
 
 type EntityRule struct {
-	EntityType string       `yaml:"type"`
-	Identifier string       `yaml:"identifier"`
-	Name       string       `yaml:"name"`
-	Conditions []Conditions `yaml:"conditions"`
-	Tags       Tags         `yaml:"tags"`
+	EntityType string       `mapstructure:"type"`
+	Identifier string       `mapstructure:"identifier"`
+	Name       string       `mapstructure:"name"`
+	Conditions []Conditions `mapstructure:"conditions"`
+	Tags       Tags         `mapstructure:"tags"`
 }
 
 type Conditions struct {
-	Attribute string `yaml:"attribute"`
-	Prefix    string `yaml:"prefix"`
+	Attribute string `mapstructure:"attribute"`
+	Prefix    string `mapstructure:"prefix"`
 }
 
 type Tags map[string]interface{}
