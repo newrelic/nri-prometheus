@@ -40,7 +40,7 @@ var redisSecondRule = EntityRule{
 	},
 }
 var redisEntityMetadata = sdk_metadata.Metadata{
-	Name:        "localhost:9999",
+	Name:        "REDIS:localhost:9999",
 	DisplayName: "localhost:9999",
 	EntityType:  "REDIS",
 	Metadata: sdk_metadata.Map{
@@ -48,7 +48,7 @@ var redisEntityMetadata = sdk_metadata.Metadata{
 	},
 }
 var redisSecondEntityMetadata = sdk_metadata.Metadata{
-	Name:        "localhost:9999",
+	Name:        "REDIS_SECOND:localhost:9999",
 	DisplayName: "localhost:9999",
 	EntityType:  "REDIS_SECOND",
 	Metadata: sdk_metadata.Map{
@@ -127,7 +127,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 				},
 			},
 			want: &sdk_metadata.Metadata{
-				Name:        "GUID",
+				Name:        "FOO:GUID",
 				DisplayName: "NiceName",
 				EntityType:  "FOO",
 				Metadata:    sdk_metadata.Map{},

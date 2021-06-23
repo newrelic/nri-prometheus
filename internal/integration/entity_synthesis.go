@@ -72,14 +72,26 @@ func (s *Synthesizer) GetEntityMetadata(m Metric) *sdk_metadata.Metadata {
 	var ok bool
 	var identifier interface{}
 	var name interface{}
+
 	if identifier, ok = m.attributes[matcher.rule.Identifier]; !ok {
 		return nil
 	}
+	entityName, ok := identifier.(string)
+	if !ok {
+		return nil
+	}
+
 	if name, ok = m.attributes[matcher.rule.Name]; !ok {
 		return nil
 	}
-	entityName, _ := identifier.(string)
-	entityDisplayName, _ := name.(string)
+	entityDisplayName, ok := name.(string)
+	if !ok {
+		return nil
+	}
+
+	// entity name needs to be unique per customer account. We concatenate the entity type
+	// to add uniqueness for entities with same name but different type.
+	entityName = matcher.rule.EntityType + ":" + entityName
 
 	md := sdk_metadata.New(entityName, matcher.rule.EntityType, entityDisplayName)
 

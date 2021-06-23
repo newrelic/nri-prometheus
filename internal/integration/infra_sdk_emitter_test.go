@@ -236,6 +236,22 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 					"uniquelabel": nil,
 				},
 			},
+			{
+				EntityType: "REDIS_FOO",
+				Identifier: "targetName",
+				Name:       "targetName",
+				Conditions: []Conditions{
+					{
+						Attribute: "metricName",
+						Prefix:    "redis_foo",
+					},
+				},
+				Tags: Tags{
+					"version":     nil,
+					"env":         nil,
+					"uniquelabel": nil,
+				},
+			},
 		},
 	})
 	// and this exporter input metrics
@@ -255,6 +271,9 @@ redis_exporter_last_scrape_connect_time_seconds{hostname="localhost",env="dev"} 
 # HELP redis_exporter_scrapes_total Current total redis scrapes.
 # TYPE redis_exporter_scrapes_total counter
 redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 3
+# HELP redis_foo_scrapes_total Test metric.
+# TYPE redis_foo_scrapes_total gauge
+redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 `
 	// when they are scraped
 	metrics := scrapeString(t, input)
@@ -280,11 +299,18 @@ redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 
 	// metrics fails to unmarshall since Entity.data.metrics is an interface.
 	assert.Error(t, json.Unmarshal(bytes, &result))
 
-	assert.Len(t, result.Entities, 2)
-	e, ok := result.FindEntity(metrics.Target.Name)
+	assert.Len(t, result.Entities, 3)
+	e, ok := result.FindEntity("REDIS:" + metrics.Target.Name)
 	assert.True(t, ok)
 	assert.Len(t, e.Metrics, 3)
 	assert.Contains(t, e.Metadata.GetMetadata("tags.version"), "v1.10.0")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
+
+	e, ok = result.FindEntity("REDIS_FOO:" + metrics.Target.Name)
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 1)
+	assert.Nil(t, e.Metadata.GetMetadata("tags.version"))
 	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
 	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
 
