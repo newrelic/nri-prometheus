@@ -11,63 +11,116 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var redisRule = EntityRule{
-	EntityType: "REDIS",
-	Identifier: "targetName",
-	Name:       "targetName",
-	Conditions: []Condition{
-		{
-			Attribute: "metricName",
-			Prefix:    "redis_",
+var redisRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "REDIS",
+		Identifier: "targetName",
+		Name:       "targetName",
+		Conditions: []Condition{
+			{
+				Attribute: "metricName",
+				Prefix:    "redis_",
+			},
 		},
-	},
-	Tags: Tags{
-		"foo": nil,
-	},
-}
-var redisSecondRule = EntityRule{
-	EntityType: "REDIS_SECOND",
-	Identifier: "targetName",
-	Name:       "targetName",
-	Conditions: []Condition{
-		{
-			Attribute: "metricName",
-			Prefix:    "redis_second",
-		},
-	},
-	Tags: Tags{
-		"foo": nil,
-	},
-}
-var fooRule = EntityRule{
-	EntityType: "FOO",
-	Identifier: "identifier",
-	Name:       "displayName",
-	Conditions: []Condition{
-		{
-			Attribute: "metricAttribute",
-			Prefix:    "attribute_prefix_",
+		Tags: Tags{
+			"foo": nil,
 		},
 	},
 }
-var valueRule = EntityRule{
-	EntityType: "FOO",
-	Identifier: "identifier",
-	Name:       "displayName",
-	Conditions: []Condition{
-		{
-			Attribute: "metricAttribute",
-			Value:     "complete_metric_name",
+var redisSecondRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "REDIS_SECOND",
+		Identifier: "targetName",
+		Name:       "targetName",
+		Conditions: []Condition{
+			{
+				Attribute: "metricName",
+				Prefix:    "redis_second",
+			},
+		},
+		Tags: Tags{
+			"foo": nil,
 		},
 	},
 }
-var attributeRule = EntityRule{
-	EntityType: "FOO",
-	Identifier: "identifier",
-	Name:       "displayName",
-	Conditions: []Condition{
+var fooRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "FOO",
+		Identifier: "identifier",
+		Name:       "displayName",
+		Conditions: []Condition{
+			{
+				Attribute: "metricAttribute",
+				Prefix:    "attribute_prefix_",
+			},
+		},
+	},
+}
+var fooValueRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "FOO",
+		Identifier: "identifier",
+		Name:       "displayName",
+		Conditions: []Condition{
+			{
+				Attribute: "metricAttribute",
+				Value:     "complete_metric_name",
+			},
+		},
+	},
+}
+var fooAttributeRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "FOO",
+		Identifier: "identifier",
+		Name:       "displayName",
+		Conditions: []Condition{
+			{
+				Attribute: "metricAttribute",
+			},
+		},
+	},
+}
+var fooMultiRule = SynthesisDefinition{
+	EntityRule: EntityRule{
+		EntityType: "FOO",
+		Tags: Tags{
+			"commonAttribute": nil,
+		},
+	},
+	Rules: []EntityRule{
 		{
-			Attribute: "metricAttribute",
+			Identifier: "identifier1",
+			Name:       "displayName1",
+			Conditions: []Condition{
+				{
+					Attribute: "metricName",
+					Prefix:    "test.",
+				},
+			},
+			Tags: Tags{
+				"tag1": nil,
+			},
+		},
+		{
+			Identifier: "identifier2",
+			Name:       "displayName2",
+			Conditions: []Condition{
+				{
+					Attribute: "metricName",
+					Prefix:    "test_",
+				},
+			},
+		},
+		{
+			Identifier: "identifier3",
+			Name:       "displayName3",
+			Conditions: []Condition{
+				{
+					Attribute: "metricAttribute",
+					Value:     "matched by attribute only",
+				},
+			},
 		},
 	},
 }
@@ -87,6 +140,20 @@ var redisSecondEntityMetadata = sdk_metadata.Metadata{
 		"tags.foo": "bar",
 	},
 }
+var fooEntityMetadata = sdk_metadata.Metadata{
+	Name:        "FOO:GUID",
+	DisplayName: "NiceName",
+	EntityType:  "FOO",
+	Metadata:    sdk_metadata.Map{},
+}
+var fooEntityMetadataMultiRule = sdk_metadata.Metadata{
+	Name:        "FOO:GUID",
+	DisplayName: "NiceName",
+	EntityType:  "FOO",
+	Metadata: sdk_metadata.Map{
+		"tags.commonAttribute": "commonAttributeValue",
+	},
+}
 
 var metricAttributes = labels.Set{
 	"targetName": "localhost:9999",
@@ -100,13 +167,13 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 	}
 	tests := []struct {
 		name        string
-		entityRules []EntityRule
+		definitions []SynthesisDefinition
 		metric      Metric
 		want        want
 	}{
 		{
 			name:        "happy",
-			entityRules: []EntityRule{redisRule, redisSecondRule},
+			definitions: []SynthesisDefinition{redisRule, redisSecondRule},
 			metric: Metric{
 				name:       "redis_foo_bar",
 				value:      1.0,
@@ -117,7 +184,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "longer prefix match takes precedence",
-			entityRules: []EntityRule{redisRule, redisSecondRule},
+			definitions: []SynthesisDefinition{redisRule, redisSecondRule},
 			metric: Metric{
 				name:       "redis_second_foo_bar",
 				value:      1.0,
@@ -128,7 +195,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "metric has not matches",
-			entityRules: []EntityRule{redisRule},
+			definitions: []SynthesisDefinition{redisRule},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -139,7 +206,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "rule based on metric attribute",
-			entityRules: []EntityRule{fooRule},
+			definitions: []SynthesisDefinition{fooRule},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -150,16 +217,11 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 					"metricAttribute": "attribute_prefix_bar",
 				},
 			},
-			want: want{sdk_metadata.Metadata{
-				Name:        "FOO:GUID",
-				DisplayName: "NiceName",
-				EntityType:  "FOO",
-				Metadata:    sdk_metadata.Map{},
-			}, true},
+			want: want{fooEntityMetadata, true},
 		},
 		{
 			name:        "entity matches rule that specify the value",
-			entityRules: []EntityRule{valueRule},
+			definitions: []SynthesisDefinition{fooValueRule},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -170,16 +232,11 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 					"metricAttribute": "complete_metric_name",
 				},
 			},
-			want: want{sdk_metadata.Metadata{
-				Name:        "FOO:GUID",
-				DisplayName: "NiceName",
-				EntityType:  "FOO",
-				Metadata:    sdk_metadata.Map{},
-			}, true},
+			want: want{fooEntityMetadata, true},
 		},
 		{
 			name:        "entity matches rule that don't have prefix nor value",
-			entityRules: []EntityRule{attributeRule},
+			definitions: []SynthesisDefinition{fooAttributeRule},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -190,16 +247,11 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 					"metricAttribute": "doesn't care the content here",
 				},
 			},
-			want: want{sdk_metadata.Metadata{
-				Name:        "FOO:GUID",
-				DisplayName: "NiceName",
-				EntityType:  "FOO",
-				Metadata:    sdk_metadata.Map{},
-			}, true},
+			want: want{fooEntityMetadata, true},
 		},
 		{
 			name:        "empty rules",
-			entityRules: []EntityRule{},
+			definitions: []SynthesisDefinition{},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -214,7 +266,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "metric attribute for identifier is missing",
-			entityRules: []EntityRule{redisRule, redisSecondRule},
+			definitions: []SynthesisDefinition{redisRule, redisSecondRule},
 			metric: Metric{
 				name:       "redis_foo_bar",
 				value:      1.0,
@@ -225,7 +277,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "metric attribute for identifier is not a string",
-			entityRules: []EntityRule{redisRule, redisSecondRule},
+			definitions: []SynthesisDefinition{redisRule, redisSecondRule},
 			metric: Metric{
 				name:       "redis_foo_bar",
 				value:      1.0,
@@ -238,7 +290,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "metric attribute used for entity display name is missing",
-			entityRules: []EntityRule{redisRule, redisSecondRule},
+			definitions: []SynthesisDefinition{redisRule, redisSecondRule},
 			metric: Metric{
 				name:       "redis_foo_bar",
 				value:      1.0,
@@ -251,7 +303,7 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 		},
 		{
 			name:        "rule based on metric attribute",
-			entityRules: []EntityRule{fooRule},
+			definitions: []SynthesisDefinition{fooRule},
 			metric: Metric{
 				name:       "go_goroutines",
 				value:      1.0,
@@ -263,10 +315,65 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 			},
 			want: want{sdk_metadata.Metadata{}, false},
 		},
+		{
+			name:        "synthesis definition with multiple rules, match rule 1",
+			definitions: []SynthesisDefinition{fooMultiRule},
+			metric: Metric{
+				name:       "test.metric",
+				value:      1.0,
+				metricType: "gauge",
+				attributes: labels.Set{
+					"identifier1":     "GUID",
+					"displayName1":    "NiceName",
+					"commonAttribute": "commonAttributeValue",
+					"tag1":            "Foo",
+				},
+			},
+			want: want{sdk_metadata.Metadata{
+				Name:        "FOO:GUID",
+				DisplayName: "NiceName",
+				EntityType:  "FOO",
+				Metadata: sdk_metadata.Map{
+					"tags.commonAttribute": "commonAttributeValue",
+					"tags.tag1":            "Foo",
+				},
+			}, true},
+		},
+		{
+			name:        "synthesis definition with multiple rules, match rule 2",
+			definitions: []SynthesisDefinition{fooMultiRule},
+			metric: Metric{
+				name:       "test_metric",
+				value:      1.0,
+				metricType: "gauge",
+				attributes: labels.Set{
+					"identifier2":     "GUID",
+					"displayName2":    "NiceName",
+					"commonAttribute": "commonAttributeValue",
+				},
+			},
+			want: want{fooEntityMetadataMultiRule, true},
+		},
+		{
+			name:        "synthesis definition with multiple rules, match rule 3",
+			definitions: []SynthesisDefinition{fooMultiRule},
+			metric: Metric{
+				name:       "metric",
+				value:      1.0,
+				metricType: "gauge",
+				attributes: labels.Set{
+					"identifier3":     "GUID",
+					"displayName3":    "NiceName",
+					"metricAttribute": "matched by attribute only",
+					"commonAttribute": "commonAttributeValue",
+				},
+			},
+			want: want{fooEntityMetadataMultiRule, true},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewSynthesizer(tt.entityRules)
+			s := NewSynthesizer(tt.definitions)
 			em, found := s.GetEntityMetadata(tt.metric)
 			assert.EqualValues(t, tt.want.metadata, em)
 			assert.EqualValues(t, tt.want.found, found)

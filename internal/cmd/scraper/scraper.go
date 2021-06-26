@@ -50,12 +50,12 @@ type Config struct {
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
 	EmitterProxyURL                              *url.URL
-	EmitterCAFile                                string                   `mapstructure:"emitter_ca_file"`
-	EmitterInsecureSkipVerify                    bool                     `mapstructure:"emitter_insecure_skip_verify" default:"false"`
-	TelemetryEmitterDeltaExpirationAge           time.Duration            `mapstructure:"telemetry_emitter_delta_expiration_age"`
-	TelemetryEmitterDeltaExpirationCheckInterval time.Duration            `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	WorkerThreads                                int                      `mapstructure:"worker_threads"`
-	EntitySynthesis                              []integration.EntityRule `mapstructure:"entity_synthesis"`
+	EmitterCAFile                                string                            `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify                    bool                              `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	TelemetryEmitterDeltaExpirationAge           time.Duration                     `mapstructure:"telemetry_emitter_delta_expiration_age"`
+	TelemetryEmitterDeltaExpirationCheckInterval time.Duration                     `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	WorkerThreads                                int                               `mapstructure:"worker_threads"`
+	SynthesisDefinitions                         []integration.SynthesisDefinition `mapstructure:"synthesis_definitions"`
 }
 
 const maskedLicenseKey = "****"
@@ -325,7 +325,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			s := integration.NewSynthesizer(cfg.EntitySynthesis)
+			s := integration.NewSynthesizer(cfg.SynthesisDefinitions)
 			emitter := integration.NewInfraSdkEmitter(s)
 			emitters = append(emitters, emitter)
 		default:

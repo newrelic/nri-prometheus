@@ -13,25 +13,49 @@ import (
 
 // Synthesizer group of rules to synthesis entities
 type Synthesizer struct {
-	EntityRules       []EntityRule
 	rulesByConditions map[Condition]EntityRule
 }
 
 // NewSynthesizer initialize and return a Synthesizer from a set of EntityRules
-func NewSynthesizer(entityRules []EntityRule) Synthesizer {
+func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesizer {
 	s := Synthesizer{
-		EntityRules:       entityRules,
 		rulesByConditions: make(map[Condition]EntityRule),
 	}
-	for _, er := range entityRules {
-		for _, c := range er.Conditions {
-			s.rulesByConditions[c] = er
+	for _, ed := range entitySynthesisDefinitions {
+		s.addConditions(ed.EntityRule)
+		for _, er := range ed.Rules {
+			s.addMultiRuleConditions(er, ed.EntityRule)
 		}
 	}
 	return s
 }
+func (s *Synthesizer) addConditions(rule EntityRule) {
+	if rule.Identifier == "" || rule.Name == "" || rule.EntityType == "" {
+		return
+	}
+	for _, c := range rule.Conditions {
+		s.rulesByConditions[c] = rule
+	}
+}
+func (s *Synthesizer) addMultiRuleConditions(rule EntityRule, parentRule EntityRule) {
+	rule.EntityType = parentRule.EntityType
+	if rule.Tags == nil {
+		rule.Tags = parentRule.Tags
+	} else {
+		for k := range parentRule.Tags {
+			rule.Tags[k] = nil
+		}
+	}
+	s.addConditions(rule)
+}
 
-// EntityRule contains rules to synthesis entities from metrics
+// SynthesisDefinition contains rules to synthesis entities from metrics
+type SynthesisDefinition struct {
+	EntityRule `mapstructure:",squash"`
+	Rules      []EntityRule `mapstructure:"rules"`
+}
+
+// EntityRule contains rules to synthesis an entity
 type EntityRule struct {
 	EntityType string      `mapstructure:"type"`
 	Identifier string      `mapstructure:"identifier"`

@@ -218,41 +218,82 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
 	// Given a new sdk emitter with this synthesis rules
-	er := []EntityRule{
+	definitions := []SynthesisDefinition{
 		{
-			EntityType: "REDIS",
-			Identifier: "targetName",
-			Name:       "targetName",
-			Conditions: []Condition{
-				{
-					Attribute: "metricName",
-					Prefix:    "redis_",
+			EntityRule: EntityRule{
+
+				EntityType: "REDIS",
+				Identifier: "targetName",
+				Name:       "targetName",
+				Conditions: []Condition{
+					{
+						Attribute: "metricName",
+						Prefix:    "redis_",
+					},
 				},
-			},
-			Tags: Tags{
-				"version":     nil,
-				"env":         nil,
-				"uniquelabel": nil,
+				Tags: Tags{
+					"version":     nil,
+					"env":         nil,
+					"uniquelabel": nil,
+				},
 			},
 		},
 		{
-			EntityType: "REDIS_FOO",
-			Identifier: "targetName",
-			Name:       "targetName",
-			Conditions: []Condition{
-				{
-					Attribute: "metricName",
-					Prefix:    "redis_foo",
+			EntityRule: EntityRule{
+				EntityType: "REDIS_FOO",
+				Identifier: "targetName",
+				Name:       "targetName",
+				Conditions: []Condition{
+					{
+						Attribute: "metricName",
+						Prefix:    "redis_foo",
+					},
+				},
+				Tags: Tags{
+					"version":     nil,
+					"env":         nil,
+					"uniquelabel": nil,
 				},
 			},
-			Tags: Tags{
-				"version":     nil,
-				"env":         nil,
-				"uniquelabel": nil,
+		},
+		{
+			EntityRule: EntityRule{
+				EntityType: "MULTI",
+				Tags: Tags{
+					"env": nil,
+				},
+			},
+			Rules: []EntityRule{
+				{
+					Identifier: "targetName",
+					Name:       "targetName",
+					Conditions: []Condition{
+						{
+							Attribute: "metricName",
+							Prefix:    "foo_",
+						},
+					},
+					Tags: Tags{
+						"foo": nil,
+					},
+				},
+				{
+					Identifier: "targetName",
+					Name:       "targetName",
+					Conditions: []Condition{
+						{
+							Attribute: "metricName",
+							Prefix:    "bar_",
+						},
+					},
+					Tags: Tags{
+						"bar": nil,
+					},
+				},
 			},
 		},
 	}
-	emitter := NewInfraSdkEmitter(NewSynthesizer(er))
+	emitter := NewInfraSdkEmitter(NewSynthesizer(definitions))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
@@ -261,6 +302,12 @@ process_cpu_seconds_total{hostname="localhost",env="dev"} 0.04
 # HELP go_goroutines Number of goroutines that currently exist.
 # TYPE go_goroutines gauge
 go_goroutines{hostname="localhost",env="dev"} 7
+# HELP foo_bar Test metric for multirule.
+# TYPE foo_bar gauge
+foo_bar{hostname="localhost",env="dev",foo="foo"} 0
+# HELP bar_foo Test metric for multirule.
+# TYPE bar_foo gauge
+bar_foo{hostname="localhost",env="dev",bar="bar"} 1
 # HELP redis_exporter_build_info redis exporter build_info
 # TYPE redis_exporter_build_info gauge
 redis_exporter_build_info{hostname="localhost",env="dev",build_date="2020-08-18-01:07:46",commit_sha="bac1cfead5cdb77dbce3ad567c9786f11424cf02",golang_version="go1.14.7",version="v1.10.0"} 1
@@ -298,7 +345,7 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	// metrics fails to unmarshall since Entity.data.metrics is an interface.
 	assert.Error(t, json.Unmarshal(bytes, &result))
 
-	assert.Len(t, result.Entities, 3)
+	assert.Len(t, result.Entities, 4)
 	e, ok := result.FindEntity("REDIS:" + metrics.Target.Name)
 	assert.True(t, ok)
 	assert.Len(t, e.Metrics, 3)
@@ -312,6 +359,13 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	assert.Nil(t, e.Metadata.GetMetadata("tags.version"))
 	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
 	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
+
+	e, ok = result.FindEntity("MULTI:" + metrics.Target.Name)
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 2)
+	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.foo"), "foo")
+	assert.Contains(t, e.Metadata.GetMetadata("tags.bar"), "bar")
 
 	var hostEntity *sdk.Entity
 	for _, e := range result.Entities {
