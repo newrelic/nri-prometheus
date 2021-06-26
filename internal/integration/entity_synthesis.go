@@ -22,9 +22,14 @@ func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesize
 		rulesByConditions: make(map[Condition]EntityRule),
 	}
 	for _, ed := range entitySynthesisDefinitions {
+		ed.tagRules = ed.Tags.getTagRules()
 		s.addConditions(ed.EntityRule)
+
 		for _, er := range ed.Rules {
-			s.addMultiRuleConditions(er, ed.EntityRule)
+			er.EntityType = ed.EntityType
+			er.tagRules = er.Tags.getTagRules()
+			er.tagRules = append(er.tagRules, ed.EntityRule.tagRules...)
+			s.addConditions(er)
 		}
 	}
 	return s
@@ -36,17 +41,6 @@ func (s *Synthesizer) addConditions(rule EntityRule) {
 	for _, c := range rule.Conditions {
 		s.rulesByConditions[c] = rule
 	}
-}
-func (s *Synthesizer) addMultiRuleConditions(rule EntityRule, parentRule EntityRule) {
-	rule.EntityType = parentRule.EntityType
-	if rule.Tags == nil {
-		rule.Tags = parentRule.Tags
-	} else {
-		for k := range parentRule.Tags {
-			rule.Tags[k] = nil
-		}
-	}
-	s.addConditions(rule)
 }
 
 // SynthesisDefinition contains rules to synthesis entities from metrics
@@ -62,6 +56,7 @@ type EntityRule struct {
 	Name       string      `mapstructure:"name"`
 	Conditions []Condition `mapstructure:"conditions"`
 	Tags       Tags        `mapstructure:"tags"`
+	tagRules   []tagRule
 }
 
 // Condition contains parameters used to match entities from metrics
@@ -83,7 +78,27 @@ func (c Condition) match(attribute string) bool {
 }
 
 // Tags key value attributes
-type Tags map[string]interface{}
+type Tags map[string]map[string]interface{}
+
+type tagRule struct {
+	name          string
+	entityTagName string
+}
+
+func (t Tags) getTagRules() []tagRule {
+	var tr []tagRule
+	for k, v := range t {
+		if v == nil {
+			tr = append(tr, tagRule{name: k, entityTagName: k})
+			continue
+		}
+		if newName, ok := v["entityTagName"]; ok {
+			newNameS, _ := newName.(string)
+			tr = append(tr, tagRule{name: k, entityTagName: newNameS})
+		}
+	}
+	return tr
+}
 
 // GetEntityMetadata lookup for entity synthesis conditions and generates an entity
 // based on the metric attributes.
@@ -105,9 +120,9 @@ func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
 	md := sdk_metadata.New(entityName, rule.EntityType, entityDisplayName)
 
 	// Adds attributes as entity tag, sdk adds the prefix "tags." to the key.
-	for tagKey := range rule.Tags {
-		if tagVal, ok := m.attributes[tagKey]; ok {
-			md.AddTag(tagKey, tagVal)
+	for _, t := range rule.tagRules {
+		if tagVal, ok := m.attributes[t.name]; ok {
+			md.AddTag(t.entityTagName, tagVal)
 		}
 	}
 

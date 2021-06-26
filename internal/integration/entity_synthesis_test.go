@@ -24,6 +24,9 @@ var redisRule = SynthesisDefinition{
 		},
 		Tags: Tags{
 			"foo": nil,
+			"realName": map[string]interface{}{
+				"entityTagName": "preferredName",
+			},
 		},
 	},
 }
@@ -129,7 +132,8 @@ var redisEntityMetadata = sdk_metadata.Metadata{
 	DisplayName: "localhost:9999",
 	EntityType:  "REDIS",
 	Metadata: sdk_metadata.Map{
-		"tags.foo": "bar",
+		"tags.foo":           "bar",
+		"tags.preferredName": "renamedTagValue",
 	},
 }
 var redisSecondEntityMetadata = sdk_metadata.Metadata{
@@ -178,7 +182,11 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 				name:       "redis_foo_bar",
 				value:      1.0,
 				metricType: "gauge",
-				attributes: metricAttributes,
+				attributes: labels.Set{
+					"targetName": "localhost:9999",
+					"foo":        "bar",
+					"realName":   "renamedTagValue",
+				},
 			},
 			want: want{redisEntityMetadata, true},
 		},
