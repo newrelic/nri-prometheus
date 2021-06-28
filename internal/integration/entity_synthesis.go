@@ -4,7 +4,6 @@
 package integration
 
 import (
-	"sort"
 	"strings"
 
 	sdk_metadata "github.com/newrelic/infra-integrations-sdk/v4/data/metadata"
@@ -129,32 +128,29 @@ func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
 	return *md, true
 }
 
+// getMatchingRule iterates over all conditions to check if m satisfy returning the associated rule.
 func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
-	var matches []Condition
+	var match *Condition
 	for c := range s.rulesByConditions {
 		// special case since metricName is not a metric attribute.
-		if c.Attribute == "metricName" {
-			if c.match(m.name) {
-				matches = append(matches, c)
+		value := m.name
+		if c.Attribute != "metricName" {
+			val, ok := m.attributes[c.Attribute]
+			if !ok {
+				continue
 			}
-			continue
+			value, _ = val.(string)
 		}
-		if val, ok := m.attributes[c.Attribute]; ok {
-			metricAttributeValue, _ := val.(string)
-			if c.match(metricAttributeValue) {
-				matches = append(matches, c)
-			}
-		}
-	}
-	if len(matches) == 0 {
-		return
-	}
-	if len(matches) > 0 {
 		// longer prefix matches take precedences over shorter ones.
 		// this allows to discriminate "foo_bar_" from "foo_" kind of metrics.
-		sort.Slice(matches, func(i, j int) bool { return len(matches[i].Prefix) > len(matches[j].Prefix) })
+		if c.match(value) && (match == nil || len(c.Prefix) > len(match.Prefix)) {
+			condition := c
+			match = &condition
+		}
 	}
-	rule, found = s.rulesByConditions[matches[0]]
+	if match != nil {
+		rule, found = s.rulesByConditions[*match]
+	}
 	return
 }
 
