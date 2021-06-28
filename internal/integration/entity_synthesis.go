@@ -26,15 +26,14 @@ func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesize
 
 		for _, er := range ed.Rules {
 			er.EntityType = ed.EntityType
-			er.tagRules = er.Tags.getTagRules()
-			er.tagRules = append(er.tagRules, ed.EntityRule.tagRules...)
+			er.tagRules = append(er.Tags.getTagRules(), ed.EntityRule.tagRules...)
 			s.addConditions(er)
 		}
 	}
 	return s
 }
 func (s *Synthesizer) addConditions(rule EntityRule) {
-	if rule.Identifier == "" || rule.Name == "" || rule.EntityType == "" {
+	if !rule.isValid() {
 		return
 	}
 	for _, c := range rule.Conditions {
@@ -58,6 +57,10 @@ type EntityRule struct {
 	tagRules   []tagRule
 }
 
+func (rule EntityRule) isValid() bool {
+	return rule.Identifier != "" && rule.Name != "" && rule.EntityType != ""
+}
+
 // Condition contains parameters used to match entities from metrics
 type Condition struct {
 	Attribute string `mapstructure:"attribute"`
@@ -65,15 +68,13 @@ type Condition struct {
 	Value     string `mapstructure:"value"`
 }
 
+// match evaluates the condition for a particular existing attribute value.
 func (c Condition) match(attribute string) bool {
 	if c.Value != "" {
 		return c.Value == attribute
 	}
-	if c.Prefix != "" {
-		return strings.HasPrefix(attribute, c.Prefix)
-	}
-	// if Value and Prefix are empty there is a match since the attribute exists
-	return true
+	// this returns true if c.Prefix is "" and is ok since the attribute exists
+	return strings.HasPrefix(attribute, c.Prefix)
 }
 
 // Tags key value attributes
@@ -143,7 +144,7 @@ func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
 		}
 		// longer prefix matches take precedences over shorter ones.
 		// this allows to discriminate "foo_bar_" from "foo_" kind of metrics.
-		if c.match(value) && (match == nil || len(c.Prefix) > len(match.Prefix)) {
+		if c.match(value) && (match == nil || len(c.Prefix) > len(match.Prefix)) { // nosemgrep: bad-nil-guard
 			condition := c
 			match = &condition
 		}
