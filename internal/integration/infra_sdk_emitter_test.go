@@ -353,6 +353,7 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	assert.Contains(t, e.Metadata.GetMetadata("tags.version"), "v1.10.0")
 	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
 	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
+	assert.Contains(t, e.CommonDimensions, "targetName")
 
 	e, ok = result.FindEntity("REDIS_FOO:" + metrics.Target.Name)
 	assert.True(t, ok)
@@ -377,6 +378,7 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	}
 	require.NotNil(t, hostEntity)
 	assert.Len(t, hostEntity.Metrics, 2)
+	assert.Contains(t, hostEntity.CommonDimensions, "targetName")
 }
 
 func Test_ResizeToLimit(t *testing.T) {
@@ -505,7 +507,7 @@ type entityMetadata struct {
 	Metadata    map[string]interface{} `json:"metadata"`
 }
 
-type common struct{}
+type common map[string]string
 
 type quant struct {
 	Quantile *float64 `json:"quantile,omitempty"`
