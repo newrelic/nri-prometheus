@@ -365,6 +365,7 @@ func convertPromMetrics(log *logrus.Entry, targetName string, mfs prometheus.Met
 			for _, l := range m.GetLabel() {
 				attrs[l.GetName()] = l.GetValue()
 			}
+			// nrMetricType and promMetricType attributes were created as a debugging tool, because some prometheus metric types weren't supported natively by NR.
 			attrs["nrMetricType"] = string(nrType)
 			attrs["promMetricType"] = mtype
 			metrics = append(
