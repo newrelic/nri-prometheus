@@ -12,14 +12,18 @@ import (
 
 // Synthesizer group of rules to synthesis entities
 type Synthesizer struct {
-	rulesByConditions map[Condition]EntityRule
+	conditionList []conditionGroup // List of conditions used find metrics that match.
+}
+
+// conditionGroup contains conditions and it parent entityRule.
+type conditionGroup struct {
+	condition Condition
+	rule      EntityRule
 }
 
 // NewSynthesizer initialize and return a Synthesizer from a set of EntityRules
 func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesizer {
-	s := Synthesizer{
-		rulesByConditions: make(map[Condition]EntityRule),
-	}
+	s := Synthesizer{}
 	for _, ed := range entitySynthesisDefinitions {
 		ed.tagRules = ed.Tags.getTagRules()
 		s.addConditions(ed.EntityRule)
@@ -37,7 +41,7 @@ func (s *Synthesizer) addConditions(rule EntityRule) {
 		return
 	}
 	for _, c := range rule.Conditions {
-		s.rulesByConditions[c] = rule
+		s.conditionList = append(s.conditionList, conditionGroup{c, rule})
 	}
 }
 
@@ -131,12 +135,12 @@ func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
 
 // getMatchingRule iterates over all conditions to check if m satisfy returning the associated rule.
 func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
-	var match *Condition
-	for c := range s.rulesByConditions {
+	var match *conditionGroup
+	for i, cg := range s.conditionList {
 		// special case since metricName is not a metric attribute.
 		value := m.name
-		if c.Attribute != "metricName" {
-			val, ok := m.attributes[c.Attribute]
+		if cg.condition.Attribute != "metricName" {
+			val, ok := m.attributes[cg.condition.Attribute]
 			if !ok {
 				continue
 			}
@@ -144,13 +148,12 @@ func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
 		}
 		// longer prefix matches take precedences over shorter ones.
 		// this allows to discriminate "foo_bar_" from "foo_" kind of metrics.
-		if c.match(value) && (match == nil || len(c.Prefix) > len(match.Prefix)) { // nosemgrep: bad-nil-guard
-			condition := c
-			match = &condition
+		if cg.condition.match(value) && (match == nil || len(cg.condition.Prefix) > len(match.condition.Prefix)) { // nosemgrep: bad-nil-guard
+			match = &s.conditionList[i]
 		}
 	}
 	if match != nil {
-		rule, found = s.rulesByConditions[*match]
+		return match.rule, true
 	}
 	return
 }
