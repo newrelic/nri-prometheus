@@ -151,6 +151,11 @@ docker_manifests:
   - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
   - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
   - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
+- name_template: newrelic/nri-prometheus:lastest{{ .Env.TAG_SUFFIX }}
+  image_templates:
+    - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
+    - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
+    - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
 
 snapshot:
   name_template: "{{ .Tag }}-next"
