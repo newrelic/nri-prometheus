@@ -13,6 +13,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Metric attributes that are shared by all metrics of an entity.
+var commonAttributes = map[string]struct{}{
+	"scrapedTargetKind": {},
+	"scrapedTargetName": {},
+	"scrapedTargetURL":  {},
+	"targetName":        {},
+}
+
+// Metric attributes not needed for the infra-agent metrics pipeline.
+var removedAttributes = map[string]struct{}{
+	"nrMetricType":   {},
+	"promMetricType": {},
+}
+
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
 	synthesisRules synthesis.Synthesizer
@@ -69,8 +83,6 @@ func (e *InfraSdkEmitter) emitGauge(i *sdk.Integration, metric Metric, timestamp
 	if err != nil {
 		return err
 	}
-	addDimensions(m, metric.attributes)
-
 	return e.addMetricToEntity(i, metric, m)
 }
 
@@ -79,8 +91,6 @@ func (e *InfraSdkEmitter) emitCounter(i *sdk.Integration, metric Metric, timesta
 	if err != nil {
 		return err
 	}
-	addDimensions(m, metric.attributes)
-
 	return e.addMetricToEntity(i, metric, m)
 }
 
@@ -94,7 +104,6 @@ func (e *InfraSdkEmitter) emitHistogram(i *sdk.Integration, metric Metric, times
 	if err != nil {
 		return fmt.Errorf("failed to create histogram metric for %q", metric.name)
 	}
-	addDimensions(ph, metric.attributes)
 
 	buckets := hist.Bucket
 	for _, b := range buckets {
@@ -114,7 +123,6 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 	if err != nil {
 		return fmt.Errorf("failed to create summary metric for %q", metric.name)
 	}
-	addDimensions(ps, metric.attributes)
 
 	quantiles := summary.GetQuantile()
 	for _, q := range quantiles {
@@ -128,6 +136,7 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m
 	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric.name, metric.attributes)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if !found {
+		addDimensions(m, metric.attributes, i.HostEntity)
 		i.HostEntity.AddMetric(m)
 		return nil
 	}
@@ -150,6 +159,7 @@ func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m
 			logrus.WithError(err).Debugf("fail to add metadata k:%s v:%v ", k, v)
 		}
 	}
+	addDimensions(m, metric.attributes, entity)
 
 	entity.AddMetric(m)
 	return nil
@@ -178,10 +188,22 @@ func resizeToLimit(sb *strings.Builder) (resized bool) {
 	return
 }
 
-func addDimensions(m infra.Metric, attributes labels.Set) {
-	var err error
+func addDimensions(m infra.Metric, attributes labels.Set, entity *sdk.Entity) {
+	var value string
+	var ok bool
 	for k, v := range attributes {
-		err = m.AddDimension(k, v.(string))
+		if _, ok = removedAttributes[k]; ok {
+			continue
+		}
+		if value, ok = v.(string); !ok {
+			logrus.Debugf("the value (%v) of %s attribute should be a string", k, v)
+			continue
+		}
+		if _, ok = commonAttributes[k]; ok {
+			entity.AddCommonDimension(k, value)
+			continue
+		}
+		err := m.AddDimension(k, value)
 		if err != nil {
 			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
 		}

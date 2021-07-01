@@ -7,10 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestInfraSdkEmitter_Name(t *testing.T) {
@@ -342,41 +340,53 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	// print json for debug purposes
 	t.Log(string(bytes))
 
-	var result sdk.Integration
-	// metrics fails to unmarshall since Entity.data.metrics is an interface.
+	var result Result
 	assert.Error(t, json.Unmarshal(bytes, &result))
 
 	assert.Len(t, result.Entities, 4)
-	e, ok := result.FindEntity("REDIS:" + metrics.Target.Name)
+	e, ok := result.findEntity("REDIS:" + metrics.Target.Name)
 	assert.True(t, ok)
 	assert.Len(t, e.Metrics, 3)
-	assert.Contains(t, e.Metadata.GetMetadata("tags.version"), "v1.10.0")
-	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
-	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
 
-	e, ok = result.FindEntity("REDIS_FOO:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 1)
-	assert.Nil(t, e.Metadata.GetMetadata("tags.version"))
-	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
-	assert.Contains(t, e.Metadata.GetMetadata("tags.uniquelabel"), "test")
-
-	e, ok = result.FindEntity("MULTI:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 2)
-	assert.Contains(t, e.Metadata.GetMetadata("tags.env"), "dev")
-	assert.Contains(t, e.Metadata.GetMetadata("tags.foo"), "foo")
-	assert.Contains(t, e.Metadata.GetMetadata("tags.bar"), "bar")
-
-	var hostEntity *sdk.Entity
-	for _, e := range result.Entities {
-		if e.Metadata == nil {
-			hostEntity = e
-			break
+	// Metrics does not contain common nor removed attributes.
+	for _, m := range e.Metrics {
+		for k := range commonAttributes {
+			_, ok := m.Labels[k]
+			assert.False(t, ok)
+		}
+		for k := range removedAttributes {
+			_, ok := m.Labels[k]
+			assert.False(t, ok)
 		}
 	}
-	require.NotNil(t, hostEntity)
-	assert.Len(t, hostEntity.Metrics, 2)
+
+	em := e.EntityDef.Metadata
+	assert.Contains(t, em["tags.version"], "v1.10.0")
+	assert.Contains(t, em["tags.env"], "dev")
+	assert.Contains(t, em["tags.uniquelabel"], "test")
+	assert.Contains(t, e.Common, "targetName")
+
+	e, ok = result.findEntity("REDIS_FOO:" + metrics.Target.Name)
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 1)
+	em = e.EntityDef.Metadata
+	_, ok = em["tags.version"]
+	assert.False(t, ok)
+	assert.Contains(t, em["tags.env"], "dev")
+	assert.Contains(t, em["tags.uniquelabel"], "test")
+
+	e, ok = result.findEntity("MULTI:" + metrics.Target.Name)
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 2)
+	em = e.EntityDef.Metadata
+	assert.Contains(t, em["tags.env"], "dev")
+	assert.Contains(t, em["tags.foo"], "foo")
+	assert.Contains(t, em["tags.bar"], "bar")
+
+	e, ok = result.findEntity("")
+	assert.True(t, ok)
+	assert.Len(t, e.Metrics, 2)
+	assert.Contains(t, e.Common["targetName"], metrics.Target.Name)
 }
 
 func Test_ResizeToLimit(t *testing.T) {
@@ -505,7 +515,7 @@ type entityMetadata struct {
 	Metadata    map[string]interface{} `json:"metadata"`
 }
 
-type common struct{}
+type common map[string]string
 
 type quant struct {
 	Quantile *float64 `json:"quantile,omitempty"`
@@ -534,20 +544,24 @@ type PrometheusMockValue struct {
 	Quantiles []quant   `json:"quantiles,omitempty"`
 }
 
-type entityDef struct {
-	Name     string         `json:"name"`
-	Type     string         `json:"type"`
-	Metadata entityMetadata `json:"metadata,omitempty"`
-}
-
 type entity struct {
-	Common  common       `json:"common"`
-	Entity  entityDef    `json:"entity,omitempty"`
-	Metrics []metricData `json:"metrics"`
+	Common    common         `json:"common"`
+	EntityDef entityMetadata `json:"entity,omitempty"`
+	Metrics   []metricData   `json:"metrics"`
 }
 
 type Result struct {
 	ProtocolVersion string   `json:"protocol_version"`
 	Metadata        metadata `json:"integration"`
 	Entities        []entity `json:"data"`
+}
+
+func (r Result) findEntity(name string) (entity, bool) {
+	for _, e := range r.Entities {
+		if e.EntityDef.Name == name {
+			return e, true
+		}
+	}
+
+	return entity{}, false
 }

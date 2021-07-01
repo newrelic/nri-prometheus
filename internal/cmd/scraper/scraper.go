@@ -200,20 +200,6 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 	retrievers = append(retrievers, fixedRetriever)
 
-	defaultTransformations := integration.ProcessingRule{
-		Description: "Default transformation rules",
-		AddAttributes: []integration.AddAttributesRule{
-			{
-				MetricPrefix: "",
-				Attributes: map[string]interface{}{
-					"integrationVersion": integration.Version,
-					"integrationName":    integration.Name,
-				},
-			},
-		},
-	}
-	processingRules := append(cfg.ProcessingRules, defaultTransformations)
-
 	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
 	if err != nil {
 		return fmt.Errorf(
@@ -227,7 +213,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	integration.ExecuteOnce(
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
-		integration.RuleProcessor(processingRules, queueLength),
+		integration.RuleProcessor(cfg.ProcessingRules, queueLength),
 		emitters)
 
 	return nil
