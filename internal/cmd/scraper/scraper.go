@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -50,12 +51,12 @@ type Config struct {
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
 	EmitterProxyURL                              *url.URL
-	EmitterCAFile                                string        `mapstructure:"emitter_ca_file"`
-	EmitterInsecureSkipVerify                    bool          `mapstructure:"emitter_insecure_skip_verify" default:"false"`
-	TelemetryEmitterDeltaExpirationAge           time.Duration `mapstructure:"telemetry_emitter_delta_expiration_age"`
-	TelemetryEmitterDeltaExpirationCheckInterval time.Duration `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	DefinitionFilesPath                          string        `mapstructure:"definition_files_path"`
-	WorkerThreads                                int           `mapstructure:"worker_threads"`
+	EmitterCAFile                                string                 `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify                    bool                   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	TelemetryEmitterDeltaExpirationAge           time.Duration          `mapstructure:"telemetry_emitter_delta_expiration_age"`
+	TelemetryEmitterDeltaExpirationCheckInterval time.Duration          `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	WorkerThreads                                int                    `mapstructure:"worker_threads"`
+	EntityDefinitions                            []synthesis.Definition `mapstructure:"entity_definitions"`
 }
 
 const maskedLicenseKey = "****"
@@ -325,11 +326,8 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			specs, err := integration.LoadSpecFiles(cfg.DefinitionFilesPath)
-			if err != nil {
-				logrus.Errorf("error loading definition files: %s", err)
-			}
-			emitter := integration.NewInfraSdkEmitter(specs)
+			s := synthesis.NewSynthesizer(cfg.EntityDefinitions)
+			emitter := integration.NewInfraSdkEmitter(s)
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
