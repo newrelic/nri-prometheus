@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
+	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 	assert.NotNil(t, e)
 
 	// when
@@ -66,7 +67,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(Synthesizer{})
+			e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -112,7 +113,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -163,7 +164,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -218,20 +219,20 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
 	// Given a new sdk emitter with this synthesis rules
-	definitions := []SynthesisDefinition{
+	definitions := []synthesis.Definition{
 		{
-			EntityRule: EntityRule{
+			EntityRule: synthesis.EntityRule{
 
 				EntityType: "REDIS",
 				Identifier: "targetName",
 				Name:       "targetName",
-				Conditions: []Condition{
+				Conditions: []synthesis.Condition{
 					{
 						Attribute: "metricName",
 						Prefix:    "redis_",
 					},
 				},
-				Tags: Tags{
+				Tags: synthesis.Tags{
 					"version":     nil,
 					"env":         nil,
 					"uniquelabel": nil,
@@ -239,17 +240,17 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 			},
 		},
 		{
-			EntityRule: EntityRule{
+			EntityRule: synthesis.EntityRule{
 				EntityType: "REDIS_FOO",
 				Identifier: "targetName",
 				Name:       "targetName",
-				Conditions: []Condition{
+				Conditions: []synthesis.Condition{
 					{
 						Attribute: "metricName",
 						Prefix:    "redis_foo",
 					},
 				},
-				Tags: Tags{
+				Tags: synthesis.Tags{
 					"version":     nil,
 					"env":         nil,
 					"uniquelabel": nil,
@@ -257,43 +258,43 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 			},
 		},
 		{
-			EntityRule: EntityRule{
+			EntityRule: synthesis.EntityRule{
 				EntityType: "MULTI",
-				Tags: Tags{
+				Tags: synthesis.Tags{
 					"env": nil,
 				},
 			},
-			Rules: []EntityRule{
+			Rules: []synthesis.EntityRule{
 				{
 					Identifier: "targetName",
 					Name:       "targetName",
-					Conditions: []Condition{
+					Conditions: []synthesis.Condition{
 						{
 							Attribute: "metricName",
 							Prefix:    "foo_",
 						},
 					},
-					Tags: Tags{
+					Tags: synthesis.Tags{
 						"foo": nil,
 					},
 				},
 				{
 					Identifier: "targetName",
 					Name:       "targetName",
-					Conditions: []Condition{
+					Conditions: []synthesis.Condition{
 						{
 							Attribute: "metricName",
 							Prefix:    "bar_",
 						},
 					},
-					Tags: Tags{
+					Tags: synthesis.Tags{
 						"bar": nil,
 					},
 				},
 			},
 		},
 	}
-	emitter := NewInfraSdkEmitter(NewSynthesizer(definitions))
+	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.

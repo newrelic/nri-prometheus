@@ -1,7 +1,10 @@
-// Package integration ...
+// Package synthesis implements the mapping of metrics into NR entities
+// The entity synthesis mapping logic is based on this project (https://github.com/newrelic-experimental/entity-synthesis-definitions).
+// The definition of rules are the same to the ones defined in the definition.yaml files of the mentioned repo.
+//
 // Copyright 2021 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
-package integration
+package synthesis
 
 import (
 	"strings"
@@ -10,10 +13,7 @@ import (
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 )
 
-// Synthesizer group of rules to synthesis entities from metrics.
-// The entity synthesis mapping logic is based on this project (https://github.com/newrelic-experimental/entity-synthesis-definitions).
-// The definition of rules are similar to the ones defined in the definition.yaml files of the mentioned repo
-// and are set by using the entity_definitions configuration parameter.
+// Synthesizer stores the rules to synthesis entities from metrics.
 type Synthesizer struct {
 	conditionList []conditionGroup // List of conditions used find metrics that match.
 }
@@ -25,8 +25,9 @@ type conditionGroup struct {
 }
 
 // NewSynthesizer initialize and return a Synthesizer from a set of EntityRules
-func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesizer {
+func NewSynthesizer(entitySynthesisDefinitions []Definition) Synthesizer {
 	s := Synthesizer{}
+
 	for _, definition := range entitySynthesisDefinitions {
 		definition.tagRules = definition.Tags.getTagRules()
 		s.addConditions(definition.EntityRule)
@@ -37,19 +38,22 @@ func NewSynthesizer(entitySynthesisDefinitions []SynthesisDefinition) Synthesize
 			s.addConditions(rule)
 		}
 	}
+
 	return s
 }
+
 func (s *Synthesizer) addConditions(rule EntityRule) {
 	if !rule.isValid() {
 		return
 	}
+
 	for _, c := range rule.Conditions {
 		s.conditionList = append(s.conditionList, conditionGroup{c, rule})
 	}
 }
 
-// SynthesisDefinition contains rules to synthesis entities from metrics
-type SynthesisDefinition struct {
+// Definition contains rules to synthesis entities from metrics
+type Definition struct {
 	EntityRule `mapstructure:",squash"`
 	Rules      []EntityRule `mapstructure:"rules"`
 }
@@ -97,6 +101,7 @@ type tagRule struct {
 // getTagRules generates a list of tagRule from the Tags.
 func (t Tags) getTagRules() []tagRule {
 	var tagRules []tagRule
+
 	for attributeName, rules := range t {
 		if rules == nil {
 			tagRules = append(tagRules, tagRule{sourceAttribute: attributeName, entityTagName: attributeName})
@@ -105,22 +110,25 @@ func (t Tags) getTagRules() []tagRule {
 		// entityTagName is the name of the rule for tag renaming defined by the entity synthesis protocol.
 		if newName, ok := rules["entityTagName"]; ok {
 			newNameS, _ := newName.(string)
+
 			tagRules = append(tagRules, tagRule{sourceAttribute: attributeName, entityTagName: newNameS})
 		}
 	}
+
 	return tagRules
 }
 
 // GetEntityMetadata lookup for entity synthesis conditions and generates an entity
 // based on the metric attributes.
-func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
-	rule, found := s.getMatchingRule(m)
+func (s Synthesizer) GetEntityMetadata(metricName string, attributes labels.Set) (sdk_metadata.Metadata, bool) {
+	rule, found := s.getMatchingRule(metricName, attributes)
 	if !found {
 		return sdk_metadata.Metadata{}, false
 	}
 
-	entityName := getEntityAttribute(m.attributes, rule.Identifier)
-	entityDisplayName := getEntityAttribute(m.attributes, rule.Name)
+	entityName := getEntityAttribute(attributes, rule.Identifier)
+	entityDisplayName := getEntityAttribute(attributes, rule.Name)
+
 	if entityName == "" || entityDisplayName == "" {
 		return sdk_metadata.Metadata{}, false
 	}
@@ -132,7 +140,7 @@ func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
 
 	// Adds attributes as entity tag, sdk adds the prefix "tags." to the key.
 	for _, t := range rule.tagRules {
-		if tagVal, ok := m.attributes[t.sourceAttribute]; ok {
+		if tagVal, ok := attributes[t.sourceAttribute]; ok {
 			md.AddTag(t.entityTagName, tagVal)
 		}
 	}
@@ -141,16 +149,19 @@ func (s Synthesizer) GetEntityMetadata(m Metric) (sdk_metadata.Metadata, bool) {
 }
 
 // getMatchingRule iterates over all conditions to check if m satisfy returning the associated rule.
-func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
+func (s Synthesizer) getMatchingRule(metricName string, attributes labels.Set) (rule EntityRule, found bool) {
 	var match *conditionGroup
+
 	for i, cg := range s.conditionList {
 		// special case since metricName is not a metric attribute.
-		value := m.name
+		value := metricName
+
 		if cg.condition.Attribute != "metricName" {
-			val, ok := m.attributes[cg.condition.Attribute]
+			val, ok := attributes[cg.condition.Attribute]
 			if !ok {
 				continue
 			}
+
 			value, _ = val.(string)
 		}
 		// longer prefix matches take precedences over shorter ones.
@@ -159,9 +170,11 @@ func (s Synthesizer) getMatchingRule(m Metric) (rule EntityRule, found bool) {
 			match = &s.conditionList[i]
 		}
 	}
+
 	if match != nil {
 		return match.rule, true
 	}
+
 	return
 }
 
@@ -170,10 +183,11 @@ func getEntityAttribute(attributes labels.Set, key string) string {
 	if !ok {
 		return ""
 	}
+
 	attString, ok := att.(string)
 	if !ok {
 		return ""
 	}
-	return attString
 
+	return attString
 }

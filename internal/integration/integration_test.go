@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	"github.com/newrelic/nri-prometheus/internal/synthesis"
+	"github.com/stretchr/testify/assert"
 )
 
 type nilEmit struct{}
@@ -81,19 +81,19 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 		retrievers = append(retrievers, fr)
 	}
 
-	sd := []SynthesisDefinition{
+	sd := []synthesis.Definition{
 		{
-			EntityRule: EntityRule{
+			EntityRule: synthesis.EntityRule{
 				EntityType: "CONTAINER",
 				Identifier: "id",
 				Name:       "container_name",
-				Conditions: []Condition{
+				Conditions: []synthesis.Condition{
 					{
 						Attribute: "metricName",
 						Prefix:    "container_",
 					},
 				},
-				Tags: Tags{
+				Tags: synthesis.Tags{
 					"namespace":  nil,
 					"targetName": nil,
 				},
@@ -101,7 +101,7 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 		},
 	}
 
-	s := NewSynthesizer(sd)
+	s := synthesis.NewSynthesizer(sd)
 	emitter := NewInfraSdkEmitter(s)
 	emitters := []Emitter{emitter}
 

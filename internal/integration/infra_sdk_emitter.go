@@ -8,17 +8,18 @@ import (
 	infra "github.com/newrelic/infra-integrations-sdk/v4/data/metric"
 	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
+	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	synthesisRules Synthesizer
+	synthesisRules synthesis.Synthesizer
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(synthesisRules Synthesizer) *InfraSdkEmitter {
+func NewInfraSdkEmitter(synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
 	return &InfraSdkEmitter{synthesisRules: synthesisRules}
 }
 
@@ -124,7 +125,7 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric)
+	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric.name, metric.attributes)
 	// if we can't find an entity for the metric, add it to the "host" entity
 	if !found {
 		i.HostEntity.AddMetric(m)

@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
+	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -50,12 +51,12 @@ type Config struct {
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
 	EmitterProxyURL                              *url.URL
-	EmitterCAFile                                string                            `mapstructure:"emitter_ca_file"`
-	EmitterInsecureSkipVerify                    bool                              `mapstructure:"emitter_insecure_skip_verify" default:"false"`
-	TelemetryEmitterDeltaExpirationAge           time.Duration                     `mapstructure:"telemetry_emitter_delta_expiration_age"`
-	TelemetryEmitterDeltaExpirationCheckInterval time.Duration                     `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
-	WorkerThreads                                int                               `mapstructure:"worker_threads"`
-	EntityDefinitions                            []integration.SynthesisDefinition `mapstructure:"entity_definitions"`
+	EmitterCAFile                                string                 `mapstructure:"emitter_ca_file"`
+	EmitterInsecureSkipVerify                    bool                   `mapstructure:"emitter_insecure_skip_verify" default:"false"`
+	TelemetryEmitterDeltaExpirationAge           time.Duration          `mapstructure:"telemetry_emitter_delta_expiration_age"`
+	TelemetryEmitterDeltaExpirationCheckInterval time.Duration          `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
+	WorkerThreads                                int                    `mapstructure:"worker_threads"`
+	EntityDefinitions                            []synthesis.Definition `mapstructure:"entity_definitions"`
 }
 
 const maskedLicenseKey = "****"
@@ -325,7 +326,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			s := integration.NewSynthesizer(cfg.EntityDefinitions)
+			s := synthesis.NewSynthesizer(cfg.EntityDefinitions)
 			emitter := integration.NewInfraSdkEmitter(s)
 			emitters = append(emitters, emitter)
 		default:
