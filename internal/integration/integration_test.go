@@ -102,7 +102,7 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 	}
 
 	s := synthesis.NewSynthesizer(sd)
-	emitter := NewInfraSdkEmitter(s)
+	emitter := NewInfraSdkEmitter(Metadata{Name: "nri-*", Version: "test"}, s)
 	emitters := []Emitter{emitter}
 
 	b.ReportAllocs()

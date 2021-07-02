@@ -15,7 +15,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
 	assert.NotNil(t, e)
 
 	// when
@@ -65,7 +65,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+			e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -111,7 +111,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -162,7 +162,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -292,7 +292,12 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 			},
 		},
 	}
-	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
+	testMetadata := Metadata{
+		Name:    "nri-*",
+		Version: "test",
+	}
+
+	emitter := NewInfraSdkEmitter(testMetadata, synthesis.NewSynthesizer(definitions))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
@@ -342,6 +347,9 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 
 	var result Result
 	assert.Error(t, json.Unmarshal(bytes, &result))
+
+	assert.Equal(t, testMetadata.Name, result.Metadata.Name)
+	assert.Equal(t, testMetadata.Version, result.Metadata.Version)
 
 	assert.Len(t, result.Entities, 4)
 	e, ok := result.findEntity("REDIS:" + metrics.Target.Name)
@@ -503,11 +511,6 @@ redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 
 }
 
 //---- simplified structs mimicking the real Infra SDK output structure
-type metadata struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-}
-
 type entityMetadata struct {
 	Name        string                 `json:"name"`
 	DisplayName string                 `json:"displayName"`
@@ -552,7 +555,7 @@ type entity struct {
 
 type Result struct {
 	ProtocolVersion string   `json:"protocol_version"`
-	Metadata        metadata `json:"integration"`
+	Metadata        Metadata `json:"integration"`
 	Entities        []entity `json:"data"`
 }
 
