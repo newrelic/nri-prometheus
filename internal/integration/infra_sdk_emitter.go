@@ -45,17 +45,24 @@ func (im *Metadata) isValid() bool {
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(integrationMetadata Metadata, synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
-	if !integrationMetadata.isValid() {
-		integrationMetadata = Metadata{
+func NewInfraSdkEmitter(synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
+	return &InfraSdkEmitter{
+		synthesisRules: synthesisRules,
+		// By default it uses the nri-prometheus and it version.
+		integrationMetadata: Metadata{
 			Name:    Name,
 			Version: Version,
-		}
+		},
 	}
-	return &InfraSdkEmitter{
-		synthesisRules:      synthesisRules,
-		integrationMetadata: integrationMetadata,
+}
+
+// SetIntegrationMetadata overrides integrationMetadata.
+func (e *InfraSdkEmitter) SetIntegrationMetadata(integrationMetadata Metadata) error {
+	if !integrationMetadata.isValid() {
+		return fmt.Errorf("invalid integration metadata")
 	}
+	e.integrationMetadata = integrationMetadata
+	return nil
 }
 
 // Name is the InfraSdkEmitter name.

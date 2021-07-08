@@ -209,7 +209,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		)
 	}
 
-	// fetch duration is hardcoded to 1 since the target is scraped only once
+	// Fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
@@ -313,7 +313,10 @@ func Run(cfg *Config) error {
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
 			s := synthesis.NewSynthesizer(cfg.EntityDefinitions)
-			emitter := integration.NewInfraSdkEmitter(cfg.IntegrationMetadata, s)
+			emitter := integration.NewInfraSdkEmitter(s)
+			if err := emitter.SetIntegrationMetadata(cfg.IntegrationMetadata); err != nil {
+				logrus.WithError(err).Debugf("could not set emitter metadata: %v", cfg.IntegrationMetadata)
+			}
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)

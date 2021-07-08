@@ -15,7 +15,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 	assert.NotNil(t, e)
 
 	// when
@@ -25,6 +25,14 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	expected := "infra-sdk"
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestInfraSdkEmitter_InvalidMetadata(t *testing.T) {
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	invalid := Metadata{Name: "test", Version: ""}
+	valid := Metadata{Name: "foo", Version: "bar"}
+	assert.Error(t, e.SetIntegrationMetadata(invalid))
+	assert.NoError(t, e.SetIntegrationMetadata(valid))
 }
 
 func TestInfraSdkEmitter_Emit(t *testing.T) {
@@ -65,7 +73,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
+			e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -111,7 +119,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -162,7 +170,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(Metadata{}, synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -293,11 +301,12 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 		},
 	}
 	testMetadata := Metadata{
-		Name:    "nri-*",
+		Name:    "nri-foo",
 		Version: "test",
 	}
 
-	emitter := NewInfraSdkEmitter(testMetadata, synthesis.NewSynthesizer(definitions))
+	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
+	assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
