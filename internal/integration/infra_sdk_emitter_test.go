@@ -27,6 +27,14 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestInfraSdkEmitter_InvalidMetadata(t *testing.T) {
+	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	invalid := Metadata{Name: "test", Version: ""}
+	valid := Metadata{Name: "foo", Version: "bar"}
+	assert.Error(t, e.SetIntegrationMetadata(invalid))
+	assert.NoError(t, e.SetIntegrationMetadata(valid))
+}
+
 func TestInfraSdkEmitter_Emit(t *testing.T) {
 	type args struct {
 		in0 []Metric
@@ -292,7 +300,13 @@ func Test_Emitter_EmitsEntity(t *testing.T) {
 			},
 		},
 	}
+	testMetadata := Metadata{
+		Name:    "nri-foo",
+		Version: "test",
+	}
+
 	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
+	assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
 	// and this exporter input metrics
 	input := `
 # HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
@@ -342,6 +356,9 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 
 	var result Result
 	assert.Error(t, json.Unmarshal(bytes, &result))
+
+	assert.Equal(t, testMetadata.Name, result.Metadata.Name)
+	assert.Equal(t, testMetadata.Version, result.Metadata.Version)
 
 	assert.Len(t, result.Entities, 4)
 	e, ok := result.findEntity("REDIS:" + metrics.Target.Name)
@@ -503,11 +520,6 @@ redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 
 }
 
 //---- simplified structs mimicking the real Infra SDK output structure
-type metadata struct {
-	Name    string `json:"name"`
-	Version string `json:"version"`
-}
-
 type entityMetadata struct {
 	Name        string                 `json:"name"`
 	DisplayName string                 `json:"displayName"`
@@ -552,7 +564,7 @@ type entity struct {
 
 type Result struct {
 	ProtocolVersion string   `json:"protocol_version"`
-	Metadata        metadata `json:"integration"`
+	Metadata        Metadata `json:"integration"`
 	Entities        []entity `json:"data"`
 }
 

@@ -29,12 +29,40 @@ var removedAttributes = map[string]struct{}{
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	synthesisRules synthesis.Synthesizer
+	synthesisRules      synthesis.Synthesizer
+	integrationMetadata Metadata
+}
+
+// Metadata contains the name and version of the exporter that is being scraped.
+// The Infra-Agent use the metadata to populate instrumentation.name and instrumentation.value
+type Metadata struct {
+	Name    string `mapstructure:"name"`
+	Version string `mapstructure:"version"`
+}
+
+func (im *Metadata) isValid() bool {
+	return im.Name != "" && im.Version != ""
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
 func NewInfraSdkEmitter(synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
-	return &InfraSdkEmitter{synthesisRules: synthesisRules}
+	return &InfraSdkEmitter{
+		synthesisRules: synthesisRules,
+		// By default it uses the nri-prometheus and it version.
+		integrationMetadata: Metadata{
+			Name:    Name,
+			Version: Version,
+		},
+	}
+}
+
+// SetIntegrationMetadata overrides integrationMetadata.
+func (e *InfraSdkEmitter) SetIntegrationMetadata(integrationMetadata Metadata) error {
+	if !integrationMetadata.isValid() {
+		return fmt.Errorf("invalid integration metadata")
+	}
+	e.integrationMetadata = integrationMetadata
+	return nil
 }
 
 // Name is the InfraSdkEmitter name.
@@ -45,7 +73,7 @@ func (e *InfraSdkEmitter) Name() string {
 // Emit emits the metrics using the infra sdk
 func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	// create new Infra sdk Integration
-	i, err := sdk.New(Name, Version)
+	i, err := sdk.New(e.integrationMetadata.Name, e.integrationMetadata.Version)
 	if err != nil {
 		return err
 	}

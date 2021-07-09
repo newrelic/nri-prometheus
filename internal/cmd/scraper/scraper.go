@@ -57,6 +57,7 @@ type Config struct {
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration          `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
 	WorkerThreads                                int                    `mapstructure:"worker_threads"`
 	EntityDefinitions                            []synthesis.Definition `mapstructure:"entity_definitions"`
+	IntegrationMetadata                          integration.Metadata   `mapstructure:"integration_metadata"`
 }
 
 const maskedLicenseKey = "****"
@@ -111,7 +112,6 @@ func validateConfig(cfg *Config) error {
 
 // RunWithEmitters runs the scraper with preselected emitters.
 func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
-
 	if len(emitters) == 0 {
 		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
@@ -143,10 +143,10 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 				Attributes: map[string]interface{}{
 					"k8s.cluster.name": cfg.ClusterName,
 					"clusterName":      cfg.ClusterName,
-					//Keeping these for backward compatibility
+					// Keeping these for backward compatibility
 					"integrationVersion": integration.Version,
 					"integrationName":    integration.Name,
-					//Since the agent is not used we add the attributes manually
+					// Since the agent is not used we add the attributes manually
 					"collector.name":           integration.Name,
 					"collector.version":        integration.Version,
 					"instrumentation.name":     integration.Name,
@@ -209,7 +209,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		)
 	}
 
-	//fetch duration is hardcoded to 1 since the target is scraped only once
+	// Fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
@@ -314,6 +314,9 @@ func Run(cfg *Config) error {
 		case "infra-sdk":
 			s := synthesis.NewSynthesizer(cfg.EntityDefinitions)
 			emitter := integration.NewInfraSdkEmitter(s)
+			if err := emitter.SetIntegrationMetadata(cfg.IntegrationMetadata); err != nil {
+				logrus.WithError(err).Debugf("could not set emitter metadata: %v", cfg.IntegrationMetadata)
+			}
 			emitters = append(emitters, emitter)
 		default:
 			logrus.Debugf("unknown emitter: %s", e)
