@@ -53,6 +53,13 @@ type AddAttributesRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
+// DropAttributesRule drops the named Attributes from the metrics that match
+// with MetricPrefix.
+type DropAttributesRule struct {
+	MetricPrefix string   `mapstructure:"metric_prefix"`
+	Attributes   []string `mapstructure:"attributes"`
+}
+
 // AutoDecorateLabels mixes automatically all the "_info" labels within the other metrics, when correspond, according to
 // the following rules:
 // - For each "non-info" metric:
@@ -248,6 +255,26 @@ func AddAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 		for _, rr := range rules {
 			if strings.HasPrefix(targetMetrics.Metrics[mi].name, rr.MetricPrefix) {
 				labels.Accumulate(targetMetrics.Metrics[mi].attributes, rr.Attributes)
+			}
+		}
+	}
+}
+
+// DropAttributes applies the DropAttributesRule. It drops the attributes
+// defined in the rules from the metrics that match.
+func DropAttributes(targetMetrics *TargetMetrics, rules []DropAttributesRule) {
+
+	// Fast path, quickly exit if there are no rules defined.
+	if len(rules) == 0 {
+		return
+	}
+
+	for mi := range targetMetrics.Metrics {
+		for _, rr := range rules {
+			if strings.HasPrefix(targetMetrics.Metrics[mi].name, rr.MetricPrefix) {
+				for _, attr := range rr.Attributes {
+					delete(targetMetrics.Metrics[mi].attributes, attr)
+				}
 			}
 		}
 	}
