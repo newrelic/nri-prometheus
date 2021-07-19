@@ -1,0 +1,34 @@
+name: Security scan
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+  schedule:
+    - cron: "0 3 * * MON" # Every monday at 3 AM
+
+jobs:
+  snyk:
+    name: Run security checks via snyk
+    runs-on: ubuntu-20.04
+    env:
+      SNYK_TOKEN: ${{ secrets.COREINT_SNYK_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Scan code for vulnerabilities
+        run: make ci/snyk-test
+  trivy:
+    name: Run security checks via trivy
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          ignore-unfixed: true
+          exit-code: 1
+          severity: 'HIGH,CRITICAL'
