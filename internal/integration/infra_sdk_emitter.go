@@ -85,7 +85,7 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 			err = e.emitGauge(i, me, now)
 			break
 		case metricType_COUNTER:
-			err = e.emitCounter(i, me, now)
+			err = e.emitCumulativeCounter(i, me, now)
 			break
 		case metricType_SUMMARY:
 			err = e.emitSummary(i, me, now)
@@ -114,8 +114,10 @@ func (e *InfraSdkEmitter) emitGauge(i *sdk.Integration, metric Metric, timestamp
 	return e.addMetricToEntity(i, metric, m)
 }
 
-func (e *InfraSdkEmitter) emitCounter(i *sdk.Integration, metric Metric, timestamp time.Time) error {
-	m, err := sdk.Count(timestamp, metric.name, metric.value.(float64))
+// emitCumulativeCounter calls CumulativeCount that instead of Count, in this way in the agent the delta will be
+// computed and reported instead of the absolute value
+func (e *InfraSdkEmitter) emitCumulativeCounter(i *sdk.Integration, metric Metric, timestamp time.Time) error {
+	m, err := sdk.CumulativeCount(timestamp, metric.name, metric.value.(float64))
 	if err != nil {
 		return err
 	}
