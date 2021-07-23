@@ -40,7 +40,6 @@ builds:
     hooks:
       pre: build/windows/set_exe_properties.sh {{ .Env.TAG }} "prometheus"
 
-nfpms:
 archives:
   - id: nri-prometheus-nix
     builds:
