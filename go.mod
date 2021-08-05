@@ -3,6 +3,7 @@ module github.com/newrelic/nri-prometheus
 go 1.16
 
 require (
+	github.com/golangci/golangci-lint v1.41.1
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/newrelic/infra-integrations-sdk/v4 v4.1.0
