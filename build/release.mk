@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION := v0.155.2
+GORELEASER_VERSION ?= v0.168.0
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -45,12 +45,6 @@ release/fix-archive:
 	@echo "===> $(INTEGRATION) === [release/fix-archive] fixing zip archives internal structure"
 	@bash $(CURDIR)/build/windows/fix_archives.sh $(CURDIR)
 
-.PHONY : release/sign/nix
-release/sign/nix:
-	@echo "===> $(INTEGRATION) === [release/sign] signing packages"
-	@bash $(CURDIR)/build/nix/sign.sh
-
-
 .PHONY : release/publish
 release/publish:
 ifeq ($(UPLOAD_PACKAGES), true)
@@ -68,7 +62,6 @@ endif
 
 .PHONY : release
 release: release/build release/fix-archive release/publish release/clean
-	# release/sign/nix
 	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
 
 OS := $(shell uname -s)
