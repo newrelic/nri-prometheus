@@ -1,15 +1,15 @@
-FROM golang:1.16-buster
+FROM golang:1.17-bullseye
 
-ARG GH_VERSION='1.4.0'
+# Add repo for `gh` tool
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list
 
-RUN apt-get update \
-    && apt-get -y install \
+RUN apt update \
+    && apt -y install \
     rpm \
     gnupg2 \
     gpg-agent \
     debsigs \
     unzip \
-    zip
-
-RUN wget -q https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb -O /tmp/gh_${GH_VERSION}_linux_amd64.deb \
-    && apt-get -y install /tmp/gh_${GH_VERSION}_linux_amd64.deb
+    zip \
+    gh
