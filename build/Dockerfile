@@ -9,9 +9,7 @@ RUN apt-get update \
     gpg-agent \
     debsigs \
     unzip \
-    zip \
-    && go get golang.org/dl/go1.13.15 \
-    && /go/bin/go1.13.15 download
+    zip
 
 RUN wget -q https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_linux_amd64.deb -O /tmp/gh_${GH_VERSION}_linux_amd64.deb \
     && apt-get -y install /tmp/gh_${GH_VERSION}_linux_amd64.deb
