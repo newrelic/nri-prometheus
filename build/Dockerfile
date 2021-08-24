@@ -1,4 +1,4 @@
-FROM golang:1.17-bullseye
+FROM golang:1.16-bullseye
 
 # Add repo for `gh` tool
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
