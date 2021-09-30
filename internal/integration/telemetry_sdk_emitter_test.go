@@ -1,5 +1,6 @@
 // Copyright 2019 New Relic Corporation. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
+
 package integration
 
 import (
@@ -25,7 +26,6 @@ import (
 	"github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
 
 	dto "github.com/prometheus/client_model/go"
-	mpb "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 
 	assert "github.com/stretchr/testify/assert"
@@ -434,7 +434,7 @@ type quantile struct {
 }
 
 // newSummary returns a Prometheus Summary for testing.
-func newSummary(count uint64, sum float64, quantiles []*quantile) (*mpb.Summary, error) {
+func newSummary(count uint64, sum float64, quantiles []*quantile) (*dto.Summary, error) {
 	raw := fmt.Sprintf(`{
 		"sample_count": %d,
 		"sample_sum": %g,
@@ -448,7 +448,7 @@ func newSummary(count uint64, sum float64, quantiles []*quantile) (*mpb.Summary,
 	raw += `]
 	}`
 
-	summary := &mpb.Summary{}
+	summary := &dto.Summary{}
 	if err := json.Unmarshal([]byte(raw), summary); err != nil {
 		return nil, err
 	}
@@ -456,7 +456,7 @@ func newSummary(count uint64, sum float64, quantiles []*quantile) (*mpb.Summary,
 }
 
 // newHistogram returns a Prometheus Histogram for testing.
-func newHistogram(buckets []int64) (*mpb.Histogram, error) {
+func newHistogram(buckets []int64) (*dto.Histogram, error) {
 	count := len(buckets)
 	sum := buckets[count-1]
 	raw := fmt.Sprintf(`{
@@ -472,7 +472,7 @@ func newHistogram(buckets []int64) (*mpb.Histogram, error) {
 	raw += `]
 	}`
 
-	hist := &mpb.Histogram{}
+	hist := &dto.Histogram{}
 	if err := json.Unmarshal([]byte(raw), hist); err != nil {
 		return nil, err
 	}

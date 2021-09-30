@@ -25,7 +25,6 @@ type ArgumentList struct {
 }
 
 func loadConfig() (*scraper.Config, error) {
-
 	c := ArgumentList{}
 	err := args.SetupArgs(&c)
 	if err != nil {

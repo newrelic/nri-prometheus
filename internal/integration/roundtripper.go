@@ -1,3 +1,6 @@
+// Copyright 2019 New Relic Corporation. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
 package integration
 
 import "net/http"
@@ -22,7 +25,6 @@ func newLicenseKeyRoundTripper(
 	rt http.RoundTripper,
 	licenseKey string,
 ) http.RoundTripper {
-
 	if rt == nil {
 		rt = http.DefaultTransport
 	}
