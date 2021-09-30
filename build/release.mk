@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION ?= v0.168.0
+GORELEASER_VERSION ?= v0.180.3
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
