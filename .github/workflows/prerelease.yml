@@ -10,7 +10,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GO_VERSION: '1.16'
+  GO_VERSION: '1.17'
   INTEGRATION: "prometheus"
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
   PFX_CERTIFICATE_BASE64: ${{ secrets.OHAI_PFX_CERTIFICATE_BASE64 }} # base64 encoded
