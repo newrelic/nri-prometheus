@@ -27,12 +27,13 @@ type RenameRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
-// IgnoreRule skips for processing metrics that match any of the Prefixes.
+// IgnoreRule skips for processing metrics that match any of the Prefixes or Suffixes.
 // Metrics that match any of the Except are never skipped.
-// If Prefixes is empty and Except is not, then all metrics that do not
+// If Prefixes and Suffixes are empty and Except is not, then all metrics that do not
 // match Except will be skipped.
 type IgnoreRule struct {
 	Prefixes []string `mapstructure:"prefixes"`
+	Suffixes []string `mapstructure:"suffixes"`
 	Except   []string `mapstructure:"except"`
 }
 
@@ -208,7 +209,7 @@ func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 type ignoreRules []IgnoreRule
 
 func (rules ignoreRules) shouldIgnore(name string) bool {
-	var prefixesLen, exceptRulesLen int
+	var prefixesLen, suffixesLen, exceptRulesLen int
 	for _, rule := range rules {
 		exceptRulesLen += len(rule.Except)
 		for _, prefix := range rule.Except {
@@ -217,15 +218,24 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 			}
 		}
 
+		// Prefixes
 		prefixesLen += len(rule.Prefixes)
 		for _, prefix := range rule.Prefixes {
 			if strings.HasPrefix(name, prefix) {
 				return true
 			}
 		}
+
+		// Suffixes
+		suffixesLen += len(rule.Suffixes)
+		for _, suffix := range rule.Suffixes {
+			if strings.HasSuffix(name, suffix) {
+				return true
+			}
+		}
 	}
 
-	if prefixesLen > 0 {
+	if prefixesLen > 0 || suffixesLen > 0 {
 		return false
 	}
 

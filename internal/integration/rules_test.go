@@ -439,13 +439,16 @@ func TestIgnoreRules(t *testing.T) {
 		{
 			Prefixes: []string{"redis_instance"},
 		},
+		{
+			Suffixes: []string{"_info"},
+		},
 	})
 
 	actual := map[string]interface{}{}
 	for _, metric := range entity.Metrics {
 		switch metric.name {
 		case "redis_exporter_build_info":
-			actual[metric.name] = 1
+			require.Fail(t, "redis_exporter_build_info must have been filtered")
 		case "redis_instantaneous_input_kbps":
 			actual[metric.name] = 1
 		case "redis_exporter_scrapes_total":
@@ -456,7 +459,6 @@ func TestIgnoreRules(t *testing.T) {
 			require.Fail(t, "unexpected metric", "%#v", metric)
 		}
 	}
-	assert.Contains(t, actual, "redis_exporter_build_info")
 	assert.Contains(t, actual, "redis_instantaneous_input_kbps")
 }
 
@@ -491,6 +493,40 @@ func TestIgnoreRules_PrefixesWithExceptions(t *testing.T) {
 
 	assert.Len(t, actual, 2)
 	assert.Contains(t, actual, "redis_exporter_build_info")
+	assert.Contains(t, actual, "redis_instance_info")
+}
+
+func TestIgnoreRules_SuffixesWithExceptions(t *testing.T) {
+	t.Parallel()
+
+	entity := scrapeString(t, prometheusInput)
+	filter(&entity, []IgnoreRule{
+		{
+			Suffixes: []string{"exporter_scrapes_total"},
+		},
+		{
+			Suffixes: []string{"_info"}, Except: []string{"redis_instance_info"},
+		},
+	})
+
+	actual := map[string]interface{}{}
+	for _, metric := range entity.Metrics {
+		switch metric.name {
+		case "redis_instantaneous_input_kbps":
+			actual[metric.name] = 1
+		case "redis_exporter_build_info":
+			require.Fail(t, "redis_exporter_build_info must have been filtered")
+		case "redis_exporter_scrapes_total":
+			require.Fail(t, "redis_exporter_scrapes_total must have been filtered")
+		case "redis_instance_info":
+			actual[metric.name] = 1
+		default:
+			require.Fail(t, "unexpected metric", "%#v", metric)
+		}
+	}
+
+	assert.Len(t, actual, 2)
+	assert.Contains(t, actual, "redis_instantaneous_input_kbps")
 	assert.Contains(t, actual, "redis_instance_info")
 }
 
