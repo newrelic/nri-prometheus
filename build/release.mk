@@ -53,10 +53,6 @@ ifeq ($(UPLOAD_PACKAGES), true)
 	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
 endif
 	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
-	# Copy generated manifests to S3
-	for manifest in $(CURDIR)/target/deploy/*; do \
-		aws s3 cp $$manifest $$S3_PATH/integrations/kubernetes/; \
-	done
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
 
 

@@ -118,31 +118,10 @@ jobs:
         with:
           username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
           password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
-      - uses: aws-actions/configure-aws-credentials@v1
-        if: ${{ !github.event.release.prerelease }}   # Note the *not* operator
-        with:
-          aws-access-key-id: ${{ secrets.OHAI_AWS_ACCESS_KEY_ID_PRODUCTION }}
-          aws-secret-access-key: ${{ secrets.OHAI_AWS_SECRET_ACCESS_KEY_PRODUCTION }}
-          aws-region: us-east-1
-          role-duration-seconds: 1200
-          role-to-assume: ${{ secrets.OHAI_AWS_ROLE_ARN_PRODUCTION }}
-          role-session-name: ${{ secrets.OHAI_AWS_ROLE_SESSION_NAME_PRODUCTION }}
-          role-skip-session-tagging: true
-      - uses: aws-actions/configure-aws-credentials@v1
-        if: ${{ github.event.release.prerelease }}
-        with:
-          aws-access-key-id: ${{ secrets.OHAI_AWS_ACCESS_KEY_ID_STAGING }}
-          aws-secret-access-key: ${{ secrets.OHAI_AWS_SECRET_ACCESS_KEY_STAGING }}
-          aws-region: us-east-1
-          role-duration-seconds: 1200
-          role-to-assume: ${{ secrets.OHAI_AWS_ROLE_ARN_STAGING }}
-          role-session-name: ${{ secrets.OHAI_AWS_ROLE_SESSION_NAME_STAGING }}
-          role-skip-session-tagging: true
       - name: Test for prerelase
         if: ${{ github.event.release.prerelease }}
         run: |
           echo "TAG_SUFFIX=-pre" >> $GITHUB_ENV
-          echo "S3_PATH=s3://nr-downloads-ohai-staging/infrastructure_agent" >> $GITHUB_ENV
       - name: do the release
         run: make release
         env:
