@@ -1,8 +1,3 @@
-before:
-  hooks:
-    # Generate yamls pointing to correct versions on release
-    - go run tools/deploy-yaml/main.go -full-version {{.Version}} -major-minor-version {{.Major}}.{{.Minor}}
-
 builds:
   - id: nri-prometheus-nix
     main: ./cmd/nri-prometheus/
