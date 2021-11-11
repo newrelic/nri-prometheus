@@ -123,11 +123,7 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 		return nil, err
 	}
 
-	lbls := labels.Set{}
-	for lk, lv := range n.Labels {
-		lbls["label."+lk] = lv
-	}
-
+	lbls := getK8sLabels(n)
 	for ty, a := range addrMap {
 		ln := "node_address_" + string(ty)
 		lbls[ln] = a[0]
@@ -200,6 +196,14 @@ func isObjectScrapable(o metav1.Object, label string) bool {
 	return o.GetLabels()[label] == trueStr || o.GetAnnotations()[label] == trueStr
 }
 
+func getK8sLabels(o metav1.Object) labels.Set {
+	lbls := labels.Set{}
+	for lk, lv := range o.GetLabels() {
+		lbls["label."+lk] = lv
+	}
+	return lbls
+}
+
 func isInt(s string) bool {
 	_, err := strconv.ParseInt(s, 10, 64)
 	return err == nil
@@ -244,11 +248,7 @@ func getPort(o metav1.Object) string {
 }
 
 func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
-	lbls := labels.Set{}
-
-	for lk, lv := range e.Labels {
-		lbls["label."+lk] = lv
-	}
+	lbls := getK8sLabels(e)
 	// Name and Namespace of services and endpoints collides
 	lbls["serviceName"] = e.Name
 	lbls["namespaceName"] = e.Namespace
@@ -298,10 +298,7 @@ func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 }
 
 func serviceTarget(s *corev1.Service, u url.URL) Target {
-	lbls := labels.Set{}
-	for lk, lv := range s.Labels {
-		lbls["label."+lk] = lv
-	}
+	lbls := getK8sLabels(s)
 	lbls["serviceName"] = s.Name
 	lbls["namespaceName"] = s.Namespace
 
@@ -367,10 +364,7 @@ func getPodDeployment(p *corev1.Pod) string {
 }
 
 func podTarget(p *corev1.Pod, u url.URL) Target {
-	lbls := labels.Set{}
-	for lk, lv := range p.Labels {
-		lbls["label."+lk] = lv
-	}
+	lbls := getK8sLabels(p)
 	lbls["podName"] = p.Name
 	lbls["namespaceName"] = p.Namespace
 	lbls["nodeName"] = p.Spec.NodeName
