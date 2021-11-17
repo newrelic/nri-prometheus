@@ -316,11 +316,14 @@ func serviceTarget(s *corev1.Service, u url.URL) Target {
 // returns all the possible targets for a service (1 target per port)
 func serviceTargets(s *corev1.Service) []Target {
 	port := getPort(s)
+	scheme := getScheme(s)
+	path := getPath(s)
+
 	if port != "" {
 		u := url.URL{
-			Scheme: getScheme(s),
+			Scheme: scheme,
 			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
-			Path:   getPath(s),
+			Path:   path,
 		}
 		return []Target{serviceTarget(s, u)}
 	}
@@ -329,9 +332,9 @@ func serviceTargets(s *corev1.Service) []Target {
 	var targets []Target
 	for _, port := range s.Spec.Ports {
 		u := url.URL{
-			Scheme: getScheme(s),
+			Scheme: scheme,
 			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
-			Path:   getPath(s),
+			Path:   path,
 		}
 		targets = append(targets, serviceTarget(s, u))
 	}
@@ -389,11 +392,14 @@ func podTargets(p *corev1.Pod) []Target {
 	}
 
 	port := getPort(p)
+	scheme := getScheme(p)
+	path := getPath(p)
+
 	if port != "" {
 		u := url.URL{
-			Scheme: getScheme(p),
+			Scheme: scheme,
 			Host:   net.JoinHostPort(p.Status.PodIP, port),
-			Path:   getPath(p),
+			Path:   path,
 		}
 		return []Target{podTarget(p, u)}
 	}
@@ -403,9 +409,9 @@ func podTargets(p *corev1.Pod) []Target {
 	for _, c := range p.Spec.Containers {
 		for _, port := range c.Ports {
 			u := url.URL{
-				Scheme: getScheme(p),
+				Scheme: scheme,
 				Host:   net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
-				Path:   getPath(p),
+				Path:   path,
 			}
 			targets = append(targets, podTarget(p, u))
 		}
