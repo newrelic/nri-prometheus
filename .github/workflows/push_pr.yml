@@ -66,28 +66,6 @@ jobs:
         run: |
           .\build\windows\unit_tests.ps1
 
-  # can't run this step inside of container because of tests specific
-  test-integration-nix:
-    name: Run integration tests on *Nix
-    runs-on: ubuntu-20.04
-    defaults:
-      run:
-        working-directory: src/github.com/${{ env.ORIGINAL_REPO_NAME }}
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-          path: src/github.com/${{ env.ORIGINAL_REPO_NAME }}
-      - name: Install Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Integration test
-        env:
-          GOPATH: "${{ github.workspace }}"
-        run: make integration-test
-
   # make sure code build in all platforms
   build:
     name: Build binary for all platforms:arch

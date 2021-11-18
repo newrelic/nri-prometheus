@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.10.0
+## Features
+- Add support for prometheus.io/scheme by @vihangm in #240
+
+## Changed
+- Remove static manifests from this repo by @kang-makes in #237
+- Improve formatting in packages and make imports more consistent by @invidian in #197
+- Bump Dependencies.
+
+## 2.9.0
+## Changed
+- Dependency have been bumped. Notably, this includes a new version of the telemetry sdk which 
+  should improve performance when submitting metrics from large targets. #220
+- Updated manifest in preparation of 1.22 support #220
+## 2.8.0
+## Changed
+ - infraSDK should use Cumulative Count to send deltas
+ - metadata is read from config in order to set integration version and name from an external source
+ - latest image is now published
+ - Improved entity synthesis to be uniform with different projects
+ - Improved common attributes management
+
+## 2.7.0
+## Changed
+- Several non-critical dependencies have been updated to their latest versions (#175)
+- Prometheus dependencies have been upgraded to their latest version (#176)
+- Kubernetes client dependencies have been upgraded to latest available versions (#179)
+
+## Fixed
+- Fixed a bug that caused `nri-prometheus` to panic if `prometheus.io/path` was set to an empty string (#182)
+  - An empty value for `prometheus.io/path` will now be intepreted as `/` path.
+
+## 2.6.1
+### Changed
+- Several dependencies have been bumped to their latest versions
+
+## 2.6.0
+### Feature 
+While services with the a prometheus.io/scrape annotation can be discovered, nri-prometheus used to scrape only the service itself and not service endpoints.
+
+Two new config options have been added ScrapeServices (default true) and ScrapeEndpoints(default false). Please notice that enabling the latter depending the number of endpoints in the cluster can increase considerably the load.
+
+Moreover unless there is the need for backward compatibility there is no reason for having both options set to true
+
+### Fix
+- When a page is partially loaded, an unexpected EOF error is raised, but is squashed by the prometheus decoder. This PR exposes the unexpected EOF error (io.ErrUnexpectedEOF) and avoids only partially reporting metrics which can lead to weird behavior of metrics that are compositions in the UI.
+## 2.5.0
+### Changed
+- Removed definition path from configuration file
+- Added support for ARM and ARM64 images
+## 2.4.1
+### Changed
+
+- Fixed name structure for tar.gz packages
+
 ## 2.4.0
 ### Changed
 
