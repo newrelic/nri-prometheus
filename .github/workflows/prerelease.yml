@@ -13,9 +13,6 @@ env:
   GO_VERSION: '1.16'
   INTEGRATION: "prometheus"
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
-  PFX_CERTIFICATE_BASE64: ${{ secrets.OHAI_PFX_CERTIFICATE_BASE64 }} # base64 encoded
-  PFX_CERTIFICATE_DESCRIPTION: 'New Relic Infrastructure'
-  PFX_PASSPHRASE: ${{ secrets.OHAI_PFX_PASSPHRASE }}
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
   TAG: ${{ github.event.release.tag_name }}
   S3_PATH: s3://nr-downloads-main/infrastructure_agent
@@ -96,7 +93,7 @@ jobs:
         with:
           username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
           password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
-      - name: Test for prerelase
+      - name: Add pre-release tag
         if: ${{ github.event.release.prerelease }}
         run: |
           echo "TAG_SUFFIX=-pre" >> $GITHUB_ENV
@@ -105,47 +102,6 @@ jobs:
         env:
           GENERATE_PACKAGES: true
           UPLOAD_PACKAGES: ${{ github.event.release.prerelease }}
-      - name: Notify failure via Slack
-        if: ${{ failure() }}
-        uses: archive/github-actions-slack@master
-        with:
-          slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
-          slack-channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
-          slack-text: "❌ `${{ env.REPO_FULL_NAME }}`: prerelease pipeline failed."
-
-  package-win:
-    if: ${{ github.event.release.prerelease }}
-    name: Create MSI & Upload into GH Release assets
-    runs-on: windows-2019
-    needs: [ release ]
-    env:
-      GOPATH: ${{ github.workspace }}
-    defaults:
-      run:
-        working-directory: src/github.com/${{env.ORIGINAL_REPO_NAME}}
-    strategy:
-      matrix:
-        goarch: [ amd64, 386 ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          path: src/github.com/${{env.ORIGINAL_REPO_NAME}}
-      - name: Get PFX certificate from GH secrets
-        shell: bash
-        run: printf "%s" "$PFX_CERTIFICATE_BASE64" | base64 -d - > wincert.pfx
-      - name: Download zip from GH Release assets and extract .exe
-        shell: pwsh
-        run: |
-          build\windows\download_zip_extract_exe.ps1 "$env:INTEGRATION" ${{ matrix.goarch }} "$env:TAG" "$env:REPO_FULL_NAME"
-      - name: Create MSI
-        shell: pwsh
-        run: |
-          build\windows\package_msi.ps1 -integration "$env:INTEGRATION" -arch ${{ matrix.goarch }} -tag "$env:TAG" -pfx_passphrase "$env:PFX_PASSPHRASE" -pfx_certificate_description "$env:PFX_CERTIFICATE_DESCRIPTION"
-      - name: Upload MSI to GH
-        shell: bash
-        run: |
-          build/windows/upload_msi.sh ${INTEGRATION} ${{ matrix.goarch }} ${TAG} ${REPO_FULL_NAME}
       - name: Notify failure via Slack
         if: ${{ failure() }}
         uses: archive/github-actions-slack@master
