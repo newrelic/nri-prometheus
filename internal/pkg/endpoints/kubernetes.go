@@ -35,6 +35,8 @@ const (
 	NodeLegacyHostIP          = "LegacyHostIP"
 	defaultScrapeEnabledLabel = "prometheus.io/scrape"
 	defaultScrapePortLabel    = "prometheus.io/port"
+	defaultScrapeSchemeLabel  = "prometheus.io/scheme"
+	defaultScrapeScheme       = "http"
 	defaultScrapePathLabel    = "prometheus.io/path"
 	defaultScrapePath         = "/metrics"
 )
@@ -121,11 +123,7 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 		return nil, err
 	}
 
-	lbls := labels.Set{}
-	for lk, lv := range n.Labels {
-		lbls["label."+lk] = lv
-	}
-
+	lbls := getK8sLabels(n)
 	for ty, a := range addrMap {
 		ln := "node_address_" + string(ty)
 		lbls[ln] = a[0]
@@ -198,28 +196,66 @@ func isObjectScrapable(o metav1.Object, label string) bool {
 	return o.GetLabels()[label] == trueStr || o.GetAnnotations()[label] == trueStr
 }
 
-func endpointsTarget(e *corev1.Endpoints, port string, ip string, path string) *Target {
+func getK8sLabels(o metav1.Object) labels.Set {
 	lbls := labels.Set{}
-
-	for lk, lv := range e.Labels {
+	for lk, lv := range o.GetLabels() {
 		lbls["label."+lk] = lv
 	}
+	return lbls
+}
+
+func isInt(s string) bool {
+	_, err := strconv.ParseInt(s, 10, 64)
+	return err == nil
+}
+
+func getScheme(o metav1.Object) string {
+	// Annotations take precedence over labels.
+	if annotation, ok := o.GetAnnotations()[defaultScrapeSchemeLabel]; ok {
+		return annotation
+	}
+	if label, ok := o.GetLabels()[defaultScrapeSchemeLabel]; ok {
+		return label
+	}
+
+	return defaultScrapeScheme
+}
+
+func getPath(o metav1.Object) string {
+	// Annotations take precedence over labels.
+	if annotation, ok := o.GetAnnotations()[defaultScrapePathLabel]; ok {
+		return annotation
+	}
+	if label, ok := o.GetLabels()[defaultScrapePathLabel]; ok {
+		return label
+	}
+	return defaultScrapePath
+}
+
+func getPort(o metav1.Object) string {
+	// Annotations take precedence over labels.
+	if annotation, ok := o.GetAnnotations()[defaultScrapePortLabel]; ok {
+		if isInt(annotation) {
+			return annotation
+		}
+	}
+	if label, ok := o.GetLabels()[defaultScrapePortLabel]; ok {
+		if isInt(label) {
+			return label
+		}
+	}
+	return ""
+}
+
+func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
+	lbls := getK8sLabels(e)
 	// Name and Namespace of services and endpoints collides
 	lbls["serviceName"] = e.Name
 	lbls["namespaceName"] = e.Namespace
 
-	hostname := ip
-	hostAndPort := net.JoinHostPort(hostname, port)
-	fullServiceURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
-	addr, err := url.Parse(fullServiceURL)
-	if err != nil {
-		klog.WithError(err).WithField("endpoints", e.Name).Errorf("couldn't parse endpoint url, skipping: %s", fullServiceURL)
-		return nil
-	}
-
-	return &Target{
+	return Target{
 		Name: e.Name,
-		URL:  *addr,
+		URL:  u,
 		Object: Object{
 			Name:   e.Name,
 			Kind:   "endpoints",
@@ -228,25 +264,47 @@ func endpointsTarget(e *corev1.Endpoints, port string, ip string, path string) *
 	}
 }
 
-func serviceTarget(s *corev1.Service, port, path string) *Target {
-	lbls := labels.Set{}
-	hostname := fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace)
-	hostAndPort := net.JoinHostPort(hostname, port)
-	fullServiceURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
-	addr, err := url.Parse(fullServiceURL)
-	if err != nil {
-		klog.WithError(err).WithField("service", s.Name).Errorf("couldn't parse service url, skipping: %s", fullServiceURL)
-		return nil
+// returns all the possible targets for a endpoint (multiple targets per port)
+func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
+	// we need to pass the service since the annotations are not inherited
+	port := getPort(s)
+	path := getPath(s)
+	scheme := getScheme(s)
+
+	var targets []Target
+	for _, subset := range e.Subsets {
+		// we are skipping eSub.NotReadyAddresses
+		for _, eSubAddr := range subset.Addresses {
+			for _, eSubPort := range subset.Ports {
+				if eSubPort.Protocol != corev1.ProtocolTCP {
+					continue
+				}
+
+				subPortStr := fmt.Sprintf("%d", eSubPort.Port)
+				if port != "" && port != subPortStr {
+					// If we parsed a port from the config, then only grab subsets which contain said port.
+					continue
+				}
+				u := url.URL{
+					Scheme: scheme,
+					Host:   net.JoinHostPort(eSubAddr.IP, subPortStr),
+					Path:   path,
+				}
+				targets = append(targets, endpointsTarget(e, u))
+			}
+		}
 	}
-	for lk, lv := range s.Labels {
-		lbls["label."+lk] = lv
-	}
+	return targets
+}
+
+func serviceTarget(s *corev1.Service, u url.URL) Target {
+	lbls := getK8sLabels(s)
 	lbls["serviceName"] = s.Name
 	lbls["namespaceName"] = s.Namespace
 
-	return &Target{
+	return Target{
 		Name: s.Name,
-		URL:  *addr,
+		URL:  u,
 		Object: Object{
 			Name:   s.Name,
 			Kind:   "service",
@@ -255,102 +313,30 @@ func serviceTarget(s *corev1.Service, port, path string) *Target {
 	}
 }
 
-// returns all the possible targets for a endpoint (multiple targets per port)
-func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
-	var targetList []Target
-	// we need to pass the service since the annotations are not inherited
-	path := getPath(s)
-	portList := getPortList(e, s)
-
-	for _, subset := range e.Subsets {
-		for _, eSubPort := range subset.Ports {
-			port := strconv.FormatInt(int64(eSubPort.Port), 10)
-			// we are skipping each port we are not interested into
-			if !contains(portList, port) {
-				continue
-			}
-			if eSubPort.Protocol != corev1.ProtocolTCP {
-				continue
-			}
-
-			// we are skipping eSub.NotReadyAddresses
-			for _, eSubAddr := range subset.Addresses {
-				target := endpointsTarget(e, port, eSubAddr.IP, path)
-				if target != nil {
-					targetList = append(targetList, *target)
-				}
-			}
-		}
-	}
-
-	return targetList
-}
-
-func getPortList(e *corev1.Endpoints, s *corev1.Service) []string {
-	var portList []string
-	if port, ok := s.Annotations[defaultScrapePortLabel]; ok {
-		portList = append(portList, port)
-	} else if port, ok := s.Labels[defaultScrapePortLabel]; ok {
-		portList = append(portList, port)
-	} else {
-		for _, subset := range e.Subsets {
-			for _, port := range subset.Ports {
-				if port.Protocol != corev1.ProtocolTCP {
-					continue
-				}
-				if len(subset.Addresses) != 0 {
-					portList = append(portList, strconv.FormatInt(int64(port.Port), 10))
-				}
-			}
-		}
-	}
-	return portList
-}
-
-func getPath(o metav1.Object) string {
-	var path string
-
-	// Annotations take precedence over labels.
-	if annotation, ok := o.GetAnnotations()[defaultScrapePathLabel]; ok {
-		path = annotation
-	} else if label, ok := o.GetLabels()[defaultScrapePathLabel]; ok {
-		path = label
-	} else {
-		path = defaultScrapePath
-	}
-
-	if !strings.HasPrefix(path, "/") {
-		path = "/" + path
-	}
-
-	return path
-}
-
 // returns all the possible targets for a service (1 target per port)
 func serviceTargets(s *corev1.Service) []Target {
+	port := getPort(s)
+	scheme := getScheme(s)
 	path := getPath(s)
 
-	port, ok := s.Annotations[defaultScrapePortLabel]
-	if !ok {
-		port, ok = s.Labels[defaultScrapePortLabel]
-	}
-
-	// Only return a target for the specified port.
-	if ok {
-		target := serviceTarget(s, port, path)
-		if target != nil {
-			return []Target{*target}
+	if port != "" {
+		u := url.URL{
+			Scheme: scheme,
+			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
+			Path:   path,
 		}
-		return []Target{}
+		return []Target{serviceTarget(s, u)}
 	}
 
 	// No port specified so return a target for each Port defined for the Service.
-	targets := make([]Target, 0, len(s.Spec.Ports))
+	var targets []Target
 	for _, port := range s.Spec.Ports {
-		target := serviceTarget(s, strconv.FormatInt(int64(port.Port), 10), path)
-		if target != nil {
-			targets = append(targets, *target)
+		u := url.URL{
+			Scheme: scheme,
+			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
+			Path:   path,
 		}
+		targets = append(targets, serviceTarget(s, u))
 	}
 	return targets
 }
@@ -380,26 +366,16 @@ func getPodDeployment(p *corev1.Pod) string {
 	return deploymentName
 }
 
-func podTarget(p *corev1.Pod, port, path string) *Target {
-	lbls := labels.Set{}
-	hostAndPort := net.JoinHostPort(p.Status.PodIP, port)
-	fullPodURL := fmt.Sprintf("http://%s%s", hostAndPort, path)
-	addr, err := url.Parse(fullPodURL)
-	if err != nil {
-		klog.WithError(err).WithField("pod", p.Name).Errorf("couldn't parse pod url, skipping: %s", fullPodURL)
-		return nil
-	}
-	for lk, lv := range p.Labels {
-		lbls["label."+lk] = lv
-	}
+func podTarget(p *corev1.Pod, u url.URL) Target {
+	lbls := getK8sLabels(p)
 	lbls["podName"] = p.Name
 	lbls["namespaceName"] = p.Namespace
 	lbls["nodeName"] = p.Spec.NodeName
 	lbls["deploymentName"] = getPodDeployment(p)
 
-	return &Target{
+	return Target{
 		Name: p.Name,
-		URL:  *addr,
+		URL:  u,
 		Object: Object{
 			Name:   p.Name,
 			Kind:   "pod",
@@ -415,31 +391,29 @@ func podTargets(p *corev1.Pod) []Target {
 		return nil
 	}
 
+	port := getPort(p)
+	scheme := getScheme(p)
 	path := getPath(p)
 
-	// Annotations take precedence over labels.
-	port, ok := p.Annotations[defaultScrapePortLabel]
-	if !ok {
-		port, ok = p.Labels[defaultScrapePortLabel]
-	}
-
-	// Only return a target for the specified port.
-	if ok {
-		target := podTarget(p, port, path)
-		if target != nil {
-			return []Target{*target}
+	if port != "" {
+		u := url.URL{
+			Scheme: scheme,
+			Host:   net.JoinHostPort(p.Status.PodIP, port),
+			Path:   path,
 		}
-		return []Target{}
+		return []Target{podTarget(p, u)}
 	}
 
 	// No port specified so return a target for each ContainerPort defined for the pod.
-	targets := make([]Target, 0, len(p.Spec.Containers))
+	var targets []Target
 	for _, c := range p.Spec.Containers {
 		for _, port := range c.Ports {
-			target := podTarget(p, strconv.FormatInt(int64(port.ContainerPort), 10), path)
-			if target != nil {
-				targets = append(targets, *target)
+			u := url.URL{
+				Scheme: scheme,
+				Host:   net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
+				Path:   path,
 			}
+			targets = append(targets, podTarget(p, u))
 		}
 	}
 	return targets
@@ -796,13 +770,4 @@ func (k *kubernetesTargetRetriever) watchResource(resource watchableResource) {
 			resource.name,
 		)
 	}
-}
-
-func contains(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }

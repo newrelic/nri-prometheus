@@ -165,14 +165,14 @@ func TestWatch_EndpointsModify(t *testing.T) {
 		}
 
 		// Notice that we are testing both update and annotation Override
-		require.Contains(t, listURLs, "http://1.2.3.4:1/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://1.2.3.4:2/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://1.2.3.4:3/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://1.2.3.4:4/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://5.6.7.8:1/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://5.6.7.8:2/metricsOverride", "this target was expected")
-		require.Contains(t, listURLs, "http://10.20.30.40:1/metricsOverride", "this target was not expected")
-		require.Contains(t, listURLs, "http://10.20.30.40:2/metricsOverride", "this target was not expected")
+		require.Contains(t, listURLs, "https://1.2.3.4:1/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://1.2.3.4:2/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://1.2.3.4:3/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://1.2.3.4:4/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://5.6.7.8:1/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://5.6.7.8:2/metricsOverride", "this target was expected")
+		require.Contains(t, listURLs, "https://10.20.30.40:1/metricsOverride", "this target was not expected")
+		require.Contains(t, listURLs, "https://10.20.30.40:2/metricsOverride", "this target was not expected")
 
 		return nil
 	}, retry.Timeout(2*time.Second), retry.Delay(100*time.Millisecond))
@@ -427,10 +427,12 @@ func populateFakeEndpointsDataWithModify(clientset *fake.Clientset) error {
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
 				"prometheus.io/path":   "/metrics",
+				"prometheus.io/scheme": "grpcs",
 				"app":                  "my-app",
 			},
 			Annotations: map[string]string{
-				"prometheus.io/path": "/metricsOverride",
+				"prometheus.io/path":   "/metricsOverride",
+				"prometheus.io/scheme": "https",
 			},
 		},
 	}
@@ -486,7 +488,7 @@ func TestWatch_Services(t *testing.T) {
 		if target.Name != "my-service" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics/federate?format=prometheus" {
+		if target.URL.String() != "http://my-service.test-ns.svc:8080/metrics/federate" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -526,7 +528,7 @@ func TestWatch_Pods(t *testing.T) {
 		if target.Name != "my-pod" {
 			return errors.New("target name didn't match")
 		}
-		if target.URL.String() != "http://10.10.10.1:8080/metrics/federate?format=prometheus" {
+		if target.URL.String() != "http://10.10.10.1:8080/metrics/federate" {
 			return errors.New("target URL didn't match: " + target.URL.String())
 		}
 		return nil
@@ -884,7 +886,7 @@ func populateFakePodData(clientset *fake.Clientset) error {
 			Name: "my-pod",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
-				"prometheus.io/path":   "metrics/federate?format=prometheus",
+				"prometheus.io/path":   "metrics/federate",
 				"app":                  "pod-my-app",
 			},
 		},
@@ -948,7 +950,7 @@ func populateFakeServiceData(clientset *fake.Clientset) error {
 			Name: "my-service",
 			Labels: map[string]string{
 				"prometheus.io/scrape": "true",
-				"prometheus.io/path":   "/metrics/federate?format=prometheus",
+				"prometheus.io/path":   "/metrics/federate",
 				"app":                  "my-app",
 			},
 		},
@@ -1177,10 +1179,10 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 	)
 }
 
-func TestPodTargetsInvalidURL(t *testing.T) {
+func TestPodTargetsInvalidPortAnnotaion(t *testing.T) {
 	t.Parallel()
 
-	assert.Empty(
+	assert.ElementsMatch(
 		t,
 		podTargets(&corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{
@@ -1213,6 +1215,44 @@ func TestPodTargetsInvalidURL(t *testing.T) {
 				PodIP: "10.0.0.1",
 			},
 		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":        "my-pod",
+						"namespaceName":  "test-ns",
+						"deploymentName": "",
+						"nodeName":       "node-a",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":        "my-pod",
+						"namespaceName":  "test-ns",
+						"deploymentName": "",
+						"nodeName":       "node-a",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
 	)
 }
 
@@ -1269,6 +1309,164 @@ func TestPodTargetsPortLabels(t *testing.T) {
 				},
 				URL: url.URL{
 					Scheme: "http",
+					Host:   "10.0.0.1:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
+	)
+}
+
+func TestPodTargetsSchemeAnnotation(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/scheme": "https",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+							{
+								Name:          "http-metrics",
+								ContainerPort: 8080,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":        "my-pod",
+						"namespaceName":  "test-ns",
+						"deploymentName": "",
+						"nodeName":       "node-a",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":        "my-pod",
+						"namespaceName":  "test-ns",
+						"deploymentName": "",
+						"nodeName":       "node-a",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "10.0.0.1:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
+	)
+}
+
+func TestPodTargetsSchemeLabel(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/scheme": "https",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+							{
+								Name:          "http-metrics",
+								ContainerPort: 8080,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                    "my-pod",
+						"namespaceName":              "test-ns",
+						"deploymentName":             "",
+						"nodeName":                   "node-a",
+						"label.prometheus.io/scrape": "true",
+						"label.prometheus.io/scheme": "https",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                    "my-pod",
+						"namespaceName":              "test-ns",
+						"deploymentName":             "",
+						"nodeName":                   "node-a",
+						"label.prometheus.io/scrape": "true",
+						"label.prometheus.io/scheme": "https",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
@@ -1378,10 +1576,10 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 	)
 }
 
-func TestServiceTargetsInvalidURL(t *testing.T) {
+func TestServiceTargetsInvalidPortAnnotaion(t *testing.T) {
 	t.Parallel()
 
-	assert.Empty(
+	assert.ElementsMatch(
 		t,
 		serviceTargets(&corev1.Service{
 			ObjectMeta: metav1.ObjectMeta{
@@ -1405,6 +1603,40 @@ func TestServiceTargetsInvalidURL(t *testing.T) {
 				},
 			},
 		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":   "my-service",
+						"namespaceName": "test-ns",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":   "my-service",
+						"namespaceName": "test-ns",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
 	)
 }
 
@@ -1510,6 +1742,138 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 				},
 				URL: url.URL{
 					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsSchemeAnnotation(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/scheme": "https",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-app",
+						Port: 80,
+					},
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":   "my-service",
+						"namespaceName": "test-ns",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "my-service.test-ns.svc:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":   "my-service",
+						"namespaceName": "test-ns",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics",
+				},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsSchemeLabel(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/scrape": "true",
+					"prometheus.io/scheme": "https",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-app",
+						Port: 80,
+					},
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":                "my-service",
+						"namespaceName":              "test-ns",
+						"label.prometheus.io/scrape": "true",
+						"label.prometheus.io/scheme": "https",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
+					Host:   "my-service.test-ns.svc:80",
+					Path:   "/metrics",
+				},
+			},
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":                "my-service",
+						"namespaceName":              "test-ns",
+						"label.prometheus.io/scrape": "true",
+						"label.prometheus.io/scheme": "https",
+					},
+				},
+				URL: url.URL{
+					Scheme: "https",
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
