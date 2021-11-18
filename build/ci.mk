@@ -53,24 +53,3 @@ else
 	@echo "===> $(INTEGRATION) ===  [ci/build] TAG env variable expected to be set"
 	exit 1
 endif
-
-.PHONY : ci/prerelease
-ci/prerelease: ci/deps
-ifdef TAG
-	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
-	@docker run --rm -t \
-			-v $(CURDIR):/go/src/github.com/newrelic/nri-$(INTEGRATION) \
-			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
-			-e INTEGRATION \
-			-e PRERELEASE=true \
-			-e REPO_FULL_NAME \
-			-e GITHUB_TOKEN=$(GITHUB_TOKEN) \
-			-e TAG \
-			-e GPG_MAIL \
-			-e GPG_PASSPHRASE \
-			-e GPG_PRIVATE_KEY_BASE64 \
-			$(BUILDER_TAG) make release
-else
-	@echo "===> $(INTEGRATION) ===  [ci/prerelease] TAG env variable expected to be set"
-	exit 1
-endif
