@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.11.0
+## Features
+- Add the hability to ignore metrics by type by @smcavallo in #238
+
 ## 2.10.0
 ## Features
 - Add support for prometheus.io/scheme by @vihangm in #240
