@@ -27,13 +27,14 @@ type RenameRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
-// IgnoreRule skips for processing metrics that match any of the Prefixes.
+// IgnoreRule skips for processing metrics that match any of the Prefixes or MetricTypes.
 // Metrics that match any of the Except are never skipped.
-// If Prefixes is empty and Except is not, then all metrics that do not
+// If Prefixes are empty and Except is not, then all metrics that do not
 // match Except will be skipped.
 type IgnoreRule struct {
-	Prefixes []string `mapstructure:"prefixes"`
-	Except   []string `mapstructure:"except"`
+	Prefixes    []string `mapstructure:"prefixes"`
+	MetricTypes []string `mapstructure:"metric_types"`
+	Except      []string `mapstructure:"except"`
 }
 
 // CopyAttributesRule is a rule that copies the Attributes from the metric that
@@ -207,8 +208,8 @@ func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 
 type ignoreRules []IgnoreRule
 
-func (rules ignoreRules) shouldIgnore(name string) bool {
-	var prefixesLen, exceptRulesLen int
+func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
+	var prefixesLen, metricTypesLen, exceptRulesLen int
 	for _, rule := range rules {
 		exceptRulesLen += len(rule.Except)
 		for _, prefix := range rule.Except {
@@ -217,6 +218,15 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 			}
 		}
 
+		// MetricTypes
+		metricTypesLen += len(rule.MetricTypes)
+		for _, rMetricType := range rule.MetricTypes {
+			if strings.EqualFold(rMetricType, string(metricType)) {
+				return true
+			}
+		}
+
+		// Prefixes
 		prefixesLen += len(rule.Prefixes)
 		for _, prefix := range rule.Prefixes {
 			if strings.HasPrefix(name, prefix) {
@@ -225,7 +235,7 @@ func (rules ignoreRules) shouldIgnore(name string) bool {
 		}
 	}
 
-	if prefixesLen > 0 {
+	if prefixesLen > 0 || metricTypesLen > 0 {
 		return false
 	}
 
@@ -242,7 +252,7 @@ func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 
 	copied := make([]Metric, 0, len(targetMetrics.Metrics))
 	for _, m := range targetMetrics.Metrics {
-		if !rules.shouldIgnore(m.name) {
+		if !rules.shouldIgnore(m.name, m.metricType) {
 			copied = append(copied, m)
 		}
 	}

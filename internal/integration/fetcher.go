@@ -26,7 +26,7 @@ import (
 
 // Fetcher provides fetching functionality to a set of Prometheus endpoints
 type Fetcher interface {
-	// Fetcher fetches data from a set of Prometheus /metrics endpoints. It ignores failed endpoints.
+	// Fetch fetches data from a set of Prometheus /metrics endpoints. It ignores failed endpoints.
 	// It returns each data entry from a channel, assuming this function may run in background.
 	Fetch(t []endpoints.Target) <-chan TargetMetrics
 }
