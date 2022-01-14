@@ -381,27 +381,27 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	}
 
 	em := e.EntityDef.Metadata
-	assert.Contains(t, em["tags.version"], "v1.10.0")
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
+	assert.Equal(t, "v1.10.0", em["version"])
+	assert.Equal(t, "dev", em["env"])
+	assert.Equal(t, "test", em["uniquelabel"])
 	assert.Contains(t, e.Common, "targetName")
 
 	e, ok = result.findEntity("REDIS_FOO:" + metrics.Target.Name)
 	assert.True(t, ok)
 	assert.Len(t, e.Metrics, 1)
 	em = e.EntityDef.Metadata
-	_, ok = em["tags.version"]
+	_, ok = em["version"]
 	assert.False(t, ok)
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
+	assert.Equal(t, "dev", em["env"])
+	assert.Equal(t, "test", em["uniquelabel"])
 
 	e, ok = result.findEntity("MULTI:" + metrics.Target.Name)
 	assert.True(t, ok)
 	assert.Len(t, e.Metrics, 2)
 	em = e.EntityDef.Metadata
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.foo"], "foo")
-	assert.Contains(t, em["tags.bar"], "bar")
+	assert.Equal(t, "dev", em["env"])
+	assert.Equal(t, "foo", em["foo"])
+	assert.Equal(t, "bar", em["bar"])
 
 	e, ok = result.findEntity("")
 	assert.True(t, ok)

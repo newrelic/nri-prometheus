@@ -138,8 +138,8 @@ var redisEntityMetadata = sdk_metadata.Metadata{
 	DisplayName: "localhost:9999",
 	EntityType:  "REDIS",
 	Metadata: sdk_metadata.Map{
-		"tags.foo":           "bar",
-		"tags.preferredName": "renamedTagValue",
+		"foo":           "bar",
+		"preferredName": "renamedTagValue",
 	},
 }
 
@@ -148,7 +148,7 @@ var redisSecondEntityMetadata = sdk_metadata.Metadata{
 	DisplayName: "localhost:9999",
 	EntityType:  "REDIS_SECOND",
 	Metadata: sdk_metadata.Map{
-		"tags.foo": "bar",
+		"foo": "bar",
 	},
 }
 
@@ -164,7 +164,7 @@ var fooEntityMetadataMultiRule = sdk_metadata.Metadata{
 	DisplayName: "NiceName",
 	EntityType:  "FOO",
 	Metadata: sdk_metadata.Map{
-		"tags.commonAttribute": "commonAttributeValue",
+		"commonAttribute": "commonAttributeValue",
 	},
 }
 
@@ -333,8 +333,8 @@ func Test_synthesis_GetEntityMetadata(t *testing.T) {
 				DisplayName: "NiceName",
 				EntityType:  "FOO",
 				Metadata: sdk_metadata.Map{
-					"tags.commonAttribute": "commonAttributeValue",
-					"tags.tag1":            "Foo",
+					"commonAttribute": "commonAttributeValue",
+					"tag1":            "Foo",
 				},
 			}, true},
 		},
