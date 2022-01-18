@@ -24,9 +24,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 2.9.0
 ## Changed
-- Dependency have been bumped. Notably, this includes a new version of the telemetry sdk which
+- Dependency have been bumped. Notably, this includes a new version of the telemetry sdk which 
   should improve performance when submitting metrics from large targets. #220
 - Updated manifest in preparation of 1.22 support #220
+
 ## 2.8.0
 ## Changed
  - infraSDK should use Cumulative Count to send deltas
@@ -50,7 +51,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Several dependencies have been bumped to their latest versions
 
 ## 2.6.0
-### Feature
+### Feature 
 While services with the a prometheus.io/scrape annotation can be discovered, nri-prometheus used to scrape only the service itself and not service endpoints.
 
 Two new config options have been added ScrapeServices (default true) and ScrapeEndpoints(default false). Please notice that enabling the latter depending the number of endpoints in the cluster can increase considerably the load.
@@ -136,8 +137,8 @@ percentiles from the integration side:
 
 ## 1.5.0
 ### Changed
-- Change the default for the New Relic telemetry emitter delta calculator
-  expiration age and expiration check interval to 5 minutes. These values can
+- Change the default for the New Relic telemetry emitter delta calculator 
+  expiration age and expiration check interval to 5 minutes. These values can 
   now be configured with the following options
   `telemetry_emitter_delta_expiration_age` and
   `telemetry_emitter_delta_expiration_check_interval`. This solves the issue
