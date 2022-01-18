@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.12.0
+## Features
+- Updated dependencies
+
 ## 2.11.0
 ## Features
-- Add the hability to ignore metrics by type by @smcavallo in #238
+- Add the ability to ignore metrics by type by @smcavallo in #238
 
 ## 2.10.0
 ## Features
@@ -23,6 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Dependency have been bumped. Notably, this includes a new version of the telemetry sdk which 
   should improve performance when submitting metrics from large targets. #220
 - Updated manifest in preparation of 1.22 support #220
+
 ## 2.8.0
 ## Changed
  - infraSDK should use Cumulative Count to send deltas
