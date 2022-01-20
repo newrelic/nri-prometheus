@@ -57,7 +57,7 @@ func do(b *testing.B, retrievers []endpoints.TargetRetriever) {
 	b.ReportAllocs()
 	process(
 		retrievers,
-		NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength),
+		NewFetcher(30*time.Second, 5000000000, 4, "", "", "", false, queueLength),
 		RuleProcessor([]ProcessingRule{}, queueLength),
 		[]Emitter{&nilEmit{}},
 	)
@@ -112,7 +112,7 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		ExecuteOnce(
 			retrievers,
-			NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength),
+			NewFetcher(30*time.Second, 5000000000, 4, "", "", "", false, queueLength),
 			RuleProcessor([]ProcessingRule{}, queueLength),
 			emitters)
 	}

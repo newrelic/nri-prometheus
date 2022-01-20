@@ -56,7 +56,7 @@ func NewTLSConfig(CAFile string, InsecureSkipVerify bool) (*tls.Config, error) {
 
 // newRoundTripper creates a new roundtripper with the specified TLS
 // configuration.
-func newRoundTripper(BearerTokenFile string, CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
+func newRoundTripper(BearerTokenFile string, BasicAuthFile string, CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
 	tlsConfig, err := NewTLSConfig(CaFile, InsecureSkipVerify)
 	if err != nil {
 		return nil, err
@@ -64,6 +64,8 @@ func newRoundTripper(BearerTokenFile string, CaFile string, InsecureSkipVerify b
 	rt := newDefaultRoundTripper(tlsConfig)
 	if BearerTokenFile != "" {
 		rt = NewBearerAuthFileRoundTripper(BearerTokenFile, rt)
+	} else if BasicAuthFile != "" {
+		rt = NewBasicAuthRoundTripper(BasicAuthFile, rt)
 	}
 	return rt, nil
 }
@@ -108,6 +110,33 @@ func (rt *bearerAuthFileRoundTripper) RoundTrip(req *http.Request) (*http.Respon
 	return rt.rt.RoundTrip(req)
 }
 
+// NewBasicAuthRoundTripper adds the basic authentication to a request unless the authorization header
+// has already been set. This file is read for every request. The format of the auth file is <username>:<password>.
+func NewBasicAuthRoundTripper(basicAuthFile string, rt http.RoundTripper) http.RoundTripper {
+	return &basicAuthRoundTripper{basicAuthFile, rt}
+}
+
+type basicAuthRoundTripper struct {
+	basicAuthFile string
+	rt            http.RoundTripper
+}
+
+func (rt *basicAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	if len(req.Header.Get("Authorization")) == 0 {
+		b, err := ioutil.ReadFile(rt.basicAuthFile)
+		if err != nil {
+			return nil, fmt.Errorf("unable to read basic auth file %s: %s", rt.basicAuthFile, err)
+		}
+		c := strings.TrimSpace(string(b))
+		credentials := strings.SplitN(c, ":", 2)
+
+		req = cloneRequest(req)
+		req.SetBasicAuth(credentials[0], credentials[1])
+	}
+
+	return rt.rt.RoundTrip(req)
+}
+
 // cloneRequest returns a clone of the provided *http.Request.
 // The clone is a shallow copy of the struct and its Header map.
 func cloneRequest(r *http.Request) *http.Request {
@@ -123,8 +152,8 @@ func cloneRequest(r *http.Request) *http.Request {
 }
 
 // NewFetcher returns the default Fetcher implementation
-func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
-	tr, _ := newRoundTripper(BearerTokenFile, CaFile, InsecureSkipVerify)
+func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, BasicAuthFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
+	tr, _ := newRoundTripper(BearerTokenFile, BasicAuthFile, CaFile, InsecureSkipVerify)
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   fetchTimeout,

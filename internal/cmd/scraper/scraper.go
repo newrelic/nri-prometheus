@@ -45,6 +45,7 @@ type Config struct {
 	AutoDecorate                      bool                         `mapstructure:"auto_decorate" default:"false"`
 	CaFile                            string                       `mapstructure:"ca_file"`
 	BearerTokenFile                   string                       `mapstructure:"bearer_token_file"`
+	BasicAuthFile                     string                       `mapstructure:"basic_auth_file"`
 	InsecureSkipVerify                bool                         `mapstructure:"insecure_skip_verify" default:"false"`
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
 	DecorateFile                      bool
@@ -171,7 +172,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		scrapeDuration,
 		selfRetriever,
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.BasicAuthFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(processingRules, queueLength),
 		emitters)
 
@@ -212,7 +213,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	// Fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.BasicAuthFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(cfg.ProcessingRules, queueLength),
 		emitters)
 

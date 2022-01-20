@@ -32,7 +32,7 @@ func TestFetcher(t *testing.T) {
 	t.Parallel()
 
 	// Given a fetcher
-	fetcher := NewFetcher(fetchDuration, fetchTimeout, workerThreads, "", "", true, queueLength)
+	fetcher := NewFetcher(fetchDuration, fetchTimeout, workerThreads, "", "", "", true, queueLength)
 	var invokedURL string
 	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string) (names prometheus.MetricFamiliesByName, e error) {
 		invokedURL = url
@@ -69,7 +69,7 @@ func TestFetcher_Error(t *testing.T) {
 	t.Parallel()
 
 	// Given a fetcher
-	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
+	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", "", true, queueLength)
 
 	// That fails retrieving data from one of the metrics endpoint
 	invokedURLs := make([]string, 0)
@@ -123,7 +123,7 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 	reportedParallel := make(chan int32, queueLength)
 
 	// Given a Fetcher
-	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", true, queueLength)
+	fetcher := NewFetcher(time.Millisecond, fetchTimeout, workerThreads, "", "", "", true, queueLength)
 
 	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string) (names prometheus.MetricFamiliesByName, e error) {
 		defer atomic.AddInt32(&parallelTasks, -1)
