@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -97,7 +98,7 @@ type bearerAuthFileRoundTripper struct {
 
 func (rt *bearerAuthFileRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if len(req.Header.Get("Authorization")) == 0 {
-		b, err := ioutil.ReadFile(rt.bearerFile)
+		b, err := os.ReadFile(rt.bearerFile)
 		if err != nil {
 			return nil, fmt.Errorf("unable to read bearer token file %s: %s", rt.bearerFile, err)
 		}
