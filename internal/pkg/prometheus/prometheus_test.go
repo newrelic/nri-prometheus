@@ -16,7 +16,7 @@ import (
 func TestGet(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accept := r.Header.Get("Accept")
-		if !strings.Contains(accept, "application/openmetrics-text;") {
+		if !strings.Contains(accept, "application/openmetrics-text") {
 			t.Errorf("Expected Accept header to prefer application/openmetrics-text, got %q", accept)
 		}
 
