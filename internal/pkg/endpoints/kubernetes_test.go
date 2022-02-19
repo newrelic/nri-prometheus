@@ -1042,6 +1042,7 @@ func TestPodTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1097,6 +1098,7 @@ func TestPodTargetsNoPort(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-pod",
@@ -1115,6 +1117,7 @@ func TestPodTargetsNoPort(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1174,6 +1177,7 @@ func TestPodTargetsPortAnnotation(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1233,6 +1237,7 @@ func TestPodTargetsInvalidPortAnnotaion(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-pod",
@@ -1251,6 +1256,7 @@ func TestPodTargetsInvalidPortAnnotaion(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1312,6 +1318,7 @@ func TestPodTargetsPortLabels(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1371,6 +1378,7 @@ func TestPodTargetsSchemeAnnotation(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-pod",
@@ -1389,6 +1397,7 @@ func TestPodTargetsSchemeAnnotation(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1450,6 +1459,7 @@ func TestPodTargetsSchemeLabel(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-pod",
@@ -1470,6 +1480,7 @@ func TestPodTargetsSchemeLabel(t *testing.T) {
 					Host:   "10.0.0.1:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1523,6 +1534,7 @@ func TestServiceTargetsPortAnnotationsOverrideLabels(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1571,6 +1583,7 @@ func TestServiceTargetsPortAnnotation(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1619,6 +1632,7 @@ func TestServiceTargetsInvalidPortAnnotaion(t *testing.T) {
 					Host:   "my-service.test-ns.svc:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-service",
@@ -1635,6 +1649,7 @@ func TestServiceTargetsInvalidPortAnnotaion(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1679,6 +1694,7 @@ func TestServiceTargetsNoPort(t *testing.T) {
 					Host:   "my-service.test-ns.svc:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-service",
@@ -1695,6 +1711,7 @@ func TestServiceTargetsNoPort(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1745,6 +1762,7 @@ func TestServiceTargetsPortLabel(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1793,6 +1811,7 @@ func TestServiceTargetsSchemeAnnotation(t *testing.T) {
 					Host:   "my-service.test-ns.svc:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-service",
@@ -1809,6 +1828,7 @@ func TestServiceTargetsSchemeAnnotation(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -1859,6 +1879,7 @@ func TestServiceTargetsSchemeLabel(t *testing.T) {
 					Host:   "my-service.test-ns.svc:80",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 			{
 				Name: "my-service",
@@ -1877,6 +1898,7 @@ func TestServiceTargetsSchemeLabel(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -2070,6 +2092,7 @@ func TestPodTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -2124,6 +2147,7 @@ func TestPodTargetsPathAnnotations(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -2179,6 +2203,242 @@ func TestPodTargetsPathLabel(t *testing.T) {
 					Host:   "10.0.0.1:80",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
+			},
+		},
+	)
+}
+
+func TestPodTargetsIgnoreMetricsOne(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": "go",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                  "my-pod",
+						"namespaceName":            "test-ns",
+						"deploymentName":           "",
+						"nodeName":                 "node-a",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go"}},
+			},
+		},
+	)
+}
+
+func TestPodTargetsIgnoreMetricsMoreThanOne(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": "go,kube",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                  "my-pod",
+						"namespaceName":            "test-ns",
+						"deploymentName":           "",
+						"nodeName":                 "node-a",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
+			},
+		},
+	)
+}
+
+func TestPodTargetsIgnoreMetricsMoreThanOneTrim(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": "go, kube",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                  "my-pod",
+						"namespaceName":            "test-ns",
+						"deploymentName":           "",
+						"nodeName":                 "node-a",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
+			},
+		},
+	)
+}
+
+func TestPodTargetsIgnoreMetricsMoreThanOneLabel(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path":                 "/metrics/1",
+					"newrelic-prometheus/ignore_metrics": "go, kube",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":                  "my-pod",
+						"namespaceName":            "test-ns",
+						"deploymentName":           "",
+						"nodeName":                 "node-a",
+						"label.prometheus.io/path": "/metrics/1",
+						"label.newrelic-prometheus/ignore_metrics": "go, kube",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "10.0.0.1:80",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
 			},
 		},
 	)
@@ -2227,6 +2487,7 @@ func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -2270,6 +2531,7 @@ func TestServiceTargetsPathAnnotations(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
 			},
 		},
 	)
@@ -2314,6 +2576,198 @@ func TestServiceTargetsPathLabel(t *testing.T) {
 					Host:   "my-service.test-ns.svc:8080",
 					Path:   "/metrics/1",
 				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: nil},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsIgnoreMetricsOne(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": "go",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":              "my-service",
+						"namespaceName":            "test-ns",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go"}},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsIgnoreMetricsMoreThanOne(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": "go,kube",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":              "my-service",
+						"namespaceName":            "test-ns",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsIgnoreMetricsMoreThanOneTrim(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path": "/metrics/1",
+				},
+				Annotations: map[string]string{
+					"newrelic-prometheus/ignore_metrics": " go, kube",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":              "my-service",
+						"namespaceName":            "test-ns",
+						"label.prometheus.io/path": "/metrics/1",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
+			},
+		},
+	)
+}
+
+func TestServiceTargetsIgnoreMetricsMoreThanOneLabel(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Labels: map[string]string{
+					"prometheus.io/path":                 "/metrics/1",
+					"newrelic-prometheus/ignore_metrics": "go,kube",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-metrics",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-service",
+				Object: Object{
+					Name: "my-service",
+					Kind: "service",
+					Labels: labels.Set{
+						"serviceName":                              "my-service",
+						"namespaceName":                            "test-ns",
+						"label.prometheus.io/path":                 "/metrics/1",
+						"label.newrelic-prometheus/ignore_metrics": "go,kube",
+					},
+				},
+				URL: url.URL{
+					Scheme: "http",
+					Host:   "my-service.test-ns.svc:8080",
+					Path:   "/metrics/1",
+				},
+				AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: []string{"go", "kube"}},
 			},
 		},
 	)

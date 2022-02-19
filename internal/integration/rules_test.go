@@ -558,3 +558,83 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 	assert.Contains(t, actual, "redis_exporter_build_info")
 	assert.Contains(t, actual, "redis_instance_info")
 }
+
+func TestIgnoreMetricsIgnored(t *testing.T) {
+	t.Parallel()
+
+	input := fmt.Sprintf("%s",
+		`# HELP some_undecorated_stuff
+# TYPE some_undecorated_stuff gauge
+some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playground-redis"} 0
+`)
+
+	entity := scrapeString(t, input)
+
+	entity.Target.AnnotationRule.IgnoreMetrics = []string{"some"}
+
+	actual := ignore(entity.Target.AnnotationRule.IgnoreMetrics, entity.Metrics)
+
+	assert.Len(t, actual, 0)
+}
+
+func TestIgnoreMetricsNotIgnored(t *testing.T) {
+	t.Parallel()
+
+	input := fmt.Sprintf("%s",
+		`# HELP some_undecorated_stuff
+# TYPE some_undecorated_stuff gauge
+some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playground-redis"} 0
+`)
+
+	entity := scrapeString(t, input)
+
+	entity.Target.AnnotationRule.IgnoreMetrics = []string{"go"}
+
+	actual := ignore(entity.Target.AnnotationRule.IgnoreMetrics, entity.Metrics)
+
+	assert.Len(t, actual, 1)
+
+	for _, ac := range actual {
+		assert.Equal(t, ac.name, "some_undecorated_stuff")
+	}
+}
+
+func TestIgnoreMetricsMultipleIgnored(t *testing.T) {
+	t.Parallel()
+
+	input := fmt.Sprintf("%s",
+		`# HELP some_undecorated_stuff
+# TYPE some_undecorated_stuff gauge
+some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playground-redis"} 0
+`)
+
+	entity := scrapeString(t, input)
+
+	entity.Target.AnnotationRule.IgnoreMetrics = []string{"some", "other"}
+
+	actual := ignore(entity.Target.AnnotationRule.IgnoreMetrics, entity.Metrics)
+
+	assert.Len(t, actual, 0)
+}
+
+func TestIgnoreMetricsMultipleNotIgnored(t *testing.T) {
+	t.Parallel()
+
+	input := fmt.Sprintf("%s",
+		`# HELP some_undecorated_stuff
+# TYPE some_undecorated_stuff gauge
+some_undecorated_stuff{addr="ohai-playground-redis-slave:6379",alias="ohai-playground-redis"} 0
+`)
+
+	entity := scrapeString(t, input)
+
+	entity.Target.AnnotationRule.IgnoreMetrics = []string{"this", "another"}
+
+	actual := ignore(entity.Target.AnnotationRule.IgnoreMetrics, entity.Metrics)
+
+	assert.Len(t, actual, 1)
+
+	for _, ac := range actual {
+		assert.Equal(t, ac.name, "some_undecorated_stuff")
+	}
+}

@@ -36,6 +36,7 @@ func Execute(
 	retrievers []endpoints.TargetRetriever,
 	fetcher Fetcher,
 	processor Processor,
+	annotationProcessor AnnotationProcessor,
 	emitters []Emitter,
 ) {
 	for _, retriever := range retrievers {
@@ -56,19 +57,19 @@ func Execute(
 		nrprom.ResetTargetSize()
 
 		startTime := time.Now()
-		process(retrievers, fetcher, processor, emitters)
+		process(retrievers, fetcher, processor, annotationProcessor, emitters)
 		totalExecutionsMetric.Inc()
 		if duration := time.Since(startTime); duration < scrapeDuration {
 			time.Sleep(scrapeDuration - duration)
 		}
-		processWithoutTelemetry(selfRetriever, fetcher, processor, emitters)
+		processWithoutTelemetry(selfRetriever, fetcher, processor, annotationProcessor, emitters)
 	}
 }
 
 // ExecuteOnce executes the integration once. The pipeline fetches
 // metrics from the registered targets, transforms them according to a set
 // of rules and emits them.
-func ExecuteOnce(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor Processor, emitters []Emitter) {
+func ExecuteOnce(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor Processor, annotationProcessor AnnotationProcessor, emitters []Emitter) {
 	for _, retriever := range retrievers {
 		err := retriever.Watch()
 		if err != nil {
@@ -77,7 +78,7 @@ func ExecuteOnce(retrievers []endpoints.TargetRetriever, fetcher Fetcher, proces
 	}
 
 	for _, retriever := range retrievers {
-		processWithoutTelemetry(retriever, fetcher, processor, emitters)
+		processWithoutTelemetry(retriever, fetcher, processor, annotationProcessor, emitters)
 	}
 }
 
@@ -87,6 +88,7 @@ func processWithoutTelemetry(
 	retriever endpoints.TargetRetriever,
 	fetcher Fetcher,
 	processor Processor,
+	annotationProcessor AnnotationProcessor,
 	emitters []Emitter,
 ) {
 	targets, err := retriever.GetTargets()
@@ -96,7 +98,10 @@ func processWithoutTelemetry(
 	}
 	pairs := fetcher.Fetch(targets)
 	processed := processor(pairs)
-	for pair := range processed {
+
+	annotationRulesProcessed := annotationProcessor(processed)
+
+	for pair := range annotationRulesProcessed {
 		for _, e := range emitters {
 			err := e.Emit(pair.Metrics)
 			if err != nil {
@@ -106,7 +111,7 @@ func processWithoutTelemetry(
 	}
 }
 
-func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor Processor, emitters []Emitter) {
+func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor Processor, annotationProcessor AnnotationProcessor, emitters []Emitter) {
 	ptimer := prometheus.NewTimer(prometheus.ObserverFunc(processDurationMetric.Set))
 
 	targets := make([]endpoints.Target, 0)
@@ -124,10 +129,11 @@ func process(retrievers []endpoints.TargetRetriever, fetcher Fetcher, processor 
 	pairs := fetcher.Fetch(targets) // fetch metrics from /metrics endpoints
 	processed := processor(pairs)   // apply processing
 
-	emittedMetrics := 0
-	for pair := range processed {
-		emittedMetrics += len(pair.Metrics)
+	annotationRulesProcessed := annotationProcessor(processed) // reprocess the metrics with annotations rules
 
+	emittedMetrics := 0
+	for pair := range annotationRulesProcessed {
+		emittedMetrics += len(pair.Metrics)
 		for _, e := range emitters {
 			err := e.Emit(pair.Metrics)
 			if err != nil {

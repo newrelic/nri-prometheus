@@ -3,7 +3,9 @@
 
 package endpoints
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type fixedRetriever struct {
 	targets []Target
@@ -11,9 +13,10 @@ type fixedRetriever struct {
 
 // TargetConfig is used to parse endpoints from the configuration file.
 type TargetConfig struct {
-	Description string
-	URLs        []string  `mapstructure:"urls"`
-	TLSConfig   TLSConfig `mapstructure:"tls_config"`
+	Description     string
+	URLs            []string             `mapstructure:"urls"`
+	TLSConfig       TLSConfig            `mapstructure:"tls_config"`
+	AnnotationRules AnnotationRuleConfig `mapstructure:"annotation_rules"`
 }
 
 // TLSConfig is used to store all the configuration required to use Mutual TLS authentication.

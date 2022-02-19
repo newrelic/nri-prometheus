@@ -32,13 +32,14 @@ var klog = logrus.WithField("component", "KubernetesAPI")
 
 // COPIED FROM Prometheus code
 const (
-	NodeLegacyHostIP          = "LegacyHostIP"
-	defaultScrapeEnabledLabel = "prometheus.io/scrape"
-	defaultScrapePortLabel    = "prometheus.io/port"
-	defaultScrapeSchemeLabel  = "prometheus.io/scheme"
-	defaultScrapeScheme       = "http"
-	defaultScrapePathLabel    = "prometheus.io/path"
-	defaultScrapePath         = "/metrics"
+	NodeLegacyHostIP           = "LegacyHostIP"
+	defaultScrapeEnabledLabel  = "prometheus.io/scrape"
+	defaultScrapePortLabel     = "prometheus.io/port"
+	defaultScrapeSchemeLabel   = "prometheus.io/scheme"
+	defaultScrapeScheme        = "http"
+	defaultScrapePathLabel     = "prometheus.io/path"
+	defaultScrapePath          = "/metrics"
+	defaultScrapeIgnoreMetrics = "newrelic-prometheus/ignore_metrics"
 )
 
 // watchableResource identifies a k8s resource that implement the k8s watchable
@@ -134,14 +135,16 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 
 	return []Target{
 		{
-			Name:   n.Name,
-			URL:    nodeURL,
-			Object: object,
+			Name:           n.Name,
+			URL:            nodeURL,
+			Object:         object,
+			AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(n)},
 		},
 		{
-			Name:   "cadvisor_" + n.Name,
-			URL:    cadvisorURL,
-			Object: object,
+			Name:           "cadvisor_" + n.Name,
+			URL:            cadvisorURL,
+			Object:         object,
+			AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(n)},
 		},
 	}, nil
 }
@@ -247,6 +250,35 @@ func getPort(o metav1.Object) string {
 	return ""
 }
 
+func getIgnoredMetrics(o metav1.Object) []string {
+	if annotation, ok := o.GetAnnotations()[defaultScrapeIgnoreMetrics]; ok {
+		return getSplitedString(annotation)
+
+	}
+
+	if label, ok := o.GetLabels()[defaultScrapeIgnoreMetrics]; ok {
+		return getSplitedString(label)
+	}
+
+	return nil
+}
+
+func getSplitedString(input string) []string {
+	if len(input) <= 0 {
+		return nil
+	}
+
+	stringSlice := make([]string, 0)
+
+	subStrings := strings.Split(input, ",")
+
+	for _, subString := range subStrings {
+		stringSlice = append(stringSlice, strings.Trim(subString, " "))
+	}
+
+	return stringSlice
+}
+
 func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 	lbls := getK8sLabels(e)
 	// Name and Namespace of services and endpoints collides
@@ -261,6 +293,7 @@ func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 			Kind:   "endpoints",
 			Labels: lbls,
 		},
+		AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(e)},
 	}
 }
 
@@ -290,10 +323,16 @@ func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 					Host:   net.JoinHostPort(eSubAddr.IP, subPortStr),
 					Path:   path,
 				}
+
 				targets = append(targets, endpointsTarget(e, u))
 			}
 		}
 	}
+
+	for _, target := range targets {
+		target.AnnotationRule = AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(s)}
+	}
+
 	return targets
 }
 
@@ -310,6 +349,7 @@ func serviceTarget(s *corev1.Service, u url.URL) Target {
 			Kind:   "service",
 			Labels: lbls,
 		},
+		AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(s)},
 	}
 }
 
@@ -381,6 +421,7 @@ func podTarget(p *corev1.Pod, u url.URL) Target {
 			Kind:   "pod",
 			Labels: lbls,
 		},
+		AnnotationRule: AnnotationRuleConfig{IgnoreMetrics: getIgnoredMetrics(p)},
 	}
 }
 
@@ -413,9 +454,11 @@ func podTargets(p *corev1.Pod) []Target {
 				Host:   net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
 				Path:   path,
 			}
+
 			targets = append(targets, podTarget(p, u))
 		}
 	}
+
 	return targets
 }
 

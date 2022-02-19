@@ -28,11 +28,12 @@ type Object struct {
 
 // Target is a prometheus endpoint which is exposed by an Object.
 type Target struct {
-	Name      string
-	Object    Object
-	URL       url.URL
-	metadata  labels.Set
-	TLSConfig TLSConfig
+	Name           string
+	Object         Object
+	URL            url.URL
+	metadata       labels.Set
+	TLSConfig      TLSConfig
+	AnnotationRule AnnotationRuleConfig
 }
 
 // Metadata returns the Target's metadata, if the current metadata is nil,
@@ -81,6 +82,7 @@ func endpointToTarget(tc TargetConfig) ([]Target, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		targets = append(targets, t)
 	}
 	return targets, nil

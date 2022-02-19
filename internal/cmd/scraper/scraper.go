@@ -173,6 +173,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(processingRules, queueLength),
+		integration.AnnotationRulesProcessor,
 		emitters)
 
 	r := http.NewServeMux()
@@ -214,6 +215,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		retrievers,
 		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(cfg.ProcessingRules, queueLength),
+		integration.AnnotationRulesProcessor,
 		emitters)
 
 	return nil

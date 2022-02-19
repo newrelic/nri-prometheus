@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
+	"github.com/sirupsen/logrus"
 )
 
 // ProcessingRule is a bundle of multiple rules of different types to
@@ -259,6 +260,34 @@ func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 	targetMetrics.Metrics = copied
 }
 
+// ignore the metrics whose name contains the given string on annotation rules
+func ignore(ignoreMetrics []string, metrics []Metric) []Metric {
+	newMetrics := make([]Metric, 0)
+
+	droppedMetrics := map[string]bool{}
+
+	if len(ignoreMetrics) > 0 {
+		for _, metric := range metrics {
+			droppedMetrics[metric.name] = false
+			for _, ignore := range ignoreMetrics {
+				if len(ignore) > 0 && strings.Contains(metric.name, ignore) {
+					droppedMetrics[metric.name] = true
+					break
+				}
+			}
+
+			if !droppedMetrics[metric.name] {
+				newMetrics = append(newMetrics, metric)
+			}
+		}
+
+	} else {
+		newMetrics = metrics
+	}
+
+	return newMetrics
+}
+
 // A Processor is something that transform the metrics of a target that are received by a channel, and submits them
 // by another channel
 type Processor func(pairs <-chan TargetMetrics) <-chan TargetMetrics
@@ -313,4 +342,30 @@ func RuleProcessor(processingRules []ProcessingRule, queueLength int) Processor 
 
 		return processedPairs
 	}
+}
+
+// AnnotationProcessor is something that transform the metrics of a target that are received by a channel, and submits them
+// by another channel
+type AnnotationProcessor func(pairs <-chan TargetMetrics) <-chan TargetMetrics
+
+// AnnotationRulesProcessor process apply all rules related  with annotations,
+// processing and returns them through a channel.
+func AnnotationRulesProcessor(pairs <-chan TargetMetrics) <-chan TargetMetrics {
+	processedPairs := make(chan TargetMetrics, len(pairs))
+
+	go func() {
+		defer close(processedPairs)
+
+		for pair := range pairs {
+
+			logrus.Debug("Start reading annotated rules from ", pair.Target.URL)
+
+			ignoreMetrics := pair.Target.AnnotationRule.IgnoreMetrics
+			pair.Metrics = ignore(ignoreMetrics, pair.Metrics)
+
+			processedPairs <- pair
+		}
+	}()
+
+	return processedPairs
 }
