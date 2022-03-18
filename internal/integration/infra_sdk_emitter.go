@@ -11,7 +11,6 @@ import (
 	infra "github.com/newrelic/infra-integrations-sdk/v4/data/metric"
 	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
-	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
@@ -32,7 +31,6 @@ var removedAttributes = map[string]struct{}{
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	synthesisRules      synthesis.Synthesizer
 	integrationMetadata Metadata
 }
 
@@ -48,9 +46,8 @@ func (im *Metadata) isValid() bool {
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
+func NewInfraSdkEmitter() *InfraSdkEmitter {
 	return &InfraSdkEmitter{
-		synthesisRules: synthesisRules,
 		// By default it uses the nri-prometheus and it version.
 		integrationMetadata: Metadata{
 			Name:    Name,
@@ -80,6 +77,11 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	if err != nil {
 		return err
 	}
+	// We want the agent to not send metrics attached to any entity in order to make the entity synthesis to take place
+	// completely in the backend. Since V4 SDK still needs an entity (Dataset) to attach the metrics to, we are using
+	// the default hostEntity to attach all the metrics to it but setting this flag, IgnoreEntity: true that
+	// will cause the agent to send them unattached to any entity
+	i.HostEntity.SetIgnoreEntity(true)
 
 	now := time.Now()
 	for _, me := range metrics {
@@ -166,39 +168,12 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric.name, metric.attributes)
-	// if we can't find an entity for the metric, add it to the "host" entity
-	if !found {
-		addDimensions(m, metric.attributes, i.HostEntity)
-		i.HostEntity.AddMetric(m)
-		return nil
-	}
-
-	// try to find the entity and add the metric to it
-	// if there's no entity with the same name yet, create it and add it to the integration
-	entity, ok := i.FindEntity(entityMetadata.Name)
-	if !ok {
-		var err error
-		entity, err = i.NewEntity(entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
-		if err != nil {
-			logrus.WithError(err).Errorf("failed to create entity name:%s type:%s displayName:%s", entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
-			return err
-		}
-		i.AddEntity(entity)
-	}
-	// entity metadata could be dispersed on different metrics so we add found tags from each entity.
-	for k, v := range entityMetadata.Metadata {
-		if err := entity.AddMetadata(k, v); err != nil {
-			logrus.WithError(err).Debugf("fail to add metadata k:%s v:%v ", k, v)
-		}
-	}
-	addDimensions(m, metric.attributes, entity)
-
-	entity.AddMetric(m)
+	addDimensions(m, metric.attributes, i.HostEntity)
+	i.HostEntity.AddMetric(m)
 	return nil
 }
 
-// resizeToLimit makes sure that the entity name is lee than the limit of 500
+// resizeToLimit makes sure that the entity name is less than the limit of 500
 // it removed "full tokens" from the string so we don't get partial values in the name
 func resizeToLimit(sb *strings.Builder) (resized bool) {
 	if sb.Len() < 500 {

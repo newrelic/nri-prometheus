@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +17,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter()
 	assert.NotNil(t, e)
 
 	// when
@@ -31,7 +30,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_InvalidMetadata(t *testing.T) {
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter()
 	invalid := Metadata{Name: "test", Version: ""}
 	valid := Metadata{Name: "foo", Version: "bar"}
 	assert.Error(t, e.SetIntegrationMetadata(invalid))
@@ -76,7 +75,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+			e := NewInfraSdkEmitter()
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -122,7 +121,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter()
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -173,7 +172,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter()
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -227,88 +226,12 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
-	// Given a new sdk emitter with this synthesis rules
-	definitions := []synthesis.Definition{
-		{
-			EntityRule: synthesis.EntityRule{
-
-				EntityType: "REDIS",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []synthesis.Condition{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_",
-					},
-				},
-				Tags: synthesis.Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
-				},
-			},
-		},
-		{
-			EntityRule: synthesis.EntityRule{
-				EntityType: "REDIS_FOO",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []synthesis.Condition{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_foo",
-					},
-				},
-				Tags: synthesis.Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
-				},
-			},
-		},
-		{
-			EntityRule: synthesis.EntityRule{
-				EntityType: "MULTI",
-				Tags: synthesis.Tags{
-					"env": nil,
-				},
-			},
-			Rules: []synthesis.EntityRule{
-				{
-					Identifier: "targetName",
-					Name:       "targetName",
-					Conditions: []synthesis.Condition{
-						{
-							Attribute: "metricName",
-							Prefix:    "foo_",
-						},
-					},
-					Tags: synthesis.Tags{
-						"foo": nil,
-					},
-				},
-				{
-					Identifier: "targetName",
-					Name:       "targetName",
-					Conditions: []synthesis.Condition{
-						{
-							Attribute: "metricName",
-							Prefix:    "bar_",
-						},
-					},
-					Tags: synthesis.Tags{
-						"bar": nil,
-					},
-				},
-			},
-		},
-	}
 	testMetadata := Metadata{
 		Name:    "nri-foo",
 		Version: "test",
 	}
 
-	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
+	emitter := NewInfraSdkEmitter()
 	assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
 	// and this exporter input metrics
 	input := `
