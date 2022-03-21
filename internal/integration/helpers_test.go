@@ -42,7 +42,12 @@ func scrapeString(t *testing.T, inputMetrics string) TargetMetrics {
 	target, err := server.GetTargets()
 	require.NoError(t, err)
 
-	metricsCh := NewFetcher(time.Millisecond, 1*time.Second, workerThreads, "", "", true, queueLength).Fetch(target)
+	fetcher, err := NewFetcher(time.Millisecond, 1*time.Second, workerThreads, "", "", true, queueLength)
+	if err != nil {
+		t.Fatalf("creating fetcher: %v", err)
+	}
+
+	metricsCh := fetcher.Fetch(target)
 
 	var pair TargetMetrics
 	select {

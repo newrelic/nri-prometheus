@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -80,25 +81,27 @@ func newDefaultRoundTripper(tlsConfig *tls.Config) http.RoundTripper {
 
 // NewBearerAuthFileRoundTripper adds the bearer token read from the provided file to a request unless
 // the authorization header has already been set. This file is read for every request.
-func NewBearerAuthFileRoundTripper(bearerFile string, rt http.RoundTripper) http.RoundTripper {
-	return &bearerAuthFileRoundTripper{bearerFile, rt}
+func NewBearerAuthFileRoundTripper(bearerFile string, rt http.RoundTripper) (http.RoundTripper, error) {
+	b, err := os.ReadFile(bearerFile)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read bearer token from %q: %w", bearerFile, err)
+	}
+
+	return &bearerAuthFileRoundTripper{
+		token: strings.TrimSpace(string(b)),
+		rt:    rt,
+	}, nil
 }
 
 type bearerAuthFileRoundTripper struct {
-	bearerFile string
-	rt         http.RoundTripper
+	token string
+	rt    http.RoundTripper
 }
 
 func (rt *bearerAuthFileRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	if len(req.Header.Get("Authorization")) == 0 {
-		b, err := ioutil.ReadFile(rt.bearerFile)
-		if err != nil {
-			return nil, fmt.Errorf("unable to read bearer token file %s: %s", rt.bearerFile, err)
-		}
-		bearerToken := strings.TrimSpace(string(b))
-
 		req = cloneRequest(req)
-		req.Header.Set("Authorization", "Bearer "+bearerToken)
+		req.Header.Set("Authorization", "Bearer "+rt.token)
 	}
 
 	return rt.rt.RoundTrip(req)
@@ -119,15 +122,26 @@ func cloneRequest(r *http.Request) *http.Request {
 }
 
 // NewFetcher returns the default Fetcher implementation
-func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
-	roundTripper, _ := newRoundTripper(CaFile, InsecureSkipVerify)
+func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) (Fetcher, error) {
+	roundTripper, err := newRoundTripper(CaFile, InsecureSkipVerify)
+	if err != nil {
+		return nil, fmt.Errorf("creating roundTripper: %w", err)
+	}
+
 	client := &http.Client{
 		Transport: roundTripper,
 		Timeout:   fetchTimeout,
 	}
 
-	// Some endpoints, namely kubelet/cadvisor, will also require an authenticated requests.
-	bearerTokenRoundTripper := NewBearerAuthFileRoundTripper(BearerTokenFile, roundTripper)
+	var bearerTokenRoundTripper http.RoundTripper
+	if BearerTokenFile != "" {
+		// Some endpoints, namely kubelet/cadvisor, will also require an authenticated requests.
+		bearerTokenRoundTripper, err = NewBearerAuthFileRoundTripper(BearerTokenFile, roundTripper)
+		if err != nil {
+			return nil, fmt.Errorf("creating bearer token roundTripper: %w", err)
+		}
+	}
+
 	bearerTokenClient := &http.Client{
 		Transport: bearerTokenRoundTripper,
 		Timeout:   fetchTimeout,
@@ -142,7 +156,7 @@ func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerT
 		fetchTimeout:  fetchTimeout,
 		getMetrics:    prometheus.Get,
 		log:           logrus.WithField("component", "Fetcher"),
-	}
+	}, nil
 }
 
 type prometheusFetcher struct {
@@ -248,6 +262,10 @@ func (pf *prometheusFetcher) fetch(t endpoints.Target) (prometheus.MetricFamilie
 
 	// If this target needs the bearer token, we will use the authenticated client to make the request.
 	if t.UseBearer {
+		if pf.bearerClient == nil {
+			return nil, fmt.Errorf("target requies bearer token but bearerClient is not available")
+		}
+
 		httpClient = pf.bearerClient
 	}
 

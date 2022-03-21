@@ -55,9 +55,14 @@ func BenchmarkIntegration(b *testing.B) {
 
 func do(b *testing.B, retrievers []endpoints.TargetRetriever) {
 	b.ReportAllocs()
+	fetcher, err := NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength)
+	if err != nil {
+		b.Fatalf("creating fetcher: %v", err)
+	}
+
 	process(
 		retrievers,
-		NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength),
+		fetcher,
 		RuleProcessor([]ProcessingRule{}, queueLength),
 		[]Emitter{&nilEmit{}},
 	)
@@ -106,13 +111,18 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 	emitter := NewInfraSdkEmitter(s)
 	emitters := []Emitter{emitter}
 
+	fetcher, err := NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength)
+	if err != nil {
+		b.Fatalf("creating fetcher: %v", err)
+	}
+
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
 		ExecuteOnce(
 			retrievers,
-			NewFetcher(30*time.Second, 5000000000, 4, "", "", false, queueLength),
+			fetcher,
 			RuleProcessor([]ProcessingRule{}, queueLength),
 			emitters)
 	}

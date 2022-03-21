@@ -167,11 +167,16 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		)
 	}
 
+	fetcher, err := integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength)
+	if err != nil {
+		return fmt.Errorf("could not build fetcher: %w", err)
+	}
+
 	go integration.Execute(
 		scrapeDuration,
 		selfRetriever,
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		fetcher,
 		integration.RuleProcessor(processingRules, queueLength),
 		emitters)
 
@@ -209,10 +214,15 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		)
 	}
 
+	fetcher, err := integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength)
+	if err != nil {
+		return fmt.Errorf("could not build fetcher: %w", err)
+	}
+
 	// Fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		fetcher,
 		integration.RuleProcessor(cfg.ProcessingRules, queueLength),
 		emitters)
 
