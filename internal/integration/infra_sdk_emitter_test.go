@@ -286,10 +286,10 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	assert.Equal(t, testMetadata.Name, result.Metadata.Name)
 	assert.Equal(t, testMetadata.Version, result.Metadata.Version)
 
-	assert.Len(t, result.Entities, 4)
-	e, ok := result.findEntity("REDIS:" + metrics.Target.Name)
+	assert.Len(t, result.Entities, 1)
+	e, ok := result.findEntity("")
 	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 3)
+	assert.Len(t, e.Metrics, 8)
 
 	// Metrics does not contain common nor removed attributes.
 	for _, m := range e.Metrics {
@@ -302,34 +302,6 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 			assert.False(t, ok)
 		}
 	}
-
-	em := e.EntityDef.Metadata
-	assert.Contains(t, em["tags.version"], "v1.10.0")
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
-	assert.Contains(t, e.Common, "targetName")
-
-	e, ok = result.findEntity("REDIS_FOO:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 1)
-	em = e.EntityDef.Metadata
-	_, ok = em["tags.version"]
-	assert.False(t, ok)
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
-
-	e, ok = result.findEntity("MULTI:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 2)
-	em = e.EntityDef.Metadata
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.foo"], "foo")
-	assert.Contains(t, em["tags.bar"], "bar")
-
-	e, ok = result.findEntity("")
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 2)
-	assert.Contains(t, e.Common["targetName"], metrics.Target.Name)
 }
 
 func Test_ResizeToLimit(t *testing.T) {
