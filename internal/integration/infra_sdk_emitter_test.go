@@ -425,7 +425,11 @@ type entityMetadata struct {
 	Metadata    map[string]interface{} `json:"metadata"`
 }
 
-type common map[string]string
+type common struct {
+	Timestamp  *int64                 `json:"timestamp,omitempty"`
+	Interval   *int64                 `json:"interval.ms,omitempty"`
+	Attributes map[string]interface{} `json:"attributes,omitempty"`
+}
 
 type quant struct {
 	Quantile *float64 `json:"quantile,omitempty"`
