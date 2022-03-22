@@ -23,7 +23,7 @@ import (
 type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
 	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
-	HostID     string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
+	NriHostID  string `default:"" help:"Host ID to be replace the targetName and scrappedTargetName if localhost"`
 }
 
 func loadConfig() (*scraper.Config, error) {
@@ -80,6 +80,7 @@ func loadConfig() (*scraper.Config, error) {
 	if scraperCfg.MetricAPIURL == "" {
 		scraperCfg.MetricAPIURL = determineMetricAPIURL(string(scraperCfg.LicenseKey))
 	}
+	scraperCfg.HostID = c.NriHostID
 
 	return &scraperCfg, nil
 }

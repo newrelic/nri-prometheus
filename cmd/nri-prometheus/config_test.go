@@ -56,8 +56,10 @@ func TestLoadConfig(t *testing.T) {
 		},
 		InsecureSkipVerify: true,
 		WorkerThreads:      4,
+		HostID:             "awesome-host",
 	}
 	t.Setenv("CONFIG_PATH", "testdata/config-with-legacy-entity-definitions.yaml")
+	t.Setenv("NRI_HOST_ID", "awesome-host")
 	scraperCfg, err := loadConfig()
 	if err != nil {
 		t.Fatalf("error was not expected %v", err)

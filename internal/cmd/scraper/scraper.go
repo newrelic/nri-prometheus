@@ -56,6 +56,8 @@ type Config struct {
 	TelemetryEmitterDeltaExpirationCheckInterval time.Duration        `mapstructure:"telemetry_emitter_delta_expiration_check_interval"`
 	WorkerThreads                                int                  `mapstructure:"worker_threads"`
 	IntegrationMetadata                          integration.Metadata `mapstructure:"integration_metadata"`
+	// Coming from main.ArgumentList NriHostID
+	HostID string
 }
 
 const maskedLicenseKey = "****"
