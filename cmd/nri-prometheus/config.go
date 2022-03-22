@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/infra-integrations-sdk/v4/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -53,6 +54,10 @@ func loadConfig() (*scraper.Config, error) {
 	err = cfg.ReadInConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "could not read configuration")
+	}
+
+	if cfg.Get("entity_definitions") != nil {
+		logrus.Warn("entity_definitions are deprecated and won't be processed since v2.14.0")
 	}
 
 	var scraperCfg scraper.Config

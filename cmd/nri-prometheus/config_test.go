@@ -57,7 +57,7 @@ func TestLoadConfig(t *testing.T) {
 		InsecureSkipVerify: true,
 		WorkerThreads:      4,
 	}
-	t.Setenv("CONFIG_PATH", "testdata/config-with-legacy-entity-synthesis.yaml")
+	t.Setenv("CONFIG_PATH", "testdata/config-with-legacy-entity-definitions.yaml")
 	scraperCfg, err := loadConfig()
 	if err != nil {
 		t.Fatalf("error was not expected %v", err)
