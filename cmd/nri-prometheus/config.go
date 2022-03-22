@@ -22,6 +22,7 @@ import (
 type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
 	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
+	HostID     string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
 }
 
 func loadConfig() (*scraper.Config, error) {

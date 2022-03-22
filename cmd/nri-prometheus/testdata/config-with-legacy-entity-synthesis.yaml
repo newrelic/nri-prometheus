@@ -1,0 +1,25 @@
+standalone: false
+emitters: infra-sdk
+entity_definitions: [
+  {
+    conditions: [
+      {
+        attribute: "metricName",
+        prefix: "redis_"
+      }
+    ],
+    identifier: "targetName",
+    name: "targetName",
+    tags: {
+      clusterName: null,
+      targetName: null
+    },
+    type: "REDIS"
+  },
+]
+targets:
+  - description: "AAA"
+    urls: ["localhost:9121"]
+verbose: true
+scrape_duration: "5s"
+insecure_skip_verify: true
