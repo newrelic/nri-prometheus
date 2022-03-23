@@ -302,6 +302,8 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 			assert.False(t, ok)
 		}
 	}
+
+	assert.Contains(t, e.Common.Attributes, "targetName")
 }
 
 func Test_ResizeToLimit(t *testing.T) {
