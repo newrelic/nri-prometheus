@@ -116,12 +116,12 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
 
-	selfRetriever, err := endpoints.SelfRetriever()
+	selfRetriever, err := endpoints.SelfRetriever(cfg.HostID)
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	var retrievers []endpoints.TargetRetriever
-	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
+	fixedRetriever, err := endpoints.FixedRetriever(cfg.HostID, cfg.TargetConfigs...)
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
@@ -194,7 +194,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 
 	var retrievers []endpoints.TargetRetriever
-	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
+	fixedRetriever, err := endpoints.FixedRetriever(cfg.HostID, cfg.TargetConfigs...)
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}

@@ -25,10 +25,10 @@ type TLSConfig struct {
 }
 
 // FixedRetriever creates a TargetRetriver that returns the targets belonging to the URLs passed as arguments
-func FixedRetriever(targetCfgs ...TargetConfig) (TargetRetriever, error) {
+func FixedRetriever(hostID string, targetCfgs ...TargetConfig) (TargetRetriever, error) {
 	fixed := make([]Target, 0, len(targetCfgs))
 	for _, targetCfg := range targetCfgs {
-		targets, err := endpointToTarget(targetCfg)
+		targets, err := endpointToTarget(targetCfg, hostID)
 		if err != nil {
 			return nil, fmt.Errorf("parsing target %v: %v", targetCfg, err.Error())
 		}
