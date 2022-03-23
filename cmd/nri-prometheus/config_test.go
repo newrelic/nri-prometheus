@@ -4,11 +4,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
-	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
+	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 )
 
 func TestDetermineMetricAPIURL(t *testing.T) {
