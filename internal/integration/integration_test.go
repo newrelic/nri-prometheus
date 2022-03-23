@@ -37,7 +37,7 @@ func BenchmarkIntegration(b *testing.B) {
 	}))
 	defer server.Close()
 
-	fr, err := endpoints.FixedRetriever("a-host-id", endpoints.TargetConfig{URLs: []string{server.URL}})
+	fr, err := endpoints.FixedRetriever(endpoints.TargetConfig{URLs: []string{server.URL}})
 	assert.NoError(b, err)
 	var retrievers []endpoints.TargetRetriever
 	for i := 0; i < 20; i++ {
@@ -74,14 +74,14 @@ func BenchmarkIntegrationInfraSDKEmitter(b *testing.B) {
 	}))
 	defer server.Close()
 
-	fr, err := endpoints.FixedRetriever("a-host-id", endpoints.TargetConfig{URLs: []string{server.URL}})
+	fr, err := endpoints.FixedRetriever(endpoints.TargetConfig{URLs: []string{server.URL}})
 	assert.NoError(b, err)
 	var retrievers []endpoints.TargetRetriever
 	for i := 0; i < 20; i++ {
 		retrievers = append(retrievers, fr)
 	}
 
-	emitter := NewInfraSdkEmitter()
+	emitter := NewInfraSdkEmitter("")
 	emitters := []Emitter{emitter}
 
 	b.ReportAllocs()

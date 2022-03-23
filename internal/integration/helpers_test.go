@@ -37,7 +37,7 @@ func scrapeString(t *testing.T, inputMetrics string) TargetMetrics {
 		_, _ = w.Write([]byte(inputMetrics))
 	}))
 	defer ts.Close()
-	server, err := endpoints.FixedRetriever("a-host-id", endpoints.TargetConfig{URLs: []string{ts.URL}})
+	server, err := endpoints.FixedRetriever(endpoints.TargetConfig{URLs: []string{ts.URL}})
 	require.NoError(t, err)
 	target, err := server.GetTargets()
 	require.NoError(t, err)

@@ -5,6 +5,7 @@ package integration
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -14,6 +15,10 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
+
+// A different regex is needed for replacing because `localhostRE` matches
+// IPV6 by using extra `:` that don't belong to the IP but are separators.
+var localhostReplaceRE = regexp.MustCompile(`(localhost|LOCALHOST|127(?:\.[0-9]+){0,2}\.[0-9]+|::1)`)
 
 // Metric attributes that are shared by all metrics of an entity.
 var commonAttributes = map[string]struct{}{
@@ -32,6 +37,7 @@ var removedAttributes = map[string]struct{}{
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
 	integrationMetadata Metadata
+	hostID              string
 }
 
 // Metadata contains the name and version of the exporter that is being scraped.
@@ -46,13 +52,14 @@ func (im *Metadata) isValid() bool {
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter() *InfraSdkEmitter {
+func NewInfraSdkEmitter(hostID string) *InfraSdkEmitter {
 	return &InfraSdkEmitter{
 		// By default it uses the nri-prometheus and it version.
 		integrationMetadata: Metadata{
 			Name:    Name,
 			Version: Version,
 		},
+		hostID: hostID,
 	}
 }
 
@@ -168,9 +175,34 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	addDimensions(m, metric.attributes, i.HostEntity)
+	e.addDimensions(m, metric.attributes, i.HostEntity)
 	i.HostEntity.AddMetric(m)
 	return nil
+}
+
+func (e *InfraSdkEmitter) addDimensions(m infra.Metric, attributes labels.Set, entity *sdk.Entity) {
+	var value string
+	var ok bool
+	for k, v := range attributes {
+		if _, ok = removedAttributes[k]; ok {
+			continue
+		}
+		if value, ok = v.(string); !ok {
+			logrus.Debugf("the value (%v) of %s attribute should be a string", k, v)
+			continue
+		}
+		if _, ok = commonAttributes[k]; ok {
+			if k == "scrapedTargetName" || k == "targetName" {
+				value = replaceLocalhost(value, e.hostID)
+			}
+			entity.AddCommonDimension(k, value)
+			continue
+		}
+		err := m.AddDimension(k, value)
+		if err != nil {
+			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
+		}
+	}
 }
 
 // resizeToLimit makes sure that the entity name is less than the limit of 500
@@ -196,24 +228,11 @@ func resizeToLimit(sb *strings.Builder) (resized bool) {
 	return
 }
 
-func addDimensions(m infra.Metric, attributes labels.Set, entity *sdk.Entity) {
-	var value string
-	var ok bool
-	for k, v := range attributes {
-		if _, ok = removedAttributes[k]; ok {
-			continue
-		}
-		if value, ok = v.(string); !ok {
-			logrus.Debugf("the value (%v) of %s attribute should be a string", k, v)
-			continue
-		}
-		if _, ok = commonAttributes[k]; ok {
-			entity.AddCommonDimension(k, value)
-			continue
-		}
-		err := m.AddDimension(k, value)
-		if err != nil {
-			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
-		}
+// ReplaceLocalhost replaces the occurrence of a localhost address with
+// the given hostname
+func replaceLocalhost(originalHost, hostID string) string {
+	if hostID != "" {
+		return localhostReplaceRE.ReplaceAllString(originalHost, hostID)
 	}
+	return originalHost
 }

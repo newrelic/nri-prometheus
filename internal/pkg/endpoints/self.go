@@ -25,8 +25,8 @@ func newSelfTargetConfig() TargetConfig {
 
 // SelfRetriever creates a TargetRetriver that returns the targets belonging
 // to nri-prometheus.
-func SelfRetriever(hostID string) (TargetRetriever, error) {
-	targets, err := endpointToTarget(newSelfTargetConfig(), hostID)
+func SelfRetriever() (TargetRetriever, error) {
+	targets, err := endpointToTarget(newSelfTargetConfig())
 	if err != nil {
 		return nil, fmt.Errorf("parsing target %v: %v", selfDescription, err.Error())
 	}

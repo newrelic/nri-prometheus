@@ -116,12 +116,12 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		return fmt.Errorf("you need to configure at least one valid emitter")
 	}
 
-	selfRetriever, err := endpoints.SelfRetriever(cfg.HostID)
+	selfRetriever, err := endpoints.SelfRetriever()
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
 	var retrievers []endpoints.TargetRetriever
-	fixedRetriever, err := endpoints.FixedRetriever(cfg.HostID, cfg.TargetConfigs...)
+	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
@@ -194,7 +194,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 
 	var retrievers []endpoints.TargetRetriever
-	fixedRetriever, err := endpoints.FixedRetriever(cfg.HostID, cfg.TargetConfigs...)
+	fixedRetriever, err := endpoints.FixedRetriever(cfg.TargetConfigs...)
 	if err != nil {
 		return fmt.Errorf("while parsing provided endpoints: %w", err)
 	}
@@ -312,7 +312,7 @@ func Run(cfg *Config) error {
 			}
 			emitters = append(emitters, emitter)
 		case "infra-sdk":
-			emitter := integration.NewInfraSdkEmitter()
+			emitter := integration.NewInfraSdkEmitter(cfg.HostID)
 			if err := emitter.SetIntegrationMetadata(cfg.IntegrationMetadata); err != nil {
 				logrus.WithError(err).Debugf("could not set emitter metadata: %v", cfg.IntegrationMetadata)
 			}

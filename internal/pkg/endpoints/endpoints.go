@@ -7,15 +7,10 @@ package endpoints
 import (
 	"fmt"
 	"net/url"
-	"regexp"
 	"strings"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 )
-
-// A different regex is needed for replacing because `localhostRE` matches
-// IPV6 by using extra `:` that don't belong to the IP but are separators.
-var localhostReplaceRE = regexp.MustCompile(`(localhost|LOCALHOST|127(?:\.[0-9]+){0,2}\.[0-9]+|::1)`)
 
 // TargetRetriever is implemented by any type that can return the URL of a set of Prometheus metrics providers
 type TargetRetriever interface {
@@ -79,10 +74,10 @@ func redactedURLString(u *url.URL) string {
 // - if no schema is provided, it assumes http
 // - if no path is provided, it assumes /metrics
 // For example, hostname:8080 will be interpreted as http://hostname:8080/metrics
-func endpointToTarget(tc TargetConfig, hostID string) ([]Target, error) {
+func endpointToTarget(tc TargetConfig) ([]Target, error) {
 	targets := make([]Target, 0, len(tc.URLs))
 	for _, URL := range tc.URLs {
-		t, err := urlToTarget(URL, tc.TLSConfig, hostID)
+		t, err := urlToTarget(URL, tc.TLSConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -91,7 +86,7 @@ func endpointToTarget(tc TargetConfig, hostID string) ([]Target, error) {
 	return targets, nil
 }
 
-func urlToTarget(URL string, TLSConfig TLSConfig, hostID string) (Target, error) {
+func urlToTarget(URL string, TLSConfig TLSConfig) (Target, error) {
 	if !strings.Contains(URL, "://") {
 		URL = fmt.Sprint("http://", URL)
 	}
@@ -104,25 +99,14 @@ func urlToTarget(URL string, TLSConfig TLSConfig, hostID string) (Target, error)
 		u.Path = "/metrics"
 	}
 
-	targetName := u.Host
-	if hostID != "" {
-		targetName = replaceLocalhost(u.Host, hostID)
-	}
-
 	return Target{
-		Name: targetName,
+		Name: u.Host,
 		Object: Object{
-			Name:   targetName,
+			Name:   u.Host,
 			Kind:   "user_provided",
 			Labels: make(labels.Set),
 		},
 		TLSConfig: TLSConfig,
 		URL:       *u,
 	}, nil
-}
-
-// ReplaceLocalhost replaces the occurrence of a localhost address with
-// the given hostname.
-func replaceLocalhost(source, with string) string {
-	return localhostReplaceRE.ReplaceAllString(source, with)
 }
