@@ -62,6 +62,13 @@ func TestFromURL(t *testing.T) {
 			hostID:       "a-host-id",
 		},
 		{
+			testName:     "provided all with IP 128.0.0.1",
+			input:        "https://128.0.0.1:8080/path",
+			expectedName: "128.0.0.1:8080",
+			expectedURL:  "https://128.0.0.1:8080/path",
+			hostID:       "a-host-id",
+		},
+		{
 			testName:     "provided host id modifying name if localhost",
 			input:        "https://localhost:8080/path",
 			expectedName: "a-host-id:8080",
@@ -69,7 +76,21 @@ func TestFromURL(t *testing.T) {
 			hostID:       "a-host-id",
 		},
 		{
-			testName:     "empty host id modifying name if localhost",
+			testName:     "empty host id modifying name if LOCALHOST",
+			input:        "https://LOCALHOST:8080/path",
+			expectedName: "a-host-id:8080",
+			expectedURL:  "https://LOCALHOST:8080/path",
+			hostID:       "a-host-id",
+		},
+		{
+			testName:     "empty host id modifying name if 127.0.0.1",
+			input:        "https://127.0.0.1:8080/path",
+			expectedName: "a-host-id:8080",
+			expectedURL:  "https://127.0.0.1:8080/path",
+			hostID:       "a-host-id",
+		},
+		{
+			testName:     "empty host id not modifying if empty",
 			input:        "https://localhost:8080/path",
 			expectedName: "localhost:8080",
 			expectedURL:  "https://localhost:8080/path",
