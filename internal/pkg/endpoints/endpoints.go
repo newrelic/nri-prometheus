@@ -7,10 +7,10 @@ package endpoints
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
-	"regexp"
 )
 
 // A different regex is needed for replacing because `localhostRE` matches

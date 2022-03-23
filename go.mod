@@ -3,7 +3,7 @@ module github.com/newrelic/nri-prometheus
 go 1.17
 
 require (
-	github.com/newrelic/infra-integrations-sdk/v4 v4.2.0
+	github.com/newrelic/infra-integrations-sdk/v4 v4.2.1
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
