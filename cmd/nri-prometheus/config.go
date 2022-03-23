@@ -57,7 +57,7 @@ func loadConfig() (*scraper.Config, error) {
 	}
 
 	if cfg.Get("entity_definitions") != nil {
-		logrus.Warn("entity_definitions are deprecated and won't be processed since v2.14.0")
+		logrus.Debug("entity_definitions are deprecated and won't be processed since v2.14.0")
 	}
 
 	var scraperCfg scraper.Config
