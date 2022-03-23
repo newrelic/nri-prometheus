@@ -111,7 +111,6 @@ func TestRunIntegrationOnce(t *testing.T) {
 		Standalone:     false,
 		Verbose:        true,
 		ScrapeDuration: "500ms",
-		HostID:         "a-host-id",
 	}
 	err = Run(c)
 	require.NoError(t, err)
@@ -139,7 +138,6 @@ func TestScrapingAnsweringWithError(t *testing.T) {
 		Standalone:     false,
 		Verbose:        true,
 		ScrapeDuration: "500ms",
-		HostID:         "a-host-id",
 	}
 	err := Run(c)
 	// Currently no error is returned in case a scraper does not return any data / err status code
@@ -168,7 +166,6 @@ func TestScrapingAnsweringUnexpectedData(t *testing.T) {
 		Standalone:     false,
 		Verbose:        true,
 		ScrapeDuration: "500ms",
-		HostID:         "a-host-id",
 	}
 	err := Run(c)
 	// Currently no error is returned in case a scraper does not return any data / err status code
@@ -188,7 +185,6 @@ func TestScrapingNotAnswering(t *testing.T) {
 		Verbose:        true,
 		ScrapeDuration: "500ms",
 		ScrapeTimeout:  time.Duration(500) * time.Millisecond,
-		HostID:         "a-host-id",
 	}
 
 	// when
