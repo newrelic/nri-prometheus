@@ -10,7 +10,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/nri-prometheus/internal/pkg/endpoints"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	"github.com/stretchr/testify/assert"
 )
@@ -312,28 +311,18 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 	cases := []struct {
 		testName     string
-		input        TargetMetrics
+		input        labels.Set
 		expectedName string
 		expectedURL  string
 		hostID       string
 	}{
 		{
 			testName: "when hostID provided but host does not match localhostReplaceRE  ",
-			input: TargetMetrics{
-				Metrics: []Metric{
-					{
-						name:       "a-metric",
-						value:      float64(3),
-						metricType: "count",
-						attributes: labels.Set{
-							"targetName":        "128.0.0.1:8080",
-							"scrapedTargetName": "128.0.0.1:8080",
-							"scrapedTargetURL":  "https://128.0.0.1:8080",
-							"env":               "dev",
-						},
-					},
-				},
-				Target: endpoints.Target{},
+			input: labels.Set{
+				"targetName":        "128.0.0.1:8080",
+				"scrapedTargetName": "128.0.0.1:8080",
+				"scrapedTargetURL":  "https://128.0.0.1:8080",
+				"env":               "dev",
 			},
 			expectedName: "128.0.0.1:8080",
 			expectedURL:  "https://128.0.0.1:8080",
@@ -341,21 +330,11 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		},
 		{
 			testName: "provided host id modifying name if localhost",
-			input: TargetMetrics{
-				Metrics: []Metric{
-					{
-						name:       "a-metric",
-						value:      float64(3),
-						metricType: "count",
-						attributes: labels.Set{
-							"targetName":        "localhost:8080",
-							"scrapedTargetName": "localhost:8080",
-							"scrapedTargetURL":  "https://localhost:8080",
-							"env":               "dev",
-						},
-					},
-				},
-				Target: endpoints.Target{},
+			input: labels.Set{
+				"targetName":        "localhost:8080",
+				"scrapedTargetName": "localhost:8080",
+				"scrapedTargetURL":  "https://localhost:8080",
+				"env":               "dev",
 			},
 			expectedName: "a-host-id:8080",
 			expectedURL:  "https://localhost:8080",
@@ -363,21 +342,11 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		},
 		{
 			testName: "empty host id modifying name if LOCALHOST",
-			input: TargetMetrics{
-				Metrics: []Metric{
-					{
-						name:       "a-metric",
-						value:      float64(3),
-						metricType: "count",
-						attributes: labels.Set{
-							"targetName":        "LOCALHOST:8080",
-							"scrapedTargetName": "LOCALHOST:8080",
-							"scrapedTargetURL":  "https://LOCALHOST:8080",
-							"env":               "dev",
-						},
-					},
-				},
-				Target: endpoints.Target{},
+			input: labels.Set{
+				"targetName":        "LOCALHOST:8080",
+				"scrapedTargetName": "LOCALHOST:8080",
+				"scrapedTargetURL":  "https://LOCALHOST:8080",
+				"env":               "dev",
 			},
 			expectedName: "a-host-id:8080",
 			expectedURL:  "https://LOCALHOST:8080",
@@ -385,21 +354,11 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		},
 		{
 			testName: "empty host id modifying name if 127.0.0.1",
-			input: TargetMetrics{
-				Metrics: []Metric{
-					{
-						name:       "a-metric",
-						value:      float64(3),
-						metricType: "count",
-						attributes: labels.Set{
-							"targetName":        "127.0.0.1:8080",
-							"scrapedTargetName": "127.0.0.1:8080",
-							"scrapedTargetURL":  "https://127.0.0.1:8080",
-							"env":               "dev",
-						},
-					},
-				},
-				Target: endpoints.Target{},
+			input: labels.Set{
+				"targetName":        "127.0.0.1:8080",
+				"scrapedTargetName": "127.0.0.1:8080",
+				"scrapedTargetURL":  "https://127.0.0.1:8080",
+				"env":               "dev",
 			},
 			expectedName: "a-host-id:8080",
 			expectedURL:  "https://127.0.0.1:8080",
@@ -407,21 +366,11 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		},
 		{
 			testName: "empty host id not modifying if empty",
-			input: TargetMetrics{
-				Metrics: []Metric{
-					{
-						name:       "a-metric",
-						value:      float64(3),
-						metricType: "count",
-						attributes: labels.Set{
-							"targetName":        "localhost:8080",
-							"scrapedTargetName": "localhost:8080",
-							"scrapedTargetURL":  "https://localhost:8080",
-							"env":               "dev",
-						},
-					},
-				},
-				Target: endpoints.Target{},
+			input: labels.Set{
+				"targetName":        "localhost:8080",
+				"scrapedTargetName": "localhost:8080",
+				"scrapedTargetURL":  "https://localhost:8080",
+				"env":               "dev",
 			},
 			expectedName: "localhost:8080",
 			expectedURL:  "https://localhost:8080",
@@ -438,6 +387,14 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		c := c
 
 		t.Run(c.testName, func(t *testing.T) {
+			metrics := []Metric{
+				{
+					name:       "a-metric",
+					value:      float64(3),
+					metricType: "count",
+					attributes: c.input,
+				},
+			}
 
 			emitter := NewInfraSdkEmitter(c.hostID)
 			assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
@@ -447,7 +404,7 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 			os.Stdout = w
 
 			// when input processed by the sdk emitter
-			err := emitter.Emit(c.input.Metrics)
+			err := emitter.Emit(metrics)
 			_ = w.Close()
 
 			assert.NoError(t, err)
