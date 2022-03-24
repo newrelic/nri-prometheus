@@ -5,16 +5,20 @@ package integration
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
 	infra "github.com/newrelic/infra-integrations-sdk/v4/data/metric"
 	sdk "github.com/newrelic/infra-integrations-sdk/v4/integration"
 	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
-	"github.com/newrelic/nri-prometheus/internal/synthesis"
 	dto "github.com/prometheus/client_model/go"
 	"github.com/sirupsen/logrus"
 )
+
+// A different regex is needed for replacing because `localhostRE` matches
+// IPV6 by using extra `:` that don't belong to the IP but are separators.
+var localhostReplaceRE = regexp.MustCompile(`(localhost|LOCALHOST|127(?:\.[0-9]+){0,2}\.[0-9]+|::1)`)
 
 // Metric attributes that are shared by all metrics of an entity.
 var commonAttributes = map[string]struct{}{
@@ -32,8 +36,8 @@ var removedAttributes = map[string]struct{}{
 
 // InfraSdkEmitter is the emitter using the infra sdk to output metrics to stdout
 type InfraSdkEmitter struct {
-	synthesisRules      synthesis.Synthesizer
 	integrationMetadata Metadata
+	hostID              string
 }
 
 // Metadata contains the name and version of the exporter that is being scraped.
@@ -48,14 +52,14 @@ func (im *Metadata) isValid() bool {
 }
 
 // NewInfraSdkEmitter creates a new Infra SDK emitter
-func NewInfraSdkEmitter(synthesisRules synthesis.Synthesizer) *InfraSdkEmitter {
+func NewInfraSdkEmitter(hostID string) *InfraSdkEmitter {
 	return &InfraSdkEmitter{
-		synthesisRules: synthesisRules,
 		// By default it uses the nri-prometheus and it version.
 		integrationMetadata: Metadata{
 			Name:    Name,
 			Version: Version,
 		},
+		hostID: hostID,
 	}
 }
 
@@ -80,6 +84,11 @@ func (e *InfraSdkEmitter) Emit(metrics []Metric) error {
 	if err != nil {
 		return err
 	}
+	// We want the agent to not send metrics attached to any entity in order to make the entity synthesis to take place
+	// completely in the backend. Since V4 SDK still needs an entity (Dataset) to attach the metrics to, we are using
+	// the default hostEntity to attach all the metrics to it but setting this flag, IgnoreEntity: true that
+	// will cause the agent to send them unattached to any entity
+	i.HostEntity.SetIgnoreEntity(true)
 
 	now := time.Now()
 	for _, me := range metrics {
@@ -166,39 +175,37 @@ func (e *InfraSdkEmitter) emitSummary(i *sdk.Integration, metric Metric, timesta
 }
 
 func (e *InfraSdkEmitter) addMetricToEntity(i *sdk.Integration, metric Metric, m infra.Metric) error {
-	entityMetadata, found := e.synthesisRules.GetEntityMetadata(metric.name, metric.attributes)
-	// if we can't find an entity for the metric, add it to the "host" entity
-	if !found {
-		addDimensions(m, metric.attributes, i.HostEntity)
-		i.HostEntity.AddMetric(m)
-		return nil
-	}
-
-	// try to find the entity and add the metric to it
-	// if there's no entity with the same name yet, create it and add it to the integration
-	entity, ok := i.FindEntity(entityMetadata.Name)
-	if !ok {
-		var err error
-		entity, err = i.NewEntity(entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
-		if err != nil {
-			logrus.WithError(err).Errorf("failed to create entity name:%s type:%s displayName:%s", entityMetadata.Name, entityMetadata.EntityType, entityMetadata.DisplayName)
-			return err
-		}
-		i.AddEntity(entity)
-	}
-	// entity metadata could be dispersed on different metrics so we add found tags from each entity.
-	for k, v := range entityMetadata.Metadata {
-		if err := entity.AddMetadata(k, v); err != nil {
-			logrus.WithError(err).Debugf("fail to add metadata k:%s v:%v ", k, v)
-		}
-	}
-	addDimensions(m, metric.attributes, entity)
-
-	entity.AddMetric(m)
+	e.addDimensions(m, metric.attributes, i.HostEntity)
+	i.HostEntity.AddMetric(m)
 	return nil
 }
 
-// resizeToLimit makes sure that the entity name is lee than the limit of 500
+func (e *InfraSdkEmitter) addDimensions(m infra.Metric, attributes labels.Set, entity *sdk.Entity) {
+	var value string
+	var ok bool
+	for k, v := range attributes {
+		if _, ok = removedAttributes[k]; ok {
+			continue
+		}
+		if value, ok = v.(string); !ok {
+			logrus.Debugf("the value (%v) of %s attribute should be a string", k, v)
+			continue
+		}
+		if _, ok = commonAttributes[k]; ok {
+			if k == "scrapedTargetName" || k == "targetName" {
+				value = replaceLocalhost(value, e.hostID)
+			}
+			entity.AddCommonDimension(k, value)
+			continue
+		}
+		err := m.AddDimension(k, value)
+		if err != nil {
+			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
+		}
+	}
+}
+
+// resizeToLimit makes sure that the entity name is less than the limit of 500
 // it removed "full tokens" from the string so we don't get partial values in the name
 func resizeToLimit(sb *strings.Builder) (resized bool) {
 	if sb.Len() < 500 {
@@ -221,24 +228,11 @@ func resizeToLimit(sb *strings.Builder) (resized bool) {
 	return
 }
 
-func addDimensions(m infra.Metric, attributes labels.Set, entity *sdk.Entity) {
-	var value string
-	var ok bool
-	for k, v := range attributes {
-		if _, ok = removedAttributes[k]; ok {
-			continue
-		}
-		if value, ok = v.(string); !ok {
-			logrus.Debugf("the value (%v) of %s attribute should be a string", k, v)
-			continue
-		}
-		if _, ok = commonAttributes[k]; ok {
-			entity.AddCommonDimension(k, value)
-			continue
-		}
-		err := m.AddDimension(k, value)
-		if err != nil {
-			logrus.WithError(err).Warnf("failed to add attribute %v(%v) as dimension to metric", k, v)
-		}
+// ReplaceLocalhost replaces the occurrence of a localhost address with
+// the given hostname
+func replaceLocalhost(originalHost, hostID string) string {
+	if hostID != "" {
+		return localhostReplaceRE.ReplaceAllString(originalHost, hostID)
 	}
+	return originalHost
 }

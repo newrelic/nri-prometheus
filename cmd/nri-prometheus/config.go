@@ -15,6 +15,7 @@ import (
 	"github.com/newrelic/infra-integrations-sdk/v4/args"
 	"github.com/newrelic/nri-prometheus/internal/cmd/scraper"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -22,6 +23,7 @@ import (
 type ArgumentList struct {
 	ConfigPath string `default:"" help:"Path to the config file"`
 	Configfile string `default:"" help:"Deprecated. --config_path takes precedence if both are set"`
+	NriHostID  string `default:"" help:"Host ID to be replace the targetName and scrappedTargetName if localhost"`
 }
 
 func loadConfig() (*scraper.Config, error) {
@@ -54,6 +56,10 @@ func loadConfig() (*scraper.Config, error) {
 		return nil, errors.Wrap(err, "could not read configuration")
 	}
 
+	if cfg.Get("entity_definitions") != nil {
+		logrus.Debug("entity_definitions are deprecated and won't be processed since v2.14.0")
+	}
+
 	var scraperCfg scraper.Config
 	bindViperEnv(cfg, scraperCfg)
 	err = cfg.Unmarshal(&scraperCfg)
@@ -74,6 +80,7 @@ func loadConfig() (*scraper.Config, error) {
 	if scraperCfg.MetricAPIURL == "" {
 		scraperCfg.MetricAPIURL = determineMetricAPIURL(string(scraperCfg.LicenseKey))
 	}
+	scraperCfg.HostID = c.NriHostID
 
 	return &scraperCfg, nil
 }

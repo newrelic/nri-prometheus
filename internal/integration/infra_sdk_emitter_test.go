@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/newrelic/nri-prometheus/internal/synthesis"
+	"github.com/newrelic/nri-prometheus/internal/pkg/labels"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 	t.Parallel()
 
 	// given
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter("")
 	assert.NotNil(t, e)
 
 	// when
@@ -31,7 +31,7 @@ func TestInfraSdkEmitter_Name(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_InvalidMetadata(t *testing.T) {
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter("")
 	invalid := Metadata{Name: "test", Version: ""}
 	valid := Metadata{Name: "foo", Version: "bar"}
 	assert.Error(t, e.SetIntegrationMetadata(invalid))
@@ -76,7 +76,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// given
-			e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+			e := NewInfraSdkEmitter("")
 
 			rescueStdout := os.Stdout
 			r, w, _ := os.Pipe()
@@ -122,7 +122,7 @@ func TestInfraSdkEmitter_Emit(t *testing.T) {
 }
 
 func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter("")
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getHistogram(t)
@@ -173,7 +173,7 @@ func TestInfraSdkEmitter_HistogramEmitsCorrectValue(t *testing.T) {
 func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 	t.Parallel()
 
-	e := NewInfraSdkEmitter(synthesis.Synthesizer{})
+	e := NewInfraSdkEmitter("a-host-id")
 
 	// TODO find way to emit with different values so we can test the delta calculation on the hist sum
 	metrics := getSummary(t)
@@ -227,88 +227,12 @@ func TestInfraSdkEmitter_SummaryEmitsCorrectValue(t *testing.T) {
 func Test_Emitter_EmitsEntity(t *testing.T) {
 	t.Parallel()
 
-	// Given a new sdk emitter with this synthesis rules
-	definitions := []synthesis.Definition{
-		{
-			EntityRule: synthesis.EntityRule{
-
-				EntityType: "REDIS",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []synthesis.Condition{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_",
-					},
-				},
-				Tags: synthesis.Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
-				},
-			},
-		},
-		{
-			EntityRule: synthesis.EntityRule{
-				EntityType: "REDIS_FOO",
-				Identifier: "targetName",
-				Name:       "targetName",
-				Conditions: []synthesis.Condition{
-					{
-						Attribute: "metricName",
-						Prefix:    "redis_foo",
-					},
-				},
-				Tags: synthesis.Tags{
-					"version":     nil,
-					"env":         nil,
-					"uniquelabel": nil,
-				},
-			},
-		},
-		{
-			EntityRule: synthesis.EntityRule{
-				EntityType: "MULTI",
-				Tags: synthesis.Tags{
-					"env": nil,
-				},
-			},
-			Rules: []synthesis.EntityRule{
-				{
-					Identifier: "targetName",
-					Name:       "targetName",
-					Conditions: []synthesis.Condition{
-						{
-							Attribute: "metricName",
-							Prefix:    "foo_",
-						},
-					},
-					Tags: synthesis.Tags{
-						"foo": nil,
-					},
-				},
-				{
-					Identifier: "targetName",
-					Name:       "targetName",
-					Conditions: []synthesis.Condition{
-						{
-							Attribute: "metricName",
-							Prefix:    "bar_",
-						},
-					},
-					Tags: synthesis.Tags{
-						"bar": nil,
-					},
-				},
-			},
-		},
-	}
 	testMetadata := Metadata{
 		Name:    "nri-foo",
 		Version: "test",
 	}
 
-	emitter := NewInfraSdkEmitter(synthesis.NewSynthesizer(definitions))
+	emitter := NewInfraSdkEmitter("a-host-id")
 	assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
 	// and this exporter input metrics
 	input := `
@@ -337,6 +261,7 @@ redis_exporter_scrapes_total{hostname="localhost",env="dev",uniquelabel="test"} 
 # TYPE redis_foo_scrapes_total gauge
 redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 `
+
 	// when they are scraped
 	metrics := scrapeString(t, input)
 
@@ -363,10 +288,10 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 	assert.Equal(t, testMetadata.Name, result.Metadata.Name)
 	assert.Equal(t, testMetadata.Version, result.Metadata.Version)
 
-	assert.Len(t, result.Entities, 4)
-	e, ok := result.findEntity("REDIS:" + metrics.Target.Name)
+	assert.Len(t, result.Entities, 1)
+	e, ok := result.findEntity("")
 	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 3)
+	assert.Len(t, e.Metrics, 8)
 
 	// Metrics does not contain common nor removed attributes.
 	for _, m := range e.Metrics {
@@ -380,33 +305,123 @@ redis_foo_test{hostname="localhost",env="dev",uniquelabel="test"} 3
 		}
 	}
 
-	em := e.EntityDef.Metadata
-	assert.Contains(t, em["tags.version"], "v1.10.0")
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
-	assert.Contains(t, e.Common, "targetName")
+	assert.Contains(t, e.Common.Attributes, "targetName")
+}
 
-	e, ok = result.findEntity("REDIS_FOO:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 1)
-	em = e.EntityDef.Metadata
-	_, ok = em["tags.version"]
-	assert.False(t, ok)
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.uniquelabel"], "test")
+func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
+	cases := []struct {
+		testName     string
+		input        labels.Set
+		expectedName string
+		expectedURL  string
+		hostID       string
+	}{
+		{
+			testName: "when hostID provided but host does not match localhostReplaceRE  ",
+			input: labels.Set{
+				"targetName":        "128.0.0.1:8080",
+				"scrapedTargetName": "128.0.0.1:8080",
+				"scrapedTargetURL":  "https://128.0.0.1:8080",
+				"env":               "dev",
+			},
+			expectedName: "128.0.0.1:8080",
+			expectedURL:  "https://128.0.0.1:8080",
+			hostID:       "a-host-id",
+		},
+		{
+			testName: "provided host id modifying name if localhost",
+			input: labels.Set{
+				"targetName":        "localhost:8080",
+				"scrapedTargetName": "localhost:8080",
+				"scrapedTargetURL":  "https://localhost:8080",
+				"env":               "dev",
+			},
+			expectedName: "a-host-id:8080",
+			expectedURL:  "https://localhost:8080",
+			hostID:       "a-host-id",
+		},
+		{
+			testName: "empty host id modifying name if LOCALHOST",
+			input: labels.Set{
+				"targetName":        "LOCALHOST:8080",
+				"scrapedTargetName": "LOCALHOST:8080",
+				"scrapedTargetURL":  "https://LOCALHOST:8080",
+				"env":               "dev",
+			},
+			expectedName: "a-host-id:8080",
+			expectedURL:  "https://LOCALHOST:8080",
+			hostID:       "a-host-id",
+		},
+		{
+			testName: "empty host id modifying name if 127.0.0.1",
+			input: labels.Set{
+				"targetName":        "127.0.0.1:8080",
+				"scrapedTargetName": "127.0.0.1:8080",
+				"scrapedTargetURL":  "https://127.0.0.1:8080",
+				"env":               "dev",
+			},
+			expectedName: "a-host-id:8080",
+			expectedURL:  "https://127.0.0.1:8080",
+			hostID:       "a-host-id",
+		},
+		{
+			testName: "empty host id not modifying if empty",
+			input: labels.Set{
+				"targetName":        "localhost:8080",
+				"scrapedTargetName": "localhost:8080",
+				"scrapedTargetURL":  "https://localhost:8080",
+				"env":               "dev",
+			},
+			expectedName: "localhost:8080",
+			expectedURL:  "https://localhost:8080",
+			hostID:       "",
+		},
+	}
 
-	e, ok = result.findEntity("MULTI:" + metrics.Target.Name)
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 2)
-	em = e.EntityDef.Metadata
-	assert.Contains(t, em["tags.env"], "dev")
-	assert.Contains(t, em["tags.foo"], "foo")
-	assert.Contains(t, em["tags.bar"], "bar")
+	testMetadata := Metadata{
+		Name:    "nri-foo",
+		Version: "test",
+	}
 
-	e, ok = result.findEntity("")
-	assert.True(t, ok)
-	assert.Len(t, e.Metrics, 2)
-	assert.Contains(t, e.Common["targetName"], metrics.Target.Name)
+	for _, c := range cases {
+		c := c
+
+		t.Run(c.testName, func(t *testing.T) {
+			metrics := []Metric{
+				{
+					name:       "a-metric",
+					value:      float64(3),
+					metricType: "count",
+					attributes: c.input,
+				},
+			}
+
+			emitter := NewInfraSdkEmitter(c.hostID)
+			assert.NoError(t, emitter.SetIntegrationMetadata(testMetadata))
+
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			// when input processed by the sdk emitter
+			err := emitter.Emit(metrics)
+			_ = w.Close()
+
+			assert.NoError(t, err)
+			bytes, _ := ioutil.ReadAll(r)
+			assert.NotEmpty(t, bytes)
+			os.Stdout = rescueStdout
+
+			var result Result
+			assert.Error(t, json.Unmarshal(bytes, &result))
+			e, ok := result.findEntity("")
+			assert.True(t, ok)
+			assert.Equal(t, c.expectedName, e.Common.Attributes["targetName"])
+			assert.Equal(t, c.expectedName, e.Common.Attributes["scrapedTargetName"])
+			assert.Equal(t, c.expectedURL, e.Common.Attributes["scrapedTargetURL"])
+		})
+	}
+
 }
 
 func Test_ResizeToLimit(t *testing.T) {
@@ -530,7 +545,11 @@ type entityMetadata struct {
 	Metadata    map[string]interface{} `json:"metadata"`
 }
 
-type common map[string]string
+type common struct {
+	Timestamp  *int64                 `json:"timestamp,omitempty"`
+	Interval   *int64                 `json:"interval.ms,omitempty"`
+	Attributes map[string]interface{} `json:"attributes,omitempty"`
+}
 
 type quant struct {
 	Quantile *float64 `json:"quantile,omitempty"`
