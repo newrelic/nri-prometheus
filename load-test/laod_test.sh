@@ -10,7 +10,7 @@ cleanOldResources(){
 deployLoadTestEnvironment(){
   kubectl create namespace newrelic-load
   ## we are using the template and not the install since helm suffers when deploying at the same time 800+ resources "http2: stream closed"
-  helm template load ./load-test/load-test-environment --values ./load-test/load-test-environment/values.yaml -n newrelic-load | kubectl apply -f - -n newrelic-load
+  helm template load ./charts/load-test-environment --values ./charts/load-test-environment/values.yaml -n newrelic-load | kubectl apply -f - -n newrelic-load
 }
 
 #Compile and deploy with skaffold last version of nri-prometheus
