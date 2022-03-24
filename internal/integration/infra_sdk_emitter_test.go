@@ -318,7 +318,7 @@ func Test_Emitter_EmitsEntityWithCorrectTargetName(t *testing.T) {
 		hostID       string
 	}{
 		{
-			testName: "When hostID provided but host not localhost",
+			testName: "when hostID provided but host does not match localhostReplaceRE  ",
 			input: TargetMetrics{
 				Metrics: []Metric{
 					{
