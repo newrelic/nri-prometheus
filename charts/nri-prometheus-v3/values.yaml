@@ -1,0 +1,348 @@
+server:
+  enabled: true
+
+  shards: 1
+
+  global:
+    ## How frequently to scrape targets by default
+    ##
+    scrape_interval: 1m
+    ## How long until a scrape request times out
+    ##
+    scrape_timeout: 10s
+    ## How frequently to evaluate rules
+    ##
+    evaluation_interval: 1m
+    
+    external_labels:
+      replicaId: ${HOSTNAME}
+  
+  transformations:
+    ignore_metrics:
+      prefix: []
+      # - redis_config_
+      # - test_
+
+  ## https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
+  ##
+  remoteWrite: []
+
+  ## Prometheus server container image
+  ##
+  image:
+    repository: quay.io/prometheus/prometheus
+    tag: v2.34.0
+    pullPolicy: IfNotPresent
+
+  ## namespaces to monitor (instead of monitoring all - clusterwide). Needed if you want to run without Cluster-admin privileges.
+  # namespaces:
+  #   - yournamespace
+
+  name: server
+
+  # sidecarContainers - add more containers to prometheus server
+  # Key/Value where Key is the sidecar `- name: <Key>`
+  # Example:
+  #   sidecarContainers:
+  #      webserver:
+  #        image: nginx
+  sidecarContainers: {}
+
+  # sidecarTemplateValues - context to be used in template for sidecarContainers
+  # Example:
+  #   sidecarTemplateValues: *your-custom-globals
+  #   sidecarContainers:
+  #     webserver: |-
+  #       {{ include "webserver-container-template" . }}
+  # Template for `webserver-container-template` might looks like this:
+  #   image: "{{ .Values.server.sidecarTemplateValues.repository }}:{{ .Values.server.sidecarTemplateValues.tag }}"
+  #   ...
+  #
+  sidecarTemplateValues: {}
+
+
+  ## prometheus server priorityClassName
+  ##
+  priorityClassName: ""
+
+  ## EnableServiceLinks indicates whether information about services should be injected
+  ## into pod's environment variables, matching the syntax of Docker links.
+  ## WARNING: the field is unsupported and will be skipped in K8s prior to v1.13.0.
+  ##
+  enableServiceLinks: true
+
+  ## The URL prefix at which the container can be accessed. Useful in the case the '-web.external-url' includes a slug
+  ## so that the various internal URLs are still able to access as they are in the default case.
+  ## (Optional)
+  prefixURL: ""
+
+  ## External URL which can access prometheus
+  ## Maybe same with Ingress host name
+  baseURL: ""
+
+  ## Additional server container environment variables
+  ##
+  ## You specify this manually like you would a raw deployment manifest.
+  ## This means you can bind in environment variables from secrets.
+  ##
+  ## e.g. static environment variable:
+  ##  - name: DEMO_GREETING
+  ##    value: "Hello from the environment"
+  ##
+  ## e.g. secret environment variable:
+  ## - name: USERNAME
+  ##   valueFrom:
+  ##     secretKeyRef:
+  ##       name: mysecret
+  ##       key: username
+  env: []
+
+  # List of flags to override default parameters, e.g:
+  # - --enable-feature=agent
+  # - --storage.agent.retention.max-time=30m
+  defaultFlagsOverride: []
+
+
+  extraFlags:
+    # - web.enable-lifecycle
+    ## web.enable-admin-api flag controls access to the administrative HTTP API which includes functionality such as
+    ## deleting time series. This is disabled by default.
+    # - web.enable-admin-api
+    ##
+    ## storage.tsdb.no-lockfile flag controls BD locking
+    # - storage.tsdb.no-lockfile
+    ##
+    ## storage.tsdb.wal-compression flag enables compression of the write-ahead log (WAL)
+    # - storage.tsdb.wal-compression
+
+  ## Path to a configuration file on prometheus server container FS
+  configPath: /etc/config/prometheus.yml
+
+  storagePath: "/data"
+
+  ## https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_read
+  ##
+  remoteRead: []
+
+  ## Custom HTTP headers for Liveness/Readiness/Startup Probe
+  ##
+  ## Useful for providing HTTP Basic Auth to healthchecks
+  probeHeaders: []
+
+  ## Additional Prometheus server container arguments
+  ##
+  extraArgs: {}
+
+  ## Additional InitContainers to initialize the pod
+  ##
+  extraInitContainers: []
+
+  ## Additional Prometheus server Volume mounts
+  ##
+  extraVolumeMounts: []
+
+  ## Additional Prometheus server Volumes
+  ##
+  extraVolumes: []
+
+  ## Additional Prometheus server hostPath mounts
+  ##
+  extraHostPathMounts: []
+    # - name: certs-dir
+    #   mountPath: /etc/kubernetes/certs
+    #   subPath: ""
+    #   hostPath: /etc/kubernetes/certs
+    #   readOnly: true
+
+  extraConfigmapMounts: []
+    # - name: certs-configmap
+    #   mountPath: /prometheus
+    #   subPath: ""
+    #   configMap: certs-configmap
+    #   readOnly: true
+
+  ## Additional Prometheus server Secret mounts
+  # Defines additional mounts with secrets. Secrets must be manually created in the namespace.
+  extraSecretMounts: []
+    # - name: secret-files
+    #   mountPath: /etc/secrets
+    #   subPath: ""
+    #   secretName: prom-secret-files
+    #   readOnly: true
+
+  ## Server Deployment Strategy type
+  # strategy:
+  #   type: Recreate
+
+  ## hostAliases allows adding entries to /etc/hosts inside the containers
+  hostAliases: []
+  #   - ip: "127.0.0.1"
+  #     hostnames:
+  #       - "example.com"
+
+  ## Node tolerations for server scheduling to nodes with taints
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  tolerations: []
+    # - key: "key"
+    #   operator: "Equal|Exists"
+    #   value: "value"
+    #   effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+
+  ## Node labels for Prometheus server pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+
+  ## Pod affinity
+  ##
+  affinity: {}
+
+  ## Use an alternate scheduler, e.g. "stork".
+  ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
+  ##
+  # schedulerName:
+
+  emptyDir:
+    ## Prometheus server emptyDir volume size limit
+    ##
+    sizeLimit: ""
+
+  ## Annotations to be added to Prometheus server pods
+  ##
+  podAnnotations: {}
+    # iam.amazonaws.com/role: prometheus
+
+  ## Labels to be added to Prometheus server pods
+  ##
+  podLabels: {}
+
+  ## Prometheus AlertManager configuration
+  ##
+  alertmanagers: []
+
+  ## Specify if a Pod Security Policy for node-exporter must be created
+  ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/
+  ##
+  podSecurityPolicy:
+    annotations: {}
+      ## Specify pod annotations
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#apparmor
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#seccomp
+      ## Ref: https://kubernetes.io/docs/concepts/policy/pod-security-policy/#sysctl
+      ##
+      # seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+      # seccomp.security.alpha.kubernetes.io/defaultProfileName: 'docker/default'
+      # apparmor.security.beta.kubernetes.io/defaultProfileName: 'runtime/default'
+
+
+
+  statefulSet:
+    ## If true, use a statefulset instead of a deployment for pod management.
+    ## This allows to scale replicas to more than 1 pod
+    ##
+    enabled: true
+
+    annotations: {}
+    labels: {}
+    podManagementPolicy: OrderedReady
+
+    ## Alertmanager headless service to use for the statefulset
+    ##
+    headless:
+      annotations: {}
+      labels: {}
+      servicePort: 80
+      ## Enable gRPC port on service to allow auto discovery with thanos-querier
+      gRPC:
+        enabled: false
+        servicePort: 10901
+        # nodePort: 10901
+
+  ## Prometheus server readiness and liveness probe initial delay and timeout
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ##
+  tcpSocketProbeEnabled: false
+  probeScheme: HTTP
+  readinessProbeInitialDelay: 30
+  readinessProbePeriodSeconds: 5
+  readinessProbeTimeout: 4
+  readinessProbeFailureThreshold: 3
+  readinessProbeSuccessThreshold: 1
+  livenessProbeInitialDelay: 30
+  livenessProbePeriodSeconds: 15
+  livenessProbeTimeout: 10
+  livenessProbeFailureThreshold: 3
+  livenessProbeSuccessThreshold: 1
+  startupProbe:
+    enabled: false
+    periodSeconds: 5
+    failureThreshold: 30
+    timeoutSeconds: 10
+
+  ## Prometheus server resource requests and limits
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ##
+  resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
+
+  # Required for use in managed kubernetes clusters (such as AWS EKS) with custom CNI (such as calico),
+  # because control-plane managed by AWS cannot communicate with pods' IP CIDR and admission webhooks are not working
+  ##
+  hostNetwork: false
+
+  # When hostNetwork is enabled, you probably want to set this to ClusterFirstWithHostNet
+  dnsPolicy: ClusterFirst
+
+  # Use hostPort
+  # hostPort: 9090
+
+  # Custom DNS configuration to be added to prometheus server pods
+  dnsConfig: {}
+    # nameservers:
+    #   - 1.2.3.4
+    # searches:
+    #   - ns1.svc.cluster-domain.example
+    #   - my.dns.search.suffix
+    # options:
+    #   - name: ndots
+    #     value: "2"
+  #   - name: edns0
+  ## Security context to be added to server pods
+  ##
+  securityContext:
+    runAsUser: 65534
+    runAsNonRoot: true
+    runAsGroup: 65534
+    fsGroup: 65534
+
+  ## Prometheus server pod termination grace period
+  ##
+  terminationGracePeriodSeconds: 300
+
+  ## Prometheus data retention period (default if not specified is 15 days)
+  ##
+  retention: "30m"
+
+# Force namespace of namespaced resources
+forceNamespace: null
+
+rbac:
+  create: true
+
+imagePullSecrets:
+# - name: "image-pull-secret"
+
+## Define serviceAccount names for components. Defaults to component's fully qualified name.
+##
+serviceAccounts:
+  server:
+    create: true
+    name:
+    annotations: {}
+

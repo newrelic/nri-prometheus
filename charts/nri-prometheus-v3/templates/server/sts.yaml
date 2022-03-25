@@ -1,0 +1,217 @@
+{{- if .Values.server.enabled -}}
+{{- if .Values.server.statefulSet.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+{{- if .Values.server.statefulSet.annotations }}
+  annotations:
+    {{ toYaml .Values.server.statefulSet.annotations | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "prometheus.server.labels" . | nindent 4 }}
+    {{- if .Values.server.statefulSet.labels}}
+    {{ toYaml .Values.server.statefulSet.labels | nindent 4 }}
+    {{- end}}
+  name: {{ template "prometheus.server.fullname" . }}
+{{ include "prometheus.namespace" . | indent 2 }}
+spec:
+  serviceName: {{ template "prometheus.server.fullname" . }}-headless
+  selector:
+    matchLabels:
+      {{- include "prometheus.server.matchLabels" . | nindent 6 }}
+  replicas: {{ .Values.server.shards }}
+  podManagementPolicy: {{ .Values.server.statefulSet.podManagementPolicy }}
+  template:
+    metadata:
+    {{- if .Values.server.podAnnotations }}
+      annotations:
+        {{ toYaml .Values.server.podAnnotations | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "prometheus.server.labels" . | nindent 8 }}
+        {{- if .Values.server.podLabels}}
+        {{ toYaml .Values.server.podLabels | nindent 8 }}
+        {{- end}}
+    spec:
+{{- if .Values.server.priorityClassName }}
+      priorityClassName: "{{ .Values.server.priorityClassName }}"
+{{- end }}
+{{- if .Values.server.schedulerName }}
+      schedulerName: "{{ .Values.server.schedulerName }}"
+{{- end }}
+{{- if semverCompare ">=1.13-0" .Capabilities.KubeVersion.GitVersion }}
+      {{- if or (.Values.server.enableServiceLinks) (eq (.Values.server.enableServiceLinks | toString) "<nil>") }}
+      enableServiceLinks: true
+      {{- else }}
+      enableServiceLinks: false
+      {{- end }}
+{{- end }}
+      serviceAccountName: {{ template "prometheus.serviceAccountName.server" . }}
+      {{- if .Values.server.extraInitContainers }}
+      initContainers:
+{{ toYaml .Values.server.extraInitContainers | indent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ template "prometheus.name" . }}-{{ .Values.server.name }}
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: "{{ .Values.server.image.pullPolicy }}"
+          env:
+            - name: "REPLICA_COUNT"
+              value: {{ .Values.server.shards |quote }}
+          {{- if .Values.server.env }}
+{{ toYaml .Values.server.env | indent 12}}
+          {{- end }}
+          args:
+            - -c
+            - sed -e "s/\REPLICA_INDEX/${HOSTNAME##*-}/; s/\REPLICA_COUNT/${REPLICA_COUNT}/" {{ .Values.server.configPath }} > /etc/prometheus/prometheus-converted.yaml 
+              && exec prometheus 
+              --config.file=/etc/prometheus/prometheus-converted.yaml 
+              --enable-feature=agent,expand-external-labels 
+              --storage.agent.retention.max-time={{ .Values.server.retention }}
+          command:
+            - /bin/sh
+          ports:
+            - containerPort: 9090
+          {{- if .Values.server.hostPort }}
+              hostPort: {{ .Values.server.hostPort }}
+          {{- end }}
+          readinessProbe:
+            {{- if not .Values.server.tcpSocketProbeEnabled }}
+            httpGet:
+              path: {{ .Values.server.prefixURL }}/-/ready
+              port: 9090
+              scheme: {{ .Values.server.probeScheme }}
+            {{- else }}
+            tcpSocket:
+              port: 9090
+            {{- end }}
+            initialDelaySeconds: {{ .Values.server.readinessProbeInitialDelay }}
+            periodSeconds: {{ .Values.server.readinessProbePeriodSeconds }}
+            timeoutSeconds: {{ .Values.server.readinessProbeTimeout }}
+            failureThreshold: {{ .Values.server.readinessProbeFailureThreshold }}
+            successThreshold: {{ .Values.server.readinessProbeSuccessThreshold }}
+          livenessProbe:
+            {{- if not .Values.server.tcpSocketProbeEnabled }}
+            httpGet:
+              path: {{ .Values.server.prefixURL }}/-/healthy
+              port: 9090
+              scheme: {{ .Values.server.probeScheme }}
+            {{- else }}
+            tcpSocket:
+              port: 9090
+            {{- end }}
+            initialDelaySeconds: {{ .Values.server.livenessProbeInitialDelay }}
+            periodSeconds: {{ .Values.server.livenessProbePeriodSeconds }}
+            timeoutSeconds: {{ .Values.server.livenessProbeTimeout }}
+            failureThreshold: {{ .Values.server.livenessProbeFailureThreshold }}
+            successThreshold: {{ .Values.server.livenessProbeSuccessThreshold }}
+          resources:
+{{ toYaml .Values.server.resources | indent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+            - name: storage-volume
+              mountPath: {{ .Values.server.storagePath }}
+          {{- range .Values.server.extraHostPathMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath }}
+              readOnly: {{ .readOnly }}
+          {{- end }}
+          {{- range .Values.server.extraConfigmapMounts }}
+            - name: {{ $.Values.server.name }}-{{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath }}
+              readOnly: {{ .readOnly }}
+          {{- end }}
+          {{- range .Values.server.extraSecretMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath }}
+              readOnly: {{ .readOnly }}
+          {{- end }}
+          {{- if .Values.server.extraVolumeMounts }}
+          {{ toYaml .Values.server.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+    {{- if .Values.server.sidecarContainers }}
+      {{- range $name, $spec :=  .Values.server.sidecarContainers }}
+        - name: {{ $name }}
+          {{- if kindIs "string" $spec }}
+            {{- tpl $spec $ | nindent 10 }}
+          {{- else }}
+            {{- toYaml $spec | nindent 10 }}
+          {{- end }}
+      {{- end }}
+    {{- end }}
+      hostNetwork: {{ .Values.server.hostNetwork }}
+    {{- if .Values.server.dnsPolicy }}
+      dnsPolicy: {{ .Values.server.dnsPolicy }}
+    {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+{{ toYaml .Values.imagePullSecrets | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.server.nodeSelector | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.hostAliases }}
+      hostAliases:
+{{ toYaml .Values.server.hostAliases | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.dnsConfig }}
+      dnsConfig:
+{{ toYaml .Values.server.dnsConfig | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.securityContext }}
+      securityContext:
+{{ toYaml .Values.server.securityContext | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.tolerations }}
+      tolerations:
+{{ toYaml .Values.server.tolerations | indent 8 }}
+    {{- end }}
+    {{- if .Values.server.affinity }}
+      affinity:
+{{ toYaml .Values.server.affinity | indent 8 }}
+    {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.server.terminationGracePeriodSeconds }}
+      volumes:
+        - name: config-volume
+        {{- if empty .Values.server.configFromSecret }}
+          configMap:
+            name: {{ if .Values.server.configMapOverrideName }}{{ .Release.Name }}-{{ .Values.server.configMapOverrideName }}{{- else }}{{ template "prometheus.server.fullname" . }}{{- end }}
+        {{- else }}
+          secret:
+            secretName: {{ .Values.server.configFromSecret }}
+        {{- end }}
+      {{- range .Values.server.extraHostPathMounts }}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ .hostPath }}
+      {{- end }}
+      {{- range .Values.server.extraConfigmapMounts }}
+        - name: {{ $.Values.server.name }}-{{ .name }}
+          configMap:
+            name: {{ .configMap }}
+      {{- end }}
+      {{- range .Values.server.extraSecretMounts }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .secretName }}
+            {{- with .optional }}
+            optional: {{ . }}
+            {{- end }}
+      {{- end }}
+{{- if .Values.server.extraVolumes }}
+{{ toYaml .Values.server.extraVolumes | indent 8}}
+{{- end }}
+        - name: storage-volume
+          emptyDir:
+          {{- if .Values.server.emptyDir.sizeLimit }}
+            sizeLimit: {{ .Values.server.emptyDir.sizeLimit }}
+          {{- else }}
+            {}
+          {{- end -}}
+{{- end }}
+{{- end }}
