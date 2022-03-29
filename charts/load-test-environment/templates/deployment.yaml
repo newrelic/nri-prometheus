@@ -4,14 +4,16 @@
 
 {{- $index := 0 -}}
 
-
-{{- range .Values.deployments }}
+{{- range .Values.deployments -}}
 {{- $index = add1 $index -}}
 {{- $latency := default "0" .latency -}}
-{{- $latencyVariation := default "0" .latencyVariation   -}}
-{{- $indexString := toString $index  -}}
+{{- $latencyVariation := default "0" .latencyVariation -}}
+{{- $indexString := toString $index -}}
 
-{{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString -}}
+{{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString }}
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,5 +66,4 @@ spec:
       volumes:
         - name: metricsdir
           emptyDir: {}
----
-{{- end }}
+{{- end -}}

@@ -22,48 +22,48 @@
 # and get the number of timeseries sent (the average payload here counts 400)
 
 
-numberServicesPerDeploy: 100 # Total number service created: numberServicesPerDeploy*len(deployments)
-deployments: # Total number deployments created: len(deployments)
-  - name: one # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: two # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: three # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: four # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: five # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: six # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: seven # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
-  - name: eight # required (uniqueness is assured by adding an index)
-    latency: "200" # not required
-    latencyVariation: "50" # not required
-    metrics: "" # not required
-    #maxRoutines: "1" #not required
+numberServicesPerDeploy: 100  # Total number service created: numberServicesPerDeploy*len(deployments)
+deployments:  # Total number deployments created: len(deployments)
+  - name: one  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
+  - name: two  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
+  - name: three  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
+  - name: four  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
+  - name: five  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  #not required
+  - name: six  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
+  - name: seven  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  #not required
+  - name: eight  # required (uniqueness is assured by adding an index)
+    latency: "200"  # not required
+    latencyVariation: "50"  # not required
+    metrics: ""  # not required
+    # maxRoutines: "1"  # not required
 
 # ---------------------------- No need to modify this
 
