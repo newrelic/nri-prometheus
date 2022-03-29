@@ -1,4 +1,4 @@
-name: Release pipeline
+name: Release integration pipeline
 
 on:
   release:
@@ -70,7 +70,7 @@ jobs:
         run: |
           .\build\windows\unit_tests.ps1
 
-  release:
+  integration-release:
     name: Use goreleaser for releasing
     runs-on: ubuntu-20.04
     needs: [ test-nix, test-windows ]
