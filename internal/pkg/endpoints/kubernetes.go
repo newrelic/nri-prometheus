@@ -134,14 +134,16 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 
 	return []Target{
 		{
-			Name:   n.Name,
-			URL:    nodeURL,
-			Object: object,
+			Name:      n.Name,
+			URL:       nodeURL,
+			Object:    object,
+			UseBearer: true,
 		},
 		{
-			Name:   "cadvisor_" + n.Name,
-			URL:    cadvisorURL,
-			Object: object,
+			Name:      "cadvisor_" + n.Name,
+			URL:       cadvisorURL,
+			Object:    object,
+			UseBearer: true,
 		},
 	}, nil
 }

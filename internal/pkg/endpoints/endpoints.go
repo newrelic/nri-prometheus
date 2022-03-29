@@ -33,6 +33,9 @@ type Target struct {
 	URL       url.URL
 	metadata  labels.Set
 	TLSConfig TLSConfig
+	// UseBearer tells nri-prometheus whether it should send the Kubernetes Service Account token as a Bearer token in
+	// the HTTP request.
+	UseBearer bool
 }
 
 // Metadata returns the Target's metadata, if the current metadata is nil,

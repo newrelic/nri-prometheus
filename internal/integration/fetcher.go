@@ -56,16 +56,12 @@ func NewTLSConfig(CAFile string, InsecureSkipVerify bool) (*tls.Config, error) {
 
 // newRoundTripper creates a new roundtripper with the specified TLS
 // configuration.
-func newRoundTripper(BearerTokenFile string, CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
+func newRoundTripper(CaFile string, InsecureSkipVerify bool) (http.RoundTripper, error) {
 	tlsConfig, err := NewTLSConfig(CaFile, InsecureSkipVerify)
 	if err != nil {
 		return nil, err
 	}
-	rt := newDefaultRoundTripper(tlsConfig)
-	if BearerTokenFile != "" {
-		rt = NewBearerAuthFileRoundTripper(BearerTokenFile, rt)
-	}
-	return rt, nil
+	return newDefaultRoundTripper(tlsConfig), nil
 }
 
 func newDefaultRoundTripper(tlsConfig *tls.Config) http.RoundTripper {
@@ -124,15 +120,24 @@ func cloneRequest(r *http.Request) *http.Request {
 
 // NewFetcher returns the default Fetcher implementation
 func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
-	tr, _ := newRoundTripper(BearerTokenFile, CaFile, InsecureSkipVerify)
+	roundTripper, _ := newRoundTripper(CaFile, InsecureSkipVerify)
 	client := &http.Client{
-		Transport: tr,
+		Transport: roundTripper,
 		Timeout:   fetchTimeout,
 	}
+
+	// Some endpoints, namely kubelet/cadvisor, will also require an authenticated requests.
+	bearerTokenRoundTripper := NewBearerAuthFileRoundTripper(BearerTokenFile, roundTripper)
+	bearerTokenClient := &http.Client{
+		Transport: bearerTokenRoundTripper,
+		Timeout:   fetchTimeout,
+	}
+
 	return &prometheusFetcher{
 		workerThreads: workerThreads,
 		queueLength:   queueLength,
 		httpClient:    client,
+		bearerClient:  bearerTokenClient,
 		duration:      fetchDuration,
 		fetchTimeout:  fetchTimeout,
 		getMetrics:    prometheus.Get,
@@ -146,6 +151,7 @@ type prometheusFetcher struct {
 	duration      time.Duration
 	fetchTimeout  time.Duration
 	httpClient    prometheus.HTTPDoer
+	bearerClient  prometheus.HTTPDoer
 	// Provides IoC for better testability. Its usual value is 'prometheus.Get'.
 	getMetrics func(httpClient prometheus.HTTPDoer, url string) (prometheus.MetricFamiliesByName, error)
 	log        *logrus.Entry
@@ -238,6 +244,11 @@ func (pf *prometheusFetcher) fetch(t endpoints.Target) (prometheus.MetricFamilie
 			Transport: rt,
 			Timeout:   pf.fetchTimeout,
 		}
+	}
+
+	// If this target needs the bearer token, we will use the authenticated client to make the request.
+	if t.UseBearer {
+		httpClient = pf.bearerClient
 	}
 
 	mfs, err := pf.getMetrics(httpClient, t.URL.String())
