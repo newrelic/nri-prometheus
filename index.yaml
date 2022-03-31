@@ -1,3 +1,20 @@
 apiVersion: v1
-entries: {}
-generated: "2022-03-28T10:15:16.453725+02:00"
+entries:
+  load-test-environment:
+  - apiVersion: v2
+    created: "2022-03-31T10:15:01.792053781Z"
+    description: A Helm chart for prometheus load generator.
+    digest: fa8ba0c5e7ac7ea0dff2d5912a0edb3b303ddb34988d5254efe4f28a49adf067
+    maintainers:
+    - name: alvarocabanas
+    - name: carlossscastro
+    - name: gsanchezgavier
+    - name: kang-makes
+    - name: paologallinaharbur
+    - name: roobre
+    name: load-test-environment
+    type: application
+    urls:
+    - https://github.com/newrelic/nri-prometheus/releases/download/load-test-environment-0.1.1-devel/load-test-environment-0.1.1-devel.tgz
+    version: 0.1.1-devel
+generated: "2022-03-31T10:15:01.792067382Z"
