@@ -2,4 +2,11 @@ apiVersion: v2
 name: load-test-environment
 description: A Helm chart for prometheus load generator.
 type: application
-version: 0.1.0-devel
+version: 0.1.1-devel
+maintainers:
+ - name: alvarocabanas
+ - name: carlossscastro
+ - name: gsanchezgavier
+ - name: kang-makes
+ - name: paologallinaharbur
+ - name: roobre
