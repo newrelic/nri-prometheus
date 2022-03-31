@@ -11,7 +11,6 @@
 {{- $indexString := toString $index -}}
 
 {{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString }}
-
 ---
 
 apiVersion: apps/v1
