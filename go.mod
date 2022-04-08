@@ -70,4 +70,4 @@ require (
 // To mitigate Snyk security scan.
 replace github.com/pkg/sftp => github.com/pkg/sftp v1.11.0
 
-replace github.com/containerd/containerd => github.com/containerd/containerd v1.4.11
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.4.13
