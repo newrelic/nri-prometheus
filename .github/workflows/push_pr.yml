@@ -18,7 +18,7 @@ jobs:
   chart-lint:
     name: Helm chart Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       matrix:
         kubernetes-version: [ "v1.16.15", "v1.22.0" ]
