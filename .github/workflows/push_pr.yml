@@ -19,15 +19,16 @@ jobs:
     name: Helm chart Lint
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      matrix:
+        kubernetes-version: [ "v1.16.15", "v1.22.0" ]
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
       - uses: helm/chart-testing-action@v2.2.1
-
       - name: Lint charts
         run: ct --config .github/ct.yaml lint --debug
-
       - name: Check for changed installable charts
         id: list-changed
         run: |
@@ -46,6 +47,31 @@ jobs:
               echo "No unit tests found for $chart"
             fi
           done
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.4.3
+        if: steps.list-changed.outputs.changed == 'true'
+        with:
+          minikube version: v1.20.0
+          kubernetes version: ${{ matrix.kubernetes-version }}
+          github token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-go@v2
+        if: steps.list-changed.outputs.changed == 'true'
+        with:
+          go-version: '1.18'
+      - name: Create image for chart testing
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          TAG=test GOOS=linux GOARCH=amd64 make ci/build
+          sudo cp ./dist/nri-prometheus-nix_linux_amd64/nri-prometheus ./bin/nri-prometheus
+          DOCKER_BUILDKIT=1 docker build -t e2e/nri-prometheus:test  . -f Dockerfile.dev
+          minikube image load e2e/nri-prometheus:test
+          kubectl create ns ct
+      - name: Test install charts
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --namespace ct --config .github/ct.yaml --debug
+      - name: Test upgrade charts
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --namespace ct --config .github/ct.yaml --debug --upgrade
 
   static-analysis:
     name: Run all static analysis checks
