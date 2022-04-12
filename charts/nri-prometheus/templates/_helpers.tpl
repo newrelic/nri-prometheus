@@ -21,51 +21,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
-Return the licenseKey
-*/}}
-{{- define "nri-prometheus.licenseKey" -}}
-{{- if .Values.global}}
-  {{- if .Values.global.licenseKey }}
-      {{- .Values.global.licenseKey -}}
-  {{- else -}}
-      {{- .Values.licenseKey | default "" -}}
-  {{- end -}}
-{{- else -}}
-    {{- .Values.licenseKey | default "" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the customSecretName
-*/}}
-{{- define "nri-prometheus.customSecretName" -}}
-{{- if .Values.global }}
-  {{- if .Values.global.customSecretName }}
-      {{- .Values.global.customSecretName -}}
-  {{- else -}}
-      {{- .Values.customSecretName | default "" -}}
-  {{- end -}}
-{{- else -}}
-    {{- .Values.customSecretName | default "" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the customSecretLicenseKey
-*/}}
-{{- define "nri-prometheus.customSecretLicenseKey" -}}
-{{- if .Values.global }}
-  {{- if .Values.global.customSecretLicenseKey }}
-      {{- .Values.global.customSecretLicenseKey -}}
-  {{- else -}}
-      {{- .Values.customSecretLicenseKey | default "" -}}
-  {{- end -}}
-{{- else -}}
-    {{- .Values.customSecretLicenseKey | default "" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Returns lowDataMode
 */}}
 {{- define "nri-prometheus.lowDataMode" -}}
@@ -115,16 +70,4 @@ Returns nrStaging
 {{- else if .Values.nrStaging }}
   {{- .Values.nrStaging -}}
 {{- end -}}
-{{- end -}}
-
-{{/*
-Returns if the template should render, it checks if the required values
-licenseKey and cluster are set.
-*/}}
-{{- define "nri-prometheus.areValuesValid" -}}
-{{- $cluster := (include "common.cluster" .) -}}
-{{- $licenseKey := include "nri-prometheus.licenseKey" . -}}
-{{- $customSecretName := include "nri-prometheus.customSecretName" . -}}
-{{- $customSecretLicenseKey := include "nri-prometheus.customSecretLicenseKey" . -}}
-{{- and (or $licenseKey (and $customSecretName $customSecretLicenseKey)) $cluster}}
 {{- end -}}
