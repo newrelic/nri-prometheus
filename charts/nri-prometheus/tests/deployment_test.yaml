@@ -1,0 +1,19 @@
+suite: test deployment
+templates:
+  - templates/deployment.yaml
+
+release:
+  name: release
+
+tests:
+  - it: adds METRIC_API_URL when nrStaging is true.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      nrStaging: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content: 
+            name: "METRIC_API_URL"
+            value: "https://staging-metric-api.newrelic.com/metric/v1/infra"

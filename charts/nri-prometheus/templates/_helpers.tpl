@@ -33,16 +33,3 @@ Helm can't merge maps of different types. Need to manually create a `transformat
     {{ $lowDataDefault := .Files.Get "static/lowdatamodedefaults.yaml" | fromYaml }}
     {{- $lowDataDefault.transformations | toYaml | nindent 4 -}}
 {{- end -}}
-
-{{/*
-Returns nrStaging
-*/}}
-{{- define "newrelic.nrStaging" -}}
-{{- if .Values.global }}
-  {{- if .Values.global.nrStaging }}
-    {{- .Values.global.nrStaging -}}
-  {{- end -}}
-{{- else if .Values.nrStaging }}
-  {{- .Values.nrStaging -}}
-{{- end -}}
-{{- end -}}

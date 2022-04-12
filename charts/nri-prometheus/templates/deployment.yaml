@@ -44,7 +44,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "common.license.secretName" . }}
                   key: {{ include "common.license.secretKeyName" . }}
-          {{- if (include "newrelic.nrStaging" .) }}
+          {{- if (include "common.nrStaging" .) }}
           - name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
           {{- end }}
