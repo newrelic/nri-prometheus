@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "nri-prometheus.fullname" . }}
+  name: {{ template "common.naming.fullname" . }}
   labels:
 {{ include "nri-prometheus.labels" . | indent 4 }}
 rules:

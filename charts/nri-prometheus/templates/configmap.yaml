@@ -1,6 +1,6 @@
 kind: ConfigMap
 metadata:
-  name: {{ template "nri-prometheus.fullname" . }}-config
+  name: {{ template "common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "nri-prometheus.labels" . | indent 4 }}

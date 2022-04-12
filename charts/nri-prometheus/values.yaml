@@ -1,3 +1,6 @@
+# nameOverride: ""
+# fullnameOverride: ""
+
 # IMPORTANT: Specify your New Relic API key here.
 # licenseKey:
 #
@@ -24,10 +27,6 @@ prometheusScrape: "true"
 # and instead a default one excluding KSM and cAdvisor metrics will be used.
 # Default: false
 # lowDataMode: false
-
-nameOverride: ""
-
-fullnameOverride: ""
 
 image:
   repository: newrelic/nri-prometheus

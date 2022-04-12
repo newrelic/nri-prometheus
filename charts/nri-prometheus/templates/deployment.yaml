@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "nri-prometheus.fullname" . }}
+  name: {{ template "common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
 {{ include "nri-prometheus.labels" . | indent 4 }}
@@ -10,7 +10,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "nri-prometheus.name" . }}
+      app.kubernetes.io/name: {{ include "common.naming.name" . }}
   template:
     metadata:
 {{- if .Values.podAnnotations }}
@@ -44,7 +44,7 @@ spec:
             valueFrom:
                 secretKeyRef:
                   {{- if (include "nri-prometheus.licenseKey" .) }}
-                  name: {{ template "nri-prometheus.fullname" . }}-config
+                  name: {{ template "common.naming.fullname" . }}
                   key: licenseKey
                   {{- else }}
                   name: {{ include "nri-prometheus.customSecretName" . }}
@@ -65,7 +65,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "nri-prometheus.fullname" . }}-config
+            name: {{ template "common.naming.fullname" . }}
       {{- if $.Values.priorityClassName }}
       priorityClassName: {{ $.Values.priorityClassName }}
       {{- end }}
