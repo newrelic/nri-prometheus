@@ -3,7 +3,7 @@ metadata:
   name: {{ template "common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "nri-prometheus.labels" . | indent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
 apiVersion: v1
 data:
   config.yaml: |

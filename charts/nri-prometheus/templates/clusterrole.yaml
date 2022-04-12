@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   name: {{ template "common.naming.fullname" . }}
   labels:
-{{ include "nri-prometheus.labels" . | indent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
 rules:
 - apiGroups: [""]
   resources:

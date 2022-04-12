@@ -4,7 +4,7 @@ metadata:
   name: {{ template "common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "nri-prometheus.labels" . | indent 4 }}
+    {{- include "common.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -17,7 +17,7 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8}}
 {{- end }}
       labels:
-{{ include "nri-prometheus.labels" . | indent 8 }}
+        {{- include "common.labels.podLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "common.serviceAccount.name" . }}
       {{- if .Values.podSecurityContext}}

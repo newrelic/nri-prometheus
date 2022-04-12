@@ -1,0 +1,58 @@
+suite: test object names
+templates:
+  - templates/clusterrole.yaml
+  - templates/clusterrolebinding.yaml
+  - templates/configmap.yaml
+  - templates/deployment.yaml
+  - templates/secret.yaml
+  - templates/serviceaccount.yaml
+
+release:
+  name: release
+  revision:
+
+tests:
+  - it: adds default labels.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+    asserts:
+      - equal:
+          path: metadata.labels.[app.kubernetes.io/instance]
+          value: release
+      - equal:
+          path: metadata.labels.[app.kubernetes.io/managed-by]
+          value: Helm
+      - equal:
+          path: metadata.labels.[app.kubernetes.io/name]
+          value: nri-prometheus
+      - isNotEmpty:
+          path: metadata.labels.[app.kubernetes.io/version]
+      - isNotEmpty:
+          path: metadata.labels.[helm.sh/chart]
+
+  - it: adds default pod labels.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/instance]
+          value: release
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.metadata.labels.[app.kubernetes.io/name]
+          value: nri-prometheus
+        template: templates/deployment.yaml
+
+## TODO check possible breaking, podLabels is not adding this labels which were added by common lables.
+      # - equal:
+      #     path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
+      #     value: Helm
+      #   template: templates/deployment.yaml
+      # - isNotEmpty:
+      #     path: spec.template.metadata.labels.[app.kubernetes.io/version]
+      #   template: templates/deployment.yaml
+      # - isNotEmpty:
+      #     path: spec.template.metadata.labels.[helm.sh/chart]
+      #   template: templates/deployment.yaml

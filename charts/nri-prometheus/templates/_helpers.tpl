@@ -1,26 +1,6 @@
 {{/* vim: set filetype=mustache: */}}
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "nri-prometheus.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Common labels
-*/}}
-{{- define "nri-prometheus.labels" -}}
-app.kubernetes.io/name: {{ include "common.naming.name" . }}
-helm.sh/chart: {{ include "nri-prometheus.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-
-{{/*
 Returns mergeTransformations
 Helm can't merge maps of different types. Need to manually create a `transformations` section.
 */}}
