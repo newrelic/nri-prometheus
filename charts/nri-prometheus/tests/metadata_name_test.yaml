@@ -5,6 +5,7 @@ templates:
   - templates/configmap.yaml
   - templates/deployment.yaml
   - templates/secret.yaml
+  - templates/serviceaccount.yaml
 
 release:
   name: release

@@ -21,17 +21,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
-Create the name of the service account to use
-*/}}
-{{- define "nri-prometheus.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-{{ default (include "common.naming.name" . ) .Values.serviceAccount.name }}
-{{- else -}}
-{{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return the licenseKey
 */}}
 {{- define "nri-prometheus.licenseKey" -}}
