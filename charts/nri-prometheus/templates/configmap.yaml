@@ -9,9 +9,9 @@ data:
   config.yaml: |
     cluster_name: {{ include "common.cluster" . }}
 {{- if .Values.config -}}
-  {{- if and (.Values.config.transformations) (include "nri-prometheus.lowDataMode" .) -}}
+  {{- if and (.Values.config.transformations) (include "common.lowDataMode" .) -}}
     {{- include "nri-prometheus.mergeTransformations" . -}}
-  {{- else if (include "nri-prometheus.lowDataMode" .) -}}
+  {{- else if (include "common.lowDataMode" .) -}}
     {{ $lowDataDefault := .Files.Get "static/lowdatamodedefaults.yaml" | fromYaml }}
     {{- mergeOverwrite .Values.config $lowDataDefault | toYaml | nindent 4 -}}
   {{- else }}
