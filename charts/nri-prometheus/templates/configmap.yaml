@@ -7,7 +7,7 @@ metadata:
 apiVersion: v1
 data:
   config.yaml: |
-    cluster_name: {{ include "nri-prometheus.cluster" . }}
+    cluster_name: {{ include "common.cluster" . }}
 {{- if .Values.config -}}
   {{- if and (.Values.config.transformations) (include "nri-prometheus.lowDataMode" .) -}}
     {{- include "nri-prometheus.mergeTransformations" . -}}

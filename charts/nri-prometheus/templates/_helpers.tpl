@@ -47,21 +47,6 @@ Return the licenseKey
 {{- end -}}
 
 {{/*
-Return the cluster
-*/}}
-{{- define "nri-prometheus.cluster" -}}
-{{- if .Values.global -}}
-  {{- if .Values.global.cluster -}}
-      {{- .Values.global.cluster -}}
-  {{- else -}}
-      {{- .Values.cluster | default "" -}}
-  {{- end -}}
-{{- else -}}
-  {{- .Values.cluster | default "" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return the customSecretName
 */}}
 {{- define "nri-prometheus.customSecretName" -}}
@@ -148,7 +133,7 @@ Returns if the template should render, it checks if the required values
 licenseKey and cluster are set.
 */}}
 {{- define "nri-prometheus.areValuesValid" -}}
-{{- $cluster := include "nri-prometheus.cluster" . -}}
+{{- $cluster := (include "common.cluster" .) -}}
 {{- $licenseKey := include "nri-prometheus.licenseKey" . -}}
 {{- $customSecretName := include "nri-prometheus.customSecretName" . -}}
 {{- $customSecretLicenseKey := include "nri-prometheus.customSecretLicenseKey" . -}}
