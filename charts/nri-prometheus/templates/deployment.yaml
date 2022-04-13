@@ -30,6 +30,10 @@ spec:
       {{- end }}
       containers:
       - name: nri-prometheus
+        {{- with include "newrelic.common.securityContext.container" . }}
+        securityContext:
+          {{- . | nindent 10 }}
+        {{- end }}
         image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
         args:
           - "--configfile=/etc/nri-prometheus/config.yaml"

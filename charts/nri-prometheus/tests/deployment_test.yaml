@@ -41,3 +41,14 @@ tests:
           value: 
             foo: bar
   
+  - it: adds securityContext if specified in values.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      containerSecurityContext:
+        foo: bar
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext
+          value:
+            foo: bar
