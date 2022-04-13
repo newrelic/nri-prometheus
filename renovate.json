@@ -1,5 +1,12 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    // Disable the creation of this issue that renovate updates with the pending issue we follow with Zenhub:
+    ":disableDependencyDashboard"
+  ],
+  "enabledManagers": [
+    // Managers for helm and helm-values. Go dependencies are managed by Dependabot.
+    "helm-values",
+    "helmv3"
   ]
 }
