@@ -17,4 +17,27 @@ entries:
     urls:
     - https://github.com/newrelic/nri-prometheus/releases/download/load-test-environment-0.1.1-devel/load-test-environment-0.1.1-devel.tgz
     version: 0.1.1-devel
-generated: "2022-03-31T10:15:01.792067382Z"
+  nri-prometheus:
+  - apiVersion: v1
+    appVersion: 2.14.0
+    created: "2022-04-13T08:10:18.649131033Z"
+    description: A Helm chart to deploy the New Relic Prometheus OpenMetrics integration
+    digest: f4212f8e5efa94b0aded725683e70606dcea7a76b7134f210228f543c974cd52
+    home: https://github.com/newrelic/nri-prometheus
+    icon: https://newrelic.com/assets/newrelic/source/NewRelic-logo-square.svg
+    keywords:
+    - prometheus
+    - newrelic
+    - monitoring
+    maintainers:
+    - name: alvarocabanas
+    - name: carlossscastro
+    - name: gsanchezgavier
+    - name: kang-makes
+    - name: paologallinaharbur
+    - name: roobre
+    name: nri-prometheus
+    urls:
+    - https://github.com/newrelic/nri-prometheus/releases/download/nri-prometheus-1.14.0/nri-prometheus-1.14.0.tgz
+    version: 1.14.0
+generated: "2022-04-13T08:10:18.649145433Z"
