@@ -9,7 +9,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "newrelic.common.naming.name" . }}
+      {{- include "newrelic.common.labels.selectorLabels" . | nindent 6 }}
   template:
     metadata:
 {{- if .Values.podAnnotations }}

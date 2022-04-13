@@ -17,3 +17,14 @@ tests:
           content: 
             name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
+
+  - it: adds pod labels selectors.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value: 
+            app.kubernetes.io/instance: release
+            app.kubernetes.io/name: nri-prometheus
