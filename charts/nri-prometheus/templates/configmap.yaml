@@ -1,6 +1,6 @@
 kind: ConfigMap
 metadata:
-  name: {{ template "newrelic.common.naming.fullname" . }}
+  name: {{ include "newrelic.common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "newrelic.common.labels" . | nindent 4 }}
