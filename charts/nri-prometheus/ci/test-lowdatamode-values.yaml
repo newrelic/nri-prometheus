@@ -3,3 +3,7 @@ global:
   cluster: test-cluster
 
 lowDataMode: true
+
+image:
+  repository: e2e/nri-prometheus
+  tag: "test"  # Defaults to chart's appVersion
