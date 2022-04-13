@@ -1,0 +1,38 @@
+suite: test deployment
+templates:
+  - templates/deployment.yaml
+  - templates/serviceaccount.yaml
+
+release:
+  name: release
+
+tests:
+  - it: adds deployment annotations.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      podAnnotations:
+        foo: bar
+        baz: qux
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations
+          value: 
+            foo: bar
+            baz: qux
+        template: templates/deployment.yaml
+  - it: adds service account annotations.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      serviceAccount: 
+        annotations:
+          foo: bar
+          baz: qux
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value: 
+            foo: bar
+            baz: qux
+        template: templates/serviceaccount.yaml
