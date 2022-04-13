@@ -20,9 +20,9 @@ spec:
         {{- include "newrelic.common.labels.podLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "newrelic.common.serviceAccount.name" . }}
-      {{- if .Values.podSecurityContext}}
+      {{- with include "newrelic.common.securityContext.pod" . }}
       securityContext:
-{{ toYaml .Values.podSecurityContext | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:

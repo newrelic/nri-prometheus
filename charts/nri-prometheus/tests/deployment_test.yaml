@@ -28,3 +28,16 @@ tests:
           value: 
             app.kubernetes.io/instance: release
             app.kubernetes.io/name: nri-prometheus
+  
+  - it: adds pod security context if specified in values.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      podSecurityContext:
+        foo: bar
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext
+          value: 
+            foo: bar
+  
