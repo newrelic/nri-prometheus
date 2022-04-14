@@ -56,6 +56,10 @@ spec:
           - name: "METRIC_API_URL"
             value: "https://gov-metric-api.newrelic.com/metric/v1"
           {{- end }}
+          {{- with include "newrelic.common.proxy" . }}
+          - name: EMITTER_PROXY
+            value: {{ . | quote }}
+          {{- end }}  
           - name: "BEARER_TOKEN_FILE"
             value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
           - name: "CA_FILE"
