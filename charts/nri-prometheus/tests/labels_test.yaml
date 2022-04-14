@@ -44,15 +44,3 @@ tests:
           path: spec.template.metadata.labels.[app.kubernetes.io/name]
           value: nri-prometheus
         template: templates/deployment.yaml
-
-## TODO check possible breaking, podLabels is not adding this labels which were added by common lables.
-      # - equal:
-      #     path: spec.template.metadata.labels.[app.kubernetes.io/managed-by]
-      #     value: Helm
-      #   template: templates/deployment.yaml
-      # - isNotEmpty:
-      #     path: spec.template.metadata.labels.[app.kubernetes.io/version]
-      #   template: templates/deployment.yaml
-      # - isNotEmpty:
-      #     path: spec.template.metadata.labels.[helm.sh/chart]
-      #   template: templates/deployment.yaml
