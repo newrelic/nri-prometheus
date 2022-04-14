@@ -18,6 +18,19 @@ tests:
             name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
 
+  - it: adds FedRamp endpoint when FedRamp is enabled.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      fedramp: 
+        enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content: 
+            name: "METRIC_API_URL"
+            value: "https://gov-metric-api.newrelic.com/metric/v1"
+
   - it: adds pod labels selectors.
     set:
       licenseKey: fakeLicense
