@@ -52,3 +52,21 @@ tests:
           path: spec.template.spec.containers[0].securityContext
           value:
             foo: bar
+
+  - it: proper set image sub values.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      image:
+        repository: foo/bar
+        tag: baz
+        pullSecrets:
+          - name: secret
+    asserts:
+      - equal:
+          path: spec.template.spec.imagePullSecrets
+          value:
+            - name: secret
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: foo/bar:baz

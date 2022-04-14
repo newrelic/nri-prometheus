@@ -29,8 +29,10 @@ prometheusScrape: "true"
 # lowDataMode: false
 
 image:
+  registry:
   repository: newrelic/nri-prometheus
   tag: ""  # Defaults to chart's appVersion
+  imagePullPolicy: IfNotPresent
   ## It is possible to specify docker registry credentials
   ## See https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
   # pullSecrets:

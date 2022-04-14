@@ -24,9 +24,9 @@ spec:
       securityContext:
         {{- . | nindent 8 }}
       {{- end }}
-      {{- if .Values.image.pullSecrets }}
+      {{- with include "newrelic.common.images.renderPullSecrets" ( dict "pullSecrets" (list .Values.image.pullSecrets) "context" .) }}
       imagePullSecrets:
-{{ toYaml .Values.image.pullSecrets | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       containers:
       - name: nri-prometheus
@@ -34,7 +34,8 @@ spec:
         securityContext:
           {{- . | nindent 10 }}
         {{- end }}
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        image: {{ include "newrelic.common.images.image" ( dict "imageRoot" .Values.image "context" .) }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         args:
           - "--configfile=/etc/nri-prometheus/config.yaml"
         ports:
