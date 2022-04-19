@@ -1,16 +1,15 @@
-{{- if (include "nri-prometheus.areValuesValid" .) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "nri-prometheus.fullname" . }}
+  name: {{ include "newrelic.common.naming.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "nri-prometheus.labels" . | indent 4 }}
+    {{- include "newrelic.common.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "nri-prometheus.name" . }}
+      {{- include "newrelic.common.labels.selectorLabels" . | nindent 6 }}
   template:
     metadata:
 {{- if .Values.podAnnotations }}
@@ -18,9 +17,9 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8}}
 {{- end }}
       labels:
-{{ include "nri-prometheus.labels" . | indent 8 }}
+        {{- include "newrelic.common.labels.podLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ template "nri-prometheus.serviceAccountName" . }}
+      serviceAccountName: {{ include "newrelic.common.serviceAccount.name" . }}
       {{- if .Values.podSecurityContext}}
       securityContext:
 {{ toYaml .Values.podSecurityContext | indent 8 }}
@@ -43,14 +42,9 @@ spec:
           - name: "LICENSE_KEY"
             valueFrom:
                 secretKeyRef:
-                  {{- if (include "nri-prometheus.licenseKey" .) }}
-                  name: {{ template "nri-prometheus.fullname" . }}-config
-                  key: licenseKey
-                  {{- else }}
-                  name: {{ include "nri-prometheus.customSecretName" . }}
-                  key: {{ include "nri-prometheus.customSecretLicenseKey" . }}
-                  {{- end }}
-          {{- if (include "newrelic.nrStaging" .) }}
+                  name: {{ include "newrelic.common.license.secretName" . }}
+                  key: {{ include "newrelic.common.license.secretKeyName" . }}
+          {{- if (include "newrelic.common.nrStaging" .) }}
           - name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
           {{- end }}
@@ -65,7 +59,7 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ template "nri-prometheus.fullname" . }}-config
+            name: {{ include "newrelic.common.naming.fullname" . }}
       {{- if $.Values.priorityClassName }}
       priorityClassName: {{ $.Values.priorityClassName }}
       {{- end }}
@@ -81,4 +75,3 @@ spec:
       affinity:
 {{ toYaml .Values.affinity | indent 8 }}
       {{- end }}
-{{- end }}

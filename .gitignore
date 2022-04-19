@@ -17,3 +17,5 @@ snyk-result.json
 snyk_report.css
 snyk_report.html
 
+# Downloaded chart dependencies
+**/charts/*.tgz
