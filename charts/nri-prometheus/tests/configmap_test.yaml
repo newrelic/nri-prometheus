@@ -18,7 +18,6 @@ tests:
             scrape_endpoints: false
             scrape_services: true
             transformations: []
-            verbose: false
 
   - it: creates the config map with lowDataMode.
     set:
@@ -44,7 +43,6 @@ tests:
                 - container_
                 - machine_
                 - cadvisor_
-            verbose: false
 
   - it: merges existing transformation with lowDataMode.
     set:
@@ -69,7 +67,6 @@ tests:
             scrape_enabled_label: prometheus.io/scrape
             scrape_endpoints: false
             scrape_services: true
-            verbose: false
             transformations:
             - description: Custom transformation Example
               rename_attributes:

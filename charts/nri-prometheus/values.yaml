@@ -89,10 +89,6 @@ config:
   # Default: "5m"
   # telemetry_emitter_delta_expiration_check_interval: "5m"
 
-  # Whether the integration should run in verbose mode or not.
-  # Default: false
-  verbose: false
-
   # Whether the integration should run in audit mode or not. Defaults to false.
   # Audit mode logs the uncompressed data sent to New Relic. Use this to log all data sent.
   # It does not include verbose mode. This can lead to a high log volume, use with care.
@@ -261,3 +257,7 @@ fedramp:
 # This proxy won't be used when scraping metrics from the targets.
 # By default it's empty, meaning that no proxy will be used.
 proxy: 
+
+# Whether the integration should run in verbose mode or not.
+# Default: false
+verboseLog:

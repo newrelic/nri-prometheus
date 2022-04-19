@@ -61,6 +61,10 @@ spec:
           - name: EMITTER_PROXY
             value: {{ . | quote }}
           {{- end }}  
+          {{- with include "newrelic.common.verboseLog" . }}
+          - name: "VERBOSE"
+            value: {{ . | quote }}
+          {{- end }}  
           - name: "BEARER_TOKEN_FILE"
             value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
           - name: "CA_FILE"
