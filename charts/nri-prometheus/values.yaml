@@ -246,7 +246,7 @@ affinity: {}
 # global.nrStaging
 nrStaging: false
 
-# If enabled FedRamp Metrics API endpoint will be used. 
+# If enabled FedRamp Metrics API endpoint will be used.
 # https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints#metric-api
 fedramp:
   enabled: false
@@ -256,7 +256,7 @@ fedramp:
 # The emitter is the component in charge of sending the scraped metrics.
 # This proxy won't be used when scraping metrics from the targets.
 # By default it's empty, meaning that no proxy will be used.
-proxy: 
+proxy:
 
 # Whether the integration should run in verbose mode or not.
 # Default: false
