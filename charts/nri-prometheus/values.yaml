@@ -21,8 +21,6 @@
 #   customSecretLicenseKey: secret_key
 #   cluster: ""
 
-prometheusScrape: "true"
-
 # If set, the `config.transformations` option present in this file will be ignored,
 # and instead a default one excluding KSM and cAdvisor metrics will be used.
 # Default: false
@@ -66,10 +64,6 @@ serviceAccount:
 # If you wish to provide your own config.yaml file include it under config:
 # the sample config file is included here as an example.
 config:
-  # When standalone is set to false nri-prometheus requires an infrastructure agent to work and send data.
-  # Default: true
-  # standalone: true
-
   # How often the integration should run.
   # Default: "30s"
   # scrape_duration: "30s"
