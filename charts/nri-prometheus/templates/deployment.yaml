@@ -66,7 +66,7 @@ spec:
             value: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         {{- if .Values.resources }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
         {{- end }}
       volumes:
         - name: config-volume
