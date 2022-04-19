@@ -95,3 +95,13 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].image
           value: foo/bar:baz
+
+  - it: set priorityClassName.
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      priorityClassName: foo
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: foo
