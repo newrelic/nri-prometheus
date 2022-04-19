@@ -75,19 +75,19 @@ spec:
       {{- with include "newrelic.common.priorityClassName" . }}
       priorityClassName: {{ . }}
       {{- end }}
-      {{- if $.Values.nodeSelector }}
       {{- with include "newrelic.common.dnsConfig" . }}
       dnsConfig:
         {{- . | nindent 8 }}
       {{- end }}
+      {{- with include "newrelic.common.nodeSelector" . }}
       nodeSelector:
-{{ toYaml $.Values.nodeSelector | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
-      {{- end }}
-      {{- if .Values.affinity }}
+      {{- with include "newrelic.common.affinity" . }}
       affinity:
-{{ toYaml .Values.affinity | indent 8 }}
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with include "newrelic.common.tolerations" . }}
+      tolerations:
+        {{- . | nindent 8 }}
       {{- end }}
