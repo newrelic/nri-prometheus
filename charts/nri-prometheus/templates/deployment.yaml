@@ -76,6 +76,10 @@ spec:
       priorityClassName: {{ . }}
       {{- end }}
       {{- if $.Values.nodeSelector }}
+      {{- with include "newrelic.common.dnsConfig" . }}
+      dnsConfig:
+        {{- . | nindent 8 }}
+      {{- end }}
       nodeSelector:
 {{ toYaml $.Values.nodeSelector | indent 8 }}
       {{- end }}
