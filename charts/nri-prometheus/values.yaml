@@ -156,9 +156,6 @@ config:
   #   - 50
   #   - 95
   #   - 99
-  #
-  # integration definition files required to map metrics to entities
-  # definition_files_path: /etc/newrelic-infra/definition-files
 
   # If lowDataMode is se to true the config.transformations option will be ignored
   transformations: []
