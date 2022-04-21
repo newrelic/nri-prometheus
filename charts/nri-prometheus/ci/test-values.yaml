@@ -73,6 +73,9 @@ podSecurityContext:
   runAsGroup: 3000
   fsGroup: 2000
 
+containerSecurityContext:
+  runAsUser: 2000
+
 tolerations:
   - key: "key1"
     operator: "Exists"

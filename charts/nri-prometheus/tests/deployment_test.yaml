@@ -69,52 +69,6 @@ tests:
             name: "EMITTER_PROXY"
             value: "https://my-proxy:9999"
         template: templates/deployment.yaml
-  
-  - it: adds pod security context if specified in values.
-    set:
-      licenseKey: fakeLicense
-      cluster: test
-      podSecurityContext:
-        foo: bar
-    asserts:
-      - equal:
-          path: spec.template.spec.securityContext
-          value: 
-            foo: bar
-        template: templates/deployment.yaml
-  
-  - it: adds securityContext if specified in values.
-    set:
-      licenseKey: fakeLicense
-      cluster: test
-      containerSecurityContext:
-        foo: bar
-    asserts:
-      - equal:
-          path: spec.template.spec.containers[0].securityContext
-          value:
-            foo: bar
-        template: templates/deployment.yaml
-
-  - it: proper set image sub values.
-    set:
-      licenseKey: fakeLicense
-      cluster: test
-      image:
-        repository: foo/bar
-        tag: baz
-        pullSecrets:
-          - name: secret
-    asserts:
-      - equal:
-          path: spec.template.spec.imagePullSecrets
-          value:
-            - name: secret
-        template: templates/deployment.yaml
-      - equal:
-          path: spec.template.spec.containers[0].image
-          value: foo/bar:baz
-        template: templates/deployment.yaml
 
   - it: set priorityClassName.
     set:
@@ -127,14 +81,3 @@ tests:
           value: foo
         template: templates/deployment.yaml
 
-  - it: adds deployment annotations.
-    set:
-      licenseKey: fakeLicense
-      cluster: test
-      podAnnotations:
-        foo: bar
-    asserts:
-      - equal:
-          path: spec.template.metadata.annotations.[foo]
-          value: bar
-        template: templates/deployment.yaml
