@@ -12,25 +12,31 @@ spec:
       {{- include "newrelic.common.labels.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-{{- if .Values.podAnnotations }}
       annotations:
-{{ toYaml .Values.podAnnotations | indent 8}}
-{{- end }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "newrelic.common.labels.podLabels" . | nindent 8 }}
     spec:
       serviceAccountName: {{ include "newrelic.common.serviceAccount.name" . }}
-      {{- if .Values.podSecurityContext}}
+      {{- with include "newrelic.common.securityContext.pod" . }}
       securityContext:
-{{ toYaml .Values.podSecurityContext | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- if .Values.image.pullSecrets }}
+      {{- with include "newrelic.common.images.renderPullSecrets" ( dict "pullSecrets" (list .Values.image.pullSecrets) "context" .) }}
       imagePullSecrets:
-{{ toYaml .Values.image.pullSecrets | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       containers:
       - name: nri-prometheus
-        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        {{- with include "newrelic.common.securityContext.container" . }}
+        securityContext:
+          {{- . | nindent 10 }}
+        {{- end }}
+        image: {{ include "newrelic.common.images.image" ( dict "imageRoot" .Values.image "context" .) }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
         args:
           - "--configfile=/etc/nri-prometheus/config.yaml"
         ports:
@@ -47,31 +53,46 @@ spec:
           {{- if (include "newrelic.common.nrStaging" .) }}
           - name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
+          {{- else if (include "newrelic.common.fedramp.enabled" .) }}
+          - name: "METRIC_API_URL"
+            value: "https://gov-metric-api.newrelic.com/metric/v1"
           {{- end }}
+          {{- with include "newrelic.common.proxy" . }}
+          - name: EMITTER_PROXY
+            value: {{ . | quote }}
+          {{- end }}  
+          {{- with include "newrelic.common.verboseLog" . }}
+          - name: "VERBOSE"
+            value: {{ . | quote }}
+          {{- end }}  
           - name: "BEARER_TOKEN_FILE"
             value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
           - name: "CA_FILE"
             value: "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
         {{- if .Values.resources }}
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
         {{- end }}
       volumes:
         - name: config-volume
           configMap:
             name: {{ include "newrelic.common.naming.fullname" . }}
-      {{- if $.Values.priorityClassName }}
-      priorityClassName: {{ $.Values.priorityClassName }}
+      {{- with include "newrelic.common.priorityClassName" . }}
+      priorityClassName: {{ . }}
       {{- end }}
-      {{- if $.Values.nodeSelector }}
+      {{- with include "newrelic.common.dnsConfig" . }}
+      dnsConfig:
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with include "newrelic.common.nodeSelector" . }}
       nodeSelector:
-{{ toYaml $.Values.nodeSelector | indent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- if .Values.tolerations }}
-      tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
-      {{- end }}
-      {{- if .Values.affinity }}
+      {{- with include "newrelic.common.affinity" . }}
       affinity:
-{{ toYaml .Values.affinity | indent 8 }}
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with include "newrelic.common.tolerations" . }}
+      tolerations:
+        {{- . | nindent 8 }}
       {{- end }}

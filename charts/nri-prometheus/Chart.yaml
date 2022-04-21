@@ -8,7 +8,7 @@ icon: https://newrelic.com/themes/custom/curio/assets/mediakit/new_relic_logo_ve
 sources:
   - https://github.com/newrelic/nri-prometheus
 
-version: 2.0.0
+version: 2.1.0
 appVersion: 2.14.0
 
 keywords:
@@ -18,7 +18,7 @@ keywords:
 
 dependencies:
   - name: common-library
-    version: 1.0.0
+    version: 1.0.2
     repository: "https://helm-charts.newrelic.com"
 
 maintainers:
