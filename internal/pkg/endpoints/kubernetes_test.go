@@ -2249,7 +2249,7 @@ func TestPodTargetsPathAnnotationIncorrectQuery(t *testing.T) {
 				Name:      "my-pod",
 				Namespace: "test-ns",
 				Annotations: map[string]string{
-					"prometheus.io/path": "/metrics?format=prometheus?something",
+					"prometheus.io/path": "/metrics?for\nmat=promet\r\n",
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -2270,28 +2270,7 @@ func TestPodTargetsPathAnnotationIncorrectQuery(t *testing.T) {
 				PodIP: "10.0.0.1",
 			},
 		}),
-		[]Target{
-			{
-				Name: "my-pod",
-				Object: Object{
-					Name: "my-pod",
-					Kind: "pod",
-					Labels: labels.Set{
-						"podName":        "my-pod",
-						"namespaceName":  "test-ns",
-						"deploymentName": "",
-						"nodeName":       "node-a",
-					},
-				},
-				URL: url.URL{
-					Scheme: "http",
-					Host:   "10.0.0.1:80",
-					// This is fine, url.URL will escape this to /metrics%3Fformat%3Dprometheus%3Fsomething%0A
-					// upon making the request.
-					Path: "/metrics?format=prometheus?something",
-				},
-			},
-		},
+		[]Target{},
 	)
 }
 
