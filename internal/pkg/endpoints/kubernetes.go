@@ -249,6 +249,20 @@ func getPort(o metav1.Object) string {
 	return ""
 }
 
+// parsePath parses a partial URL query from the prometheus.io/path annotation, such as `/metrics?format=foo` and
+// returns separately the path and the query. This is needed because the `prometheus.io/path` annotation is often
+// abused, and query arguments are included in it.
+// If the contents of prometheus.io/path cannot be parsed as a URL, it returns an error, which will skip the target.
+// Note that url.Parse will not return an error for an empty rawUrl.
+func parsePath(pathQuery string) (string, string, error) {
+	u, err := url.Parse(pathQuery)
+	if err != nil {
+		return "", "", fmt.Errorf("cannot parse url from %q: %w", pathQuery, err)
+	}
+
+	return u.Path, u.RawQuery, nil
+}
+
 func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 	lbls := getK8sLabels(e)
 	// Name and Namespace of services and endpoints collides
@@ -270,8 +284,12 @@ func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 	// we need to pass the service since the annotations are not inherited
 	port := getPort(s)
-	path := getPath(s)
 	scheme := getScheme(s)
+	path, query, err := parsePath(getPath(s))
+	if err != nil {
+		klog.WithError(err).Warnf("Skipping endpoints from  %s/%s", s.Namespace, s.Name)
+		return nil
+	}
 
 	var targets []Target
 	for _, subset := range e.Subsets {
@@ -288,9 +306,10 @@ func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 					continue
 				}
 				u := url.URL{
-					Scheme: scheme,
-					Host:   net.JoinHostPort(eSubAddr.IP, subPortStr),
-					Path:   path,
+					Scheme:   scheme,
+					Host:     net.JoinHostPort(eSubAddr.IP, subPortStr),
+					Path:     path,
+					RawQuery: query,
 				}
 				targets = append(targets, endpointsTarget(e, u))
 			}
@@ -319,7 +338,11 @@ func serviceTarget(s *corev1.Service, u url.URL) Target {
 func serviceTargets(s *corev1.Service) []Target {
 	port := getPort(s)
 	scheme := getScheme(s)
-	path := getPath(s)
+	path, query, err := parsePath(getPath(s))
+	if err != nil {
+		klog.WithError(err).Warnf("Skipping service  %s/%s", s.Namespace, s.Name)
+		return nil
+	}
 
 	if port != "" {
 		u := url.URL{
@@ -334,9 +357,10 @@ func serviceTargets(s *corev1.Service) []Target {
 	var targets []Target
 	for _, port := range s.Spec.Ports {
 		u := url.URL{
-			Scheme: scheme,
-			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
-			Path:   path,
+			Scheme:   scheme,
+			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
+			Path:     path,
+			RawQuery: query,
 		}
 		targets = append(targets, serviceTarget(s, u))
 	}
@@ -395,7 +419,11 @@ func podTargets(p *corev1.Pod) []Target {
 
 	port := getPort(p)
 	scheme := getScheme(p)
-	path := getPath(p)
+	path, query, err := parsePath(getPath(p))
+	if err != nil {
+		klog.WithError(err).Warnf("Skipping endpoints pod  %s/%s", p.Namespace, p.Name)
+		return nil
+	}
 
 	if port != "" {
 		u := url.URL{
@@ -411,9 +439,10 @@ func podTargets(p *corev1.Pod) []Target {
 	for _, c := range p.Spec.Containers {
 		for _, port := range c.Ports {
 			u := url.URL{
-				Scheme: scheme,
-				Host:   net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
-				Path:   path,
+				Scheme:   scheme,
+				Host:     net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
+				Path:     path,
+				RawQuery: query,
 			}
 			targets = append(targets, podTarget(p, u))
 		}

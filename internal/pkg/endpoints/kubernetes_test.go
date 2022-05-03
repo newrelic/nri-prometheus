@@ -2184,6 +2184,96 @@ func TestPodTargetsPathLabel(t *testing.T) {
 	)
 }
 
+func TestPodTargetsPathAnnotationCorrectQuery(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/path": "/metrics?format=prometheus",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{
+			{
+				Name: "my-pod",
+				Object: Object{
+					Name: "my-pod",
+					Kind: "pod",
+					Labels: labels.Set{
+						"podName":        "my-pod",
+						"namespaceName":  "test-ns",
+						"deploymentName": "",
+						"nodeName":       "node-a",
+					},
+				},
+				URL: url.URL{
+					Scheme:   "http",
+					Host:     "10.0.0.1:80",
+					Path:     "/metrics",
+					RawQuery: "format=prometheus",
+				},
+			},
+		},
+	)
+}
+
+func TestPodTargetsPathAnnotationIncorrectQuery(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		podTargets(&corev1.Pod{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-pod",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/path": "/metrics?for\nmat=promet\r\n",
+				},
+			},
+			Spec: corev1.PodSpec{
+				NodeName: "node-a",
+				Containers: []corev1.Container{
+					{
+						Name: "app",
+						Ports: []corev1.ContainerPort{
+							{
+								Name:          "http-app",
+								ContainerPort: 80,
+							},
+						},
+					},
+				},
+			},
+			Status: corev1.PodStatus{
+				PodIP: "10.0.0.1",
+			},
+		}),
+		[]Target{},
+	)
+}
+
 func TestServiceTargetsPathAnnotationsOverrideLabels(t *testing.T) {
 	t.Parallel()
 
