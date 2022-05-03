@@ -1,55 +1,39 @@
-# New Relic's Prometheus OpenMetrics Integration
+# nri-prometheus
 
-## Chart Details
+![Version: 2.1.1](https://img.shields.io/badge/Version-2.1.1-informational?style=flat-square) ![AppVersion: 2.14.0](https://img.shields.io/badge/AppVersion-2.14.0-informational?style=flat-square)
 
-This chart will deploy the New Relic's Prometheus OpenMetrics Integration.
+A Helm chart to deploy the New Relic Prometheus OpenMetrics integration
 
-## Configuration
+**Homepage:** <https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-openmetrics/configure-prometheus-openmetrics-integrations/>
 
-| Parameter                                                  | Description                                                                                                                                                                                                                           | Default                                |
-|------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
-| `global.cluster` - `cluster`                               | The cluster name for the Kubernetes cluster.                                                                                                                                                                                          |                                        |
-| `global.licenseKey` - `licenseKey`                         | The [license key](https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/license-key) for your New Relic Account. This will be preferred configuration option if both `licenseKey` and `customSecret` are specified. |                                        |
-| `global.customSecretName` - `customSecretName`             | Name of the Secret object where the license key is stored                                                                                                                                                                             |                                        |
-| `global.customSecretLicenseKey` - `customSecretLicenseKey` | Key in the Secret object where the license key is stored.                                                                                                                                                                             |                                        |
-| `global.lowDataMode` - `lowDataMode` | Excludes KSM and cAdvisor metrics when enabled. The low data mode overwrites config.transformations, if you want to set this field in the config you need to turn low data mode off.                                                                                                                                                                                                      |           `false`                      |
-| `nameOverride`                                             | The name that should be used for the deployment.                                                                                                                                                                                      |                                        |
-| `image.repository`                                         | The prometheus openmetrics integration image name.                                                                                                                                                                                    | `newrelic/nri-prometheus`              |
-| `image.tag`                                                | The prometheus openmetrics integration image tag.                                                                                                                                                                                     | appVersion                             |
-| `image.pullSecrets`                                        | Image pull secrets.                                                                                                                                                                                                                   | `nil`                                  |
-| `resources`                                                | A yaml defining the resources for the events-router container.                                                                                                                                                                        | {}                                     |
-| `rbac.create`                                              | Enable Role-based authentication                                                                                                                                                                                                      | `true`                                 |
-| `serviceAccount.create`                                    | If true, a service account would be created and assigned to the deployment                                                                                                                                                            | true                                   |
-| `serviceAccount.name`                                      | The service account to assign to the deployment. If `serviceAccount.create` is true then this name will be used when creating the service account                                                                                     |                                        |
-| `serviceAccount.annotations`                               | The annotations to add to the service account if `serviceAccount.create` is set to true.                                                                                                                                              |                                        |
-| `podAnnotations`                                           | If you wish to provide additional annotations to apply to the pod(s), specify them here.                                                                                                                                              |                                        |
-| `podSecurityContext`                                       | Pod security context                                                                                                                                     |                                                                            |
-| `priorityClassName`                                        | Scheduling priority of the pod                                                                                                                                                                                                        | `nil`                         |
-| `nodeSelector`                                             | Node label to use for scheduling                                                                                                                                                                                                      | `{}`                                   |
-| `tolerations`                                              | List of node taints to tolerate (requires Kubernetes >= 1.6)                                                                                                                                                                          | `[]`                                   |
-| `affinity`                                                 | Node affinity to use for scheduling                                                                                                                                                                                                   | `{}`                                   |
-| `global.nrStaging` - `nrStaging`                           | Send data to staging (requires a staging license key)                                                                                                                                                                                 | false                                  |
-| `config.*`                           | Set values used in the configMap                                                                                                                                                                             |                                   |
-## Example
+## Source Code
 
+* <https://github.com/newrelic/nri-prometheus>
+* <https://github.com/newrelic/nri-prometheus/tree/master/charts/nri-prometheus>
 
-Make sure you have [added the New Relic chart repository.](../../README.md#installing-charts)
+## Requirements
 
-Then, to install this chart, run the following command:
+| Repository | Name | Version |
+|------------|------|---------|
+| https://helm-charts.newrelic.com | common-library | 1.0.2 |
 
-```sh
-helm install newrelic/nri-prometheus \
---set licenseKey=<enter_new_relic_license_key> \
---set cluster=my-k8s-cluster
+# Helm installation
+
+You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm-charts/tree/master/charts/nri-bundle) located in the
+[helm-charts repository](https://github.com/newrelic/helm-charts) or directly from this repository by adding this Helm repository:
+
+```shell
+helm repo add nri-prometheus https://newrelic.github.io/nri-prometheus
+helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
 ```
 
 ## Scraping services and endpoints
 
-When a service is labeled or anotated with `scrape_enabled_label` (defaults to `prometheus.io/scrape`),
+When a service is labeled or annotated with `scrape_enabled_label` (defaults to `prometheus.io/scrape`),
 `nri-prometheus` will attempt to hit the service directly, rather than the endpoints behind it.
 
 This is the default behavior for compatibility reasons, but is known to cause issues if more than one endpoint
-is behind the service, as metric queries will be load-balanced as well leading to unaccurate histograms.
+is behind the service, as metric queries will be load-balanced as well leading to inaccurate histograms.
 
 In order to change this behaviour set `scrape_endpoints` to `true` and `scrape_services` to `false`.
 This will instruct `nri-prometheus` to scrape the underlying endpoints, as Prometheus server does.
@@ -60,3 +44,83 @@ an increase when flipping this option. Resource requirements might also be impac
 
 While it is technically possible to set both `scrape_services` and `scrape_endpoints` to true, we do no recommend
 doing so as it will lead to redundant metrics being processed,
+
+## Values managed globally
+
+This chart implements the [New Relic's common Helm library](https://github.com/newrelic/helm-charts/tree/master/library/common-library) which
+means that is has a seamless UX between things that are configurable across different Helm charts. So there are behaviours that could be
+changed globally if you install this chart from `nri-bundle` or your own umbrella chart.
+
+A really broad list of global managed values are `affinity`, `nodeSelector`, `tolerations`, `proxy` and many more.
+
+For more information go to the [user's guide of the common library](https://github.com/newrelic/helm-charts/blob/master/library/common-library/README.md)
+
+## Chart particularities
+
+### Low data mode
+See this snippet from the `values.yaml` file:
+```yaml
+global:
+  lowDataMode: false
+lowDataMode: false
+```
+
+To reduce the amount ot metrics we send to New Relic, enabling the `lowDataMode` will add [these transformations](static/lowdatamodedefaults.yaml):
+```yaml
+transformations:
+  - description: "Low data mode defaults"
+    ignore_metrics:
+      # Ignore the following metrics.
+      # These metrics are already collected by the New Relic Kubernetes Integration.
+      - prefixes:
+        - kube_
+        - container_
+        - machine_
+        - cadvisor_
+```
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| affinity | object | `{}` | Sets pod/node affinities. Can be configured also with `global.affinity` |
+| cluster | string | `""` | Name of the Kubernetes cluster monitored. Can be configured also with `global.cluster` |
+| config | object | See `values.yaml` | Provides your own `config.yaml` for this integration. Ref: https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-openmetrics/configure-prometheus-openmetrics-integrations/#example-configuration-file |
+| containerSecurityContext | object | `{}` | Sets security context (at container level). Can be configured also with `global.containerSecurityContext` |
+| customSecretLicenseKey | string | `""` | In case you don't want to have the license key in you values, this allows you to point to which secret key is the license key located. Can be configured also with `global.customSecretLicenseKey` |
+| customSecretName | string | `""` | In case you don't want to have the license key in you values, this allows you to point to a user created secret to get the key from there. Can be configured also with `global.customSecretName` |
+| dnsConfig | object | `{}` | Sets pod's dnsConfig. Can be configured also with `global.dnsConfig` |
+| fedramp.enabled | bool | false | Enables FedRAMP. Can be configured also with `global.fedramp.enabled` |
+| fullnameOverride | string | `""` | Override the full name of the release |
+| hostNetwork | bool | `false` | Sets pod's hostNetwork. Can be configured also with `global.hostNetwork` |
+| image | object | See `values.yaml` | Image for the New Relic Kubernetes integration |
+| image.pullSecrets | list | `[]` | The secrets that are needed to pull images from a custom registry. |
+| labels | object | `{}` | Additional labels for chart objects. Can be configured also with `global.labels` |
+| licenseKey | string | `""` | This set this license key to use. Can be configured also with `global.licenseKey` |
+| lowDataMode | bool | false | Reduces number of metrics sent in order to reduce costs. Can be configured also with `global.lowDataMode` |
+| nameOverride | string | `""` | Override the name of the chart |
+| nodeSelector | object | `{}` | Sets pod's node selector. Can be configured also with `global.nodeSelector` |
+| nrStaging | bool | false | Send the metrics to the staging backend. Requires a valid staging license key. Can be configured also with `global.nrStaging` |
+| podAnnotations | object | `{}` | Annotations to be added to all pods created by the integration. |
+| podLabels | object | `{}` | Additional labels for chart pods. Can be configured also with `global.podLabels` |
+| podSecurityContext | object | `{}` | Sets security context (at pod level). Can be configured also with `global.podSecurityContext` |
+| priorityClassName | string | `""` | Sets pod's priorityClassName. Can be configured also with `global.priorityClassName` |
+| proxy | string | `""` | Configures the integration to send all HTTP/HTTPS request through the proxy in that URL. The URL should have a standard format like `https://user:password@hostname:port`. Can be configured also with `global.proxy` |
+| rbac.create | bool | `true` | Specifies whether RBAC resources should be created |
+| resources | object | `{}` |  |
+| serviceAccount.annotations | object | `{}` | Add these annotations to the service account we create. Can be configured also with `global.serviceAccount.annotations` |
+| serviceAccount.create | bool | `true` | Configures if the service account should be created or not. Can be configured also with `global.serviceAccount.create` |
+| serviceAccount.name | string | `nil` | Change the name of the service account. This is honored if you disable on this cahrt the creation of the service account so you can use your own. Can be configured also with `global.serviceAccount.name` |
+| tolerations | list | `[]` | Sets pod's tolerations to node taints. Can be configured also with `global.tolerations` |
+| verboseLog | bool | false | Sets the debug logs to this integration or all integrations if it is set globally. Can be configured also with `global.verboseLog` |
+
+## Maintainers
+
+* [alvarocabanas](https://github.com/alvarocabanas)
+* [carlossscastro](https://github.com/carlossscastro)
+* [sigilioso](https://github.com/sigilioso)
+* [gsanchezgavier](https://github.com/gsanchezgavier)
+* [kang-makes](https://github.com/kang-makes)
+* [marcsanmi](https://github.com/marcsanmi)
+* [paologallinaharbur](https://github.com/paologallinaharbur)
+* [roobre](https://github.com/roobre)

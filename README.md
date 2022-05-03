@@ -11,11 +11,23 @@ Fetch metrics in the Prometheus metrics format, inside or outside Kubernetes, an
 
 For documentation about how to use the integration, refer to [our documentation website](https://docs.newrelic.com/docs/new-relic-prometheus-openmetrics-integration-kubernetes).
 
-Find out more about Prometheus and New Relic in [this blog post](https://blog.newrelic.com/product-news/how-to-monitor-prometheus-metrics/). 
+Find out more about Prometheus and New Relic in [this blog post](https://blog.newrelic.com/product-news/how-to-monitor-prometheus-metrics/).
+
+## Helm chart
+
+You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm-charts/tree/master/charts/nri-bundle) located in the
+[helm-charts repository](https://github.com/newrelic/helm-charts) or directly from this repository by adding this Helm repository:
+
+```shell
+helm repo add nri-prometheus https://newrelic.github.io/nri-prometheus
+helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
+```
+
+For further information of the configuration needed for the chart just read the [chart's README](/charts/nri-prometheus/README.md).
 
 ## Building
 
-Golang is required to build the integration. We recommend Golang 1.11 or higher. 
+Golang is required to build the integration. We recommend Golang 1.11 or higher.
 
 This integration requires having a Kubernetes cluster available to deploy and run it. For development, we recommend using [Docker](https://docs.docker.com/install/), [Minikube](https://minikube.sigs.k8s.io/docs/start/), and [skaffold](https://skaffold.dev/docs/getting-started/#installing-skaffold).
 
@@ -25,7 +37,7 @@ After cloning this repository, go to the directory of the Prometheus integration
 $ make
 ```
 
-The command above executes the tests for the Prometheus integration and builds an executable file called `nri-prometheus` under the `bin` directory. 
+The command above executes the tests for the Prometheus integration and builds an executable file called `nri-prometheus` under the `bin` directory.
 
 To start the integration, run `nri-prometheus`:
 
@@ -68,9 +80,9 @@ To run the program, run the following command in your terminal:
 ```shell script
 # ensure your kubectl is configured correcly & against the correct cluster
 kubectl config get-contexts
-# run the program 
+# run the program
 go run cmd/k8s-target-retriever/main.go
-``` 
+```
 
 ## Testing
 
