@@ -249,6 +249,20 @@ func getPort(o metav1.Object) string {
 	return ""
 }
 
+// parsePath parses a raw URL query, such as `/metrics?format=foo` and returns separately the path and the query.
+// This is needed because the `prometheus.io/path` annotation is often abused, and query arguments are included in it.
+// As HTTP clients will escape out any `?` and `=` present in the path, we need to split it first to form a correct URL.
+func parsePath(pathQuery string) (string, string) {
+	parts := strings.Split(pathQuery, "?")
+	if len(parts) != 2 {
+		// Annotation contents either do not contain query arguments, or contain a malformed query.
+		// In either case we refuse to parse it as a query and handle it to url.URL to sanitize it.
+		return pathQuery, ""
+	}
+
+	return parts[0], parts[1]
+}
+
 func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 	lbls := getK8sLabels(e)
 	// Name and Namespace of services and endpoints collides
@@ -270,7 +284,7 @@ func endpointsTarget(e *corev1.Endpoints, u url.URL) Target {
 func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 	// we need to pass the service since the annotations are not inherited
 	port := getPort(s)
-	path := getPath(s)
+	path, query := parsePath(getPath(s))
 	scheme := getScheme(s)
 
 	var targets []Target
@@ -288,9 +302,10 @@ func endpointsTargets(e *corev1.Endpoints, s *corev1.Service) []Target {
 					continue
 				}
 				u := url.URL{
-					Scheme: scheme,
-					Host:   net.JoinHostPort(eSubAddr.IP, subPortStr),
-					Path:   path,
+					Scheme:   scheme,
+					Host:     net.JoinHostPort(eSubAddr.IP, subPortStr),
+					Path:     path,
+					RawQuery: query,
 				}
 				targets = append(targets, endpointsTarget(e, u))
 			}
@@ -319,7 +334,7 @@ func serviceTarget(s *corev1.Service, u url.URL) Target {
 func serviceTargets(s *corev1.Service) []Target {
 	port := getPort(s)
 	scheme := getScheme(s)
-	path := getPath(s)
+	path, query := parsePath(getPath(s))
 
 	if port != "" {
 		u := url.URL{
@@ -334,9 +349,10 @@ func serviceTargets(s *corev1.Service) []Target {
 	var targets []Target
 	for _, port := range s.Spec.Ports {
 		u := url.URL{
-			Scheme: scheme,
-			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
-			Path:   path,
+			Scheme:   scheme,
+			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
+			Path:     path,
+			RawQuery: query,
 		}
 		targets = append(targets, serviceTarget(s, u))
 	}
@@ -395,7 +411,7 @@ func podTargets(p *corev1.Pod) []Target {
 
 	port := getPort(p)
 	scheme := getScheme(p)
-	path := getPath(p)
+	path, query := parsePath(getPath(p))
 
 	if port != "" {
 		u := url.URL{
@@ -411,9 +427,10 @@ func podTargets(p *corev1.Pod) []Target {
 	for _, c := range p.Spec.Containers {
 		for _, port := range c.Ports {
 			u := url.URL{
-				Scheme: scheme,
-				Host:   net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
-				Path:   path,
+				Scheme:   scheme,
+				Host:     net.JoinHostPort(p.Status.PodIP, fmt.Sprintf("%d", port.ContainerPort)),
+				Path:     path,
+				RawQuery: query,
 			}
 			targets = append(targets, podTarget(p, u))
 		}
