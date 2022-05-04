@@ -6,17 +6,6 @@ A Helm chart to deploy the New Relic Prometheus OpenMetrics integration
 
 **Homepage:** <https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-openmetrics/configure-prometheus-openmetrics-integrations/>
 
-## Source Code
-
-* <https://github.com/newrelic/nri-prometheus>
-* <https://github.com/newrelic/nri-prometheus/tree/master/charts/nri-prometheus>
-
-## Requirements
-
-| Repository | Name | Version |
-|------------|------|---------|
-| https://helm-charts.newrelic.com | common-library | 1.0.2 |
-
 # Helm installation
 
 You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm-charts/tree/master/charts/nri-bundle) located in the
@@ -26,6 +15,11 @@ You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm
 helm repo add nri-prometheus https://newrelic.github.io/nri-prometheus
 helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
 ```
+
+## Source Code
+
+* <https://github.com/newrelic/nri-prometheus>
+* <https://github.com/newrelic/nri-prometheus/tree/master/charts/nri-prometheus>
 
 ## Scraping services and endpoints
 
@@ -48,12 +42,10 @@ doing so as it will lead to redundant metrics being processed,
 ## Values managed globally
 
 This chart implements the [New Relic's common Helm library](https://github.com/newrelic/helm-charts/tree/master/library/common-library) which
-means that is has a seamless UX between things that are configurable across different Helm charts. So there are behaviours that could be
-changed globally if you install this chart from `nri-bundle` or your own umbrella chart.
+means that it honors a wide range of defaults and globals common to most New Relic Helm charts.
 
-A really broad list of global managed values are `affinity`, `nodeSelector`, `tolerations`, `proxy` and many more.
-
-For more information go to the [user's guide of the common library](https://github.com/newrelic/helm-charts/blob/master/library/common-library/README.md)
+Options that can be defined globally include `affinity`, `nodeSelector`, `tolerations`, `proxy` and others. The full list can be found at
+[user's guide of the common library](https://github.com/newrelic/helm-charts/blob/master/library/common-library/README.md).
 
 ## Chart particularities
 
