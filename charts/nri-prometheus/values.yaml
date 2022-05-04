@@ -1,46 +1,29 @@
-# nameOverride: ""
-# fullnameOverride: ""
+# -- Override the name of the chart
+nameOverride: ""
+# -- Override the full name of the release
+fullnameOverride: ""
 
-# IMPORTANT: Specify your New Relic API key here.
-# licenseKey:
-#
-# or Specify secret which contains New Relic API key
-# customSecretName: secret_name
-# customSecretLicenseKey: secret_key
-#
-# IMPORTANT: The Kubernetes cluster name
-# https://docs.newrelic.com/docs/kubernetes-monitoring-integration
-# cluster: ""
-#
-# The previous values can also be declared as global in order to be
-# shared by other newrelic charts
-#
-# global:
-#   licenseKey:
-#   customSecretName: secret_name
-#   customSecretLicenseKey: secret_key
-#   cluster: ""
+# -- Name of the Kubernetes cluster monitored. Can be configured also with `global.cluster`
+cluster: ""
+# -- This set this license key to use. Can be configured also with `global.licenseKey`
+licenseKey: ""
+# -- In case you don't want to have the license key in you values, this allows you to point to a user created secret to get the key from there. Can be configured also with `global.customSecretName`
+customSecretName: ""
+# -- In case you don't want to have the license key in you values, this allows you to point to which secret key is the license key located. Can be configured also with `global.customSecretLicenseKey`
+customSecretLicenseKey: ""
 
-# If set, the `config.transformations` option present in this file will be ignored,
-# and instead a default one excluding KSM and cAdvisor metrics will be used.
-# Default: false
-# lowDataMode: false
-
+# -- Image for the New Relic Kubernetes integration
+# @default -- See `values.yaml`
 image:
   registry:
   repository: newrelic/nri-prometheus
   tag: ""  # Defaults to chart's appVersion
   imagePullPolicy: IfNotPresent
-  ## It is possible to specify docker registry credentials
-  ## See https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod
-  # pullSecrets:
-    # - name: regsecret
+  # -- The secrets that are needed to pull images from a custom registry.
+  pullSecrets: []
+  # - name: regsecret
 
 resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
   #   cpu: 200m
   #   memory: 512Mi
@@ -49,20 +32,48 @@ resources: {}
   #   memory: 256Mi
 
 rbac:
-  # Specifies whether RBAC resources should be created
+  # -- Specifies whether RBAC resources should be created
   create: true
 
 serviceAccount:
-  # Specifies whether a ServiceAccount should be created
+  # -- Add these annotations to the service account we create. Can be configured also with `global.serviceAccount.annotations`
+  annotations: {}
+  # -- Configures if the service account should be created or not. Can be configured also with `global.serviceAccount.create`
   create: true
-  # The name of the ServiceAccount to use.
-  # If not set and create is true, a name is generated using the name template
-  name: ""
-  # Specify any annotations to add to the ServiceAccount
-  annotations:
+  # -- Change the name of the service account. This is honored if you disable on this cahrt the creation of the service account so you can use your own. Can be configured also with `global.serviceAccount.name`
+  name:
 
-# If you wish to provide your own config.yaml file include it under config:
-# the sample config file is included here as an example.
+# -- Annotations to be added to all pods created by the integration.
+podAnnotations: {}
+# -- Additional labels for chart pods. Can be configured also with `global.podLabels`
+podLabels: {}
+# -- Additional labels for chart objects. Can be configured also with `global.labels`
+labels: {}
+
+# -- Sets pod's priorityClassName. Can be configured also with `global.priorityClassName`
+priorityClassName: ""
+# -- (bool) Sets pod's hostNetwork. Can be configured also with `global.hostNetwork`
+# @default -- `false`
+hostNetwork:
+# -- Sets pod's dnsConfig. Can be configured also with `global.dnsConfig`
+dnsConfig: {}
+
+# -- Sets security context (at pod level). Can be configured also with `global.podSecurityContext`
+podSecurityContext: {}
+# -- Sets security context (at container level). Can be configured also with `global.containerSecurityContext`
+containerSecurityContext: {}
+
+# -- Sets pod/node affinities. Can be configured also with `global.affinity`
+affinity: {}
+# -- Sets pod's node selector. Can be configured also with `global.nodeSelector`
+nodeSelector: {}
+# -- Sets pod's tolerations to node taints. Can be configured also with `global.tolerations`
+tolerations: []
+
+
+# -- Provides your own `config.yaml` for this integration.
+# Ref: https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-openmetrics/configure-prometheus-openmetrics-integrations/#example-configuration-file
+# @default -- See `values.yaml`
 config:
   # How often the integration should run.
   # Default: "30s"
@@ -220,41 +231,20 @@ config:
   #         - namespace
   #         - node
 
-# If you wish to provide additional annotations to apply to the pod(s), specify
-# them here
-# podAnnotations:
+# -- (bool) Reduces number of metrics sent in order to reduce costs. Can be configured also with `global.lowDataMode`
+# @default -- false
+lowDataMode:
 
-# If you wish to provide a pod security context, specify it here
-# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-# Kind: PodSecurityContext
-# podSecurityContext:
+# -- Configures the integration to send all HTTP/HTTPS request through the proxy in that URL. The URL should have a standard format like `https://user:password@hostname:port`. Can be configured also with `global.proxy`
+proxy: ""
 
-# Pod scheduling priority
-# Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
-# priorityClassName: high-priority
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
-
-# Sends data to staging, can be set as a global.
-# global.nrStaging
-nrStaging: false
-
-# If enabled FedRamp Metrics API endpoint will be used.
-# https://docs.newrelic.com/docs/security/security-privacy/compliance/fedramp-compliant-endpoints#metric-api
+# -- (bool) Send the metrics to the staging backend. Requires a valid staging license key. Can be configured also with `global.nrStaging`
+# @default -- false
+nrStaging:
 fedramp:
-  enabled: false
-
-# Proxy to be used by the emitters when submitting metrics. It should be
-# in the format [scheme]://[domain]:[port].
-# The emitter is the component in charge of sending the scraped metrics.
-# This proxy won't be used when scraping metrics from the targets.
-# By default it's empty, meaning that no proxy will be used.
-proxy:
-
-# Whether the integration should run in verbose mode or not.
-# Default: false
+  # fedramp.enabled -- (bool) Enables FedRAMP. Can be configured also with `global.fedramp.enabled`
+  # @default -- false
+  enabled:
+# -- (bool) Sets the debug logs to this integration or all integrations if it is set globally. Can be configured also with `global.verboseLog`
+# @default -- false
 verboseLog:
