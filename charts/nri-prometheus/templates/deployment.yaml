@@ -9,7 +9,9 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "newrelic.common.labels.selectorLabels" . | nindent 6 }}
+      {{- /* We cannot use the common library here because of a legacy issue */}}
+      {{- /* `selector` is inmutable and the previous chart did not have all the idiomatic labels */}}
+      app.kubernetes.io/name: {{ include "newrelic.common.naming.name" . }}
   template:
     metadata:
       annotations:
@@ -60,11 +62,11 @@ spec:
           {{- with include "newrelic.common.proxy" . }}
           - name: EMITTER_PROXY
             value: {{ . | quote }}
-          {{- end }}  
+          {{- end }}
           {{- with include "newrelic.common.verboseLog" . }}
           - name: "VERBOSE"
             value: {{ . | quote }}
-          {{- end }}  
+          {{- end }}
           - name: "BEARER_TOKEN_FILE"
             value: "/var/run/secrets/kubernetes.io/serviceaccount/token"
           - name: "CA_FILE"

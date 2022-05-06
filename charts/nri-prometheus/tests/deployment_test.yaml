@@ -22,8 +22,7 @@ tests:
         template: templates/deployment.yaml
       - equal:
           path: spec.selector.matchLabels
-          value: 
-            app.kubernetes.io/instance: release
+          value:
             app.kubernetes.io/name: nri-prometheus
         template: templates/deployment.yaml
       - isNotEmpty:
@@ -38,21 +37,21 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[0].env
-          content: 
+          content:
             name: "METRIC_API_URL"
             value: "https://staging-metric-api.newrelic.com/metric/v1/infra"
-        template: templates/deployment.yaml      
+        template: templates/deployment.yaml
 
   - it: adds FedRamp endpoint when FedRamp is enabled.
     set:
       licenseKey: fakeLicense
       cluster: test
-      fedramp: 
+      fedramp:
         enabled: true
     asserts:
       - contains:
           path: spec.template.spec.containers[0].env
-          content: 
+          content:
             name: "METRIC_API_URL"
             value: "https://gov-metric-api.newrelic.com/metric/v1"
         template: templates/deployment.yaml
@@ -65,7 +64,7 @@ tests:
     asserts:
       - contains:
           path: spec.template.spec.containers[0].env
-          content: 
+          content:
             name: "EMITTER_PROXY"
             value: "https://my-proxy:9999"
         template: templates/deployment.yaml
