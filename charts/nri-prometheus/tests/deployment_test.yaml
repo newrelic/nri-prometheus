@@ -22,7 +22,7 @@ tests:
         template: templates/deployment.yaml
       - equal:
           path: spec.selector.matchLabels
-          value: 
+          value:
             app.kubernetes.io/name: nri-prometheus
         template: templates/deployment.yaml
       - isNotEmpty:
