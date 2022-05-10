@@ -23,8 +23,9 @@ spec:
   podManagementPolicy: {{ .Values.server.statefulSet.podManagementPolicy }}
   template:
     metadata:
-    {{- if .Values.server.podAnnotations }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/server/cm.yaml") . | sha256sum }}
+    {{- if .Values.server.podAnnotations }}
         {{ toYaml .Values.server.podAnnotations | nindent 8 }}
     {{- end }}
       labels:
