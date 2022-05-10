@@ -96,5 +96,92 @@ data:
         regex: '({{ . }}.+)'
         action: drop
       {{- end }}
+    
+    - job_name: 'endpoints'
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+        # Filters target modules not matching with the replica index module.
+        # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
+      - source_labels: [__meta_kubernetes_endpoints_name]
+        modulus: REPLICA_COUNT
+        target_label:  __tmp_hash
+        action:        hashmod
+      - source_labels: [__tmp_hash]
+        regex:         ^REPLICA_INDEX$
+        action:        keep
+      
+      # Filtering endpoints that belongs to a service. Note that this achived by using
+      # the service meta labels (not the endpoint ones).
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape_slow]
+        action: drop
+        regex: true
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
+        action: replace
+        target_label: __scheme__
+        regex: (https?)
+      - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+
+        # Target metadata
+      - source_labels: [__scheme__,__address__]
+        action: replace
+        regex: (.+);(.+)
+        replacement: $1://$2
+        target_label: scrapedTargetURL
+        # targetNames is the name of the endpoints on POMI 
+        # https://github.com/newrelic/nri-prometheus/blob/main/internal/pkg/endpoints/kubernetes.go#L273
+      - source_labels: [__meta_kubernetes_endpoints_name]
+        action: replace
+        target_label: targetName
+      - source_labels: [job]
+        action: replace
+        target_label: scrapedTargetKind
+      - action: labeldrop
+        regex: job
+
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+        replacement: label_$1
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: namespaceName
+      - source_labels: [__meta_kubernetes_service_name]
+        action: replace
+        target_label: serviceName
+        # podName info is not added by POMI on endpoints
+      # - source_labels: [__meta_kubernetes_pod_name]
+      #   action: replace
+      #   target_label: podName
+      # - source_labels: [__meta_kubernetes_pod_node_name]
+      #   action: replace
+      #   target_label: nodeName
+      # - source_labels: [__meta_kubernetes_pod_controller_kind,__meta_kubernetes_pod_controller_name]
+      #   action: replace
+      #   regex: StatefulSet;(.+)
+      #   target_label: statefulSetName
+
+      - source_labels: [__meta_kubernetes_pod_phase]
+        regex: Pending|Succeeded|Failed|Completed
+        action: drop
+
+      metric_relabel_configs:
+      - action: labeldrop
+        regex: instance
+      {{- range .Values.server.transformations.ignore_metrics.prefix }}
+      - source_labels: [__name__]
+        regex: '({{ . }}.+)'
+        action: drop
+      {{- end }}
       
 {{- end -}}
