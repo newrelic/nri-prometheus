@@ -1,0 +1,41 @@
+# Pod target
+redis:
+  enabled: true
+  architecture: standalone
+  metrics:
+    enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "9121"
+
+# Endpoints/Service target
+nginx:
+  enabled: true
+  replicaCount: 2
+  containerPorts:
+    https: 443
+  metrics:
+    enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "false"
+      prometheus.io/port: "9117"
+    service:
+      port: 9113
+      # port: 9117
+      annotations: 
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.metrics.service.port }}"
+
+
+# Static target
+apache:
+  enabled: false
+  metrics:
+    enabled: true
+    podAnnotations:
+      prometheus.io/scrape: "false"
+      prometheus.io/port: "9117"
+    service:
+      port: 9117
+      annotations: 
+        prometheus.io/scrape: "false"

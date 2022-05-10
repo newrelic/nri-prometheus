@@ -1,0 +1,12 @@
+dependencies:
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.9.1
+- name: apache
+  repository: https://charts.bitnami.com/bitnami
+  version: 9.0.17
+- name: nginx
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.2.1
+digest: sha256:98415545548c39dc03c60deacb21b010df05bad8d6b92785a803d11ce7240ed6
+generated: "2022-05-10T15:11:59.002999+02:00"

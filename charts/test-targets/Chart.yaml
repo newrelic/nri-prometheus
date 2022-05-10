@@ -1,0 +1,21 @@
+apiVersion: v2
+
+name: test-targets
+description: A Helm chart to deploy test prometheus targets
+
+version: 0.0.1
+appVersion: 0.0.1
+
+dependencies:
+  - name: redis
+    version: 16.9.1
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: apache
+    repository: https://charts.bitnami.com/bitnami
+    version: 9.0.17
+    condition: apache.enabled
+  - name: nginx
+    repository: https://charts.bitnami.com/bitnami
+    version: 10.2.1
+    condition: nginx.enabled
