@@ -25,7 +25,7 @@ server:
 
   ## https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
   ##
-  remoteWrite: []
+  remote_write: []
 
   ## Prometheus server container image
   ##

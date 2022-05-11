@@ -11,7 +11,7 @@ data:
     global:
 {{ .Values.server.global | toYaml | trimSuffix "\n" | indent 6 }}
     remote_write:
-{{ .Values.server.remoteWrite | toYaml | indent 4 }}
+{{ .Values.server.remote_write | toYaml | indent 4 }}
     scrape_configs:
     - job_name: prometheus
       static_configs:
