@@ -21,16 +21,7 @@ data:
       kubernetes_sd_configs:
       - role: pod
       relabel_configs:
-        # Filters target modules not matching with the replica index module.
-        # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
-      - source_labels: [__meta_kubernetes_pod_name]
-        modulus: REPLICA_COUNT
-        target_label:  __tmp_hash
-        action:        hashmod
-      - source_labels: [__tmp_hash]
-        regex:         ^REPLICA_INDEX$
-        action:        keep
-      
+
       - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
         action: keep
         regex: true
@@ -47,6 +38,16 @@ data:
         regex: ([^:]+)(?::\d+)?;(\d+)
         replacement: $1:$2
         target_label: __address__
+
+        # Filters target modules not matching with the replica index module.
+        # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
+      - source_labels: [__address__]
+        modulus: REPLICA_COUNT
+        target_label:  __tmp_hash
+        action:        hashmod
+      - source_labels: [__tmp_hash]
+        regex:         ^REPLICA_INDEX$
+        action:        keep
 
         # Target metadata
       - source_labels: [__scheme__,__address__,__metrics_path__]
@@ -101,15 +102,6 @@ data:
       kubernetes_sd_configs:
       - role: endpoints
       relabel_configs:
-        # Filters target modules not matching with the replica index module.
-        # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
-      - source_labels: [__meta_kubernetes_endpoints_name]
-        modulus: REPLICA_COUNT
-        target_label:  __tmp_hash
-        action:        hashmod
-      - source_labels: [__tmp_hash]
-        regex:         ^REPLICA_INDEX$
-        action:        keep
       
       # Filtering endpoints that belongs to a service. Note that this achived by using
       # the service meta labels (not the endpoint ones).
@@ -132,6 +124,16 @@ data:
         target_label: __address__
         regex: ([^:]+)(?::\d+)?;(\d+)
         replacement: $1:$2
+
+        # Filters target modules not matching with the replica index module.
+        # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
+      - source_labels: [__address__]
+        modulus: REPLICA_COUNT
+        target_label:  __tmp_hash
+        action:        hashmod
+      - source_labels: [__tmp_hash]
+        regex:         ^REPLICA_INDEX$
+        action:        keep
 
         # Target metadata
       - source_labels: [__scheme__,__address__,__metrics_path__]
