@@ -16,6 +16,7 @@ server:
     
     external_labels:
       replicaId: ${HOSTNAME}
+      clusterName: ""
   
   transformations:
     ignore_metrics:
