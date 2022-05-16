@@ -6,7 +6,7 @@ require (
 	github.com/newrelic/infra-integrations-sdk/v4 v4.2.1
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.33.0
 	github.com/sirupsen/logrus v1.8.1
