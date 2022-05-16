@@ -13,10 +13,40 @@ data:
     remote_write:
 {{ .Values.server.remote_write | toYaml | indent 4 }}
     scrape_configs:
-    - job_name: prometheus
+    - job_name: prometheus-self
       static_configs:
       - targets:
         - localhost:9090
+
+      relabel_configs:
+        # Target metadata
+      - source_labels: [__scheme__,__address__,__metrics_path__]
+        action: replace
+        regex: (.+);(.+);(.+)
+        replacement: $1://$2$3
+        target_label: scrapedTargetURL
+      - source_labels: [scrapedTargetURL]
+        action: replace
+        target_label: targetName
+      - source_labels: [job]
+        action: replace
+        target_label: scrapedTargetKind
+      
+      # labels used by PRW dashboards
+      # - action: labeldrop
+      #   regex: job
+
+      metric_relabel_configs:
+      
+      # labels used by PRW dashboards
+      # - action: labeldrop
+      #   regex: instance
+      {{- range .Values.server.transformations.ignore_metrics.prefix }}
+      - source_labels: [__name__]
+        regex: '({{ . }}.+)'
+        action: drop
+      {{- end }}
+
     - job_name: 'pod'
       kubernetes_sd_configs:
       - role: pod
