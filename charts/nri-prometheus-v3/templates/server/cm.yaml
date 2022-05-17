@@ -157,7 +157,12 @@ data:
 
         # Filters target modules not matching with the replica index module.
         # REPLICA_COUNT and REPLICA_INDEX are replaced before exec prometheus.
-      - source_labels: [__address__]
+      - source_labels: 
+        - __address__
+        # TODO this will probably needs to be removed
+        # This is used to distribute the targets when using the load-test charts which 
+        # uses diferent services pointing to the same endpoints (hack to scrape high amount of targets).
+        - __meta_kubernetes_service_name
         modulus: REPLICA_COUNT
         target_label:  __tmp_hash
         action:        hashmod
