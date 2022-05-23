@@ -8,5 +8,8 @@ dependencies:
 - name: nginx
   repository: https://charts.bitnami.com/bitnami
   version: 10.2.1
-digest: sha256:98415545548c39dc03c60deacb21b010df05bad8d6b92785a803d11ce7240ed6
-generated: "2022-05-10T15:11:59.002999+02:00"
+- name: load-test-environment
+  repository: file://../load-test-environment
+  version: 0.1.3-devel
+digest: sha256:1020ba878448e0741878c985b30edd5557ac4acdba82d490e05fe1b01c6e3f46
+generated: "2022-05-16T13:42:45.047198+02:00"

@@ -22,7 +22,7 @@ nginx:
     service:
       port: 9113
       # port: 9117
-      annotations: 
+      annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "{{ .Values.metrics.service.port }}"
 
@@ -37,5 +37,16 @@ apache:
       prometheus.io/port: "9117"
     service:
       port: 9117
-      annotations: 
+      annotations:
         prometheus.io/scrape: "false"
+
+# Static target
+load-test-environment:
+  enabled: true
+
+  image:
+    repository: acabanas977/mockexporter
+
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"

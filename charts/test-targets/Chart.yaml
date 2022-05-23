@@ -19,3 +19,8 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
     version: 10.2.1
     condition: nginx.enabled
+  - name: load-test-environment
+    repository: file://../load-test-environment
+    version: 0.1.3-devel
+    condition: load-test.enabled
+

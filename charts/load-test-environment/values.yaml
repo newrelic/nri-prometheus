@@ -28,44 +28,60 @@ deployments:  # Total number deployments created: len(deployments)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
   - name: two  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
   - name: three  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
   - name: four  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
   - name: five  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  #not required
   - name: six  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
   - name: seven  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  #not required
   - name: eight  # required (uniqueness is assured by adding an index)
     latency: "200"  # not required
     latencyVariation: "50"  # not required
     metrics: ""  # not required
+    httpCode: 0  # not required (if 0 will be 200 other numbers will be the specified)
     # maxRoutines: "1"  # not required
 
 # ---------------------------- No need to modify this
+
+
+image:
+  repository: roobre/mockexporter
+  tag: latest
+  pullPolicy: IfNotPresent
+
+podAnnotations: {}
 
 namespace: "newrelic-load"
 replicaCount: 1

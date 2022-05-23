@@ -19,6 +19,7 @@ func main() {
 	latencyVariation := flagEnvInt("latency-variation", 0, "randomly variate latency by +- this value (percentage)")
 	maxRoutines := flagEnvInt("max-routines", 0, "maximum number of requests to handle in parallel")
 	listenAddress := flagEnvString("addr", ":9940", "address:port pair to listen in")
+	httpCode := flagEnvInt("http-code", 0, "httpCode to return")
 	flag.Parse()
 
 	if *metrics == "" {
@@ -32,6 +33,7 @@ func main() {
 		Latency:          *latency,
 		LatencyVariation: *latencyVariation,
 		MaxRoutines:      *maxRoutines,
+		httpCode:         *httpCode,
 	}
 
 	log.Println(ms.ListenAndServe(*listenAddress))
@@ -70,6 +72,7 @@ type metricsServer struct {
 	Latency          int
 	LatencyVariation int
 	MaxRoutines      int
+	httpCode         int
 
 	metricsBuffer []byte
 	waiter        chan struct{}
@@ -105,6 +108,10 @@ func (ms *metricsServer) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	time.Sleep(ms.latency())
+	if ms.httpCode != 0 {
+		rw.WriteHeader(ms.httpCode)
+		return
+	}
 	_, _ = rw.Write(ms.metricsBuffer)
 }
 

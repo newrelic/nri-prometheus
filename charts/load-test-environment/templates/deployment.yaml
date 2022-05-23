@@ -1,6 +1,9 @@
 {{- $replicaCount := .Values.replicaCount -}}
 {{- $chartName := .Chart.Name -}}
 {{- $namespace := .Values.namespace -}}
+{{- $podAnnotations := .Values.podAnnotations -}}
+{{- $image := printf "%s:%s" .Values.image.repository .Values.image.tag }}
+{{- $imagePullPolicy := .Values.image.pullPolicy }}
 
 {{- $index := 0 -}}
 
@@ -9,6 +12,7 @@
 {{- $latency := default "0" .latency -}}
 {{- $latencyVariation := default "0" .latencyVariation -}}
 {{- $indexString := toString $index -}}
+{{- $httpCode := default "0" .httpCode -}}
 
 {{- $uniqueDeployName := printf "%s-lat%s-latvar%s-index%s" .name $latency $latencyVariation $indexString }}
 ---
@@ -29,12 +33,16 @@ spec:
     metadata:
       labels:
         app.kubernetes.io/name: {{ $uniqueDeployName }}
+      annotations:
+      {{- if $podAnnotations }}
+        {{ toYaml $podAnnotations | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: "default"
       containers:
         - name: {{ $chartName }}
-          image: roobre/mockexporter:latest
-          imagePullPolicy: IfNotPresent
+          image: "{{ $image }}"
+          imagePullPolicy: "{{ $imagePullPolicy }}"
           env:
             - name: LATENCY
               value: {{ $latency | quote}}
@@ -46,6 +54,8 @@ spec:
               value: {{ .maxRoutines | default "0" | quote}}
             - name: ADDR
               value: ":80"
+            - name: HTTP_CODE
+              value: {{ $httpCode | quote}}
           ports:
             - name: http
               containerPort: 80
