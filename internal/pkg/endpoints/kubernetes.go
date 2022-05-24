@@ -346,9 +346,10 @@ func serviceTargets(s *corev1.Service) []Target {
 
 	if port != "" {
 		u := url.URL{
-			Scheme: scheme,
-			Host:   net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
-			Path:   path,
+			Scheme:   scheme,
+			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
+			Path:     path,
+			RawQuery: query,
 		}
 		return []Target{serviceTarget(s, u)}
 	}
@@ -427,9 +428,10 @@ func podTargets(p *corev1.Pod) []Target {
 
 	if port != "" {
 		u := url.URL{
-			Scheme: scheme,
-			Host:   net.JoinHostPort(p.Status.PodIP, port),
-			Path:   path,
+			Scheme:   scheme,
+			Host:     net.JoinHostPort(p.Status.PodIP, port),
+			Path:     path,
+			RawQuery: query,
 		}
 		return []Target{podTarget(p, u)}
 	}
