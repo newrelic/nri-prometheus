@@ -32,7 +32,7 @@ server:
   ##
   image:
     repository: quay.io/prometheus/prometheus
-    tag: v2.34.0
+    tag: v2.35.0
     pullPolicy: IfNotPresent
 
   ## namespaces to monitor (instead of monitoring all - clusterwide). Needed if you want to run without Cluster-admin privileges.
@@ -246,7 +246,7 @@ server:
 
     annotations: {}
     labels: {}
-    podManagementPolicy: OrderedReady
+    podManagementPolicy: Parallel
 
     ## Alertmanager headless service to use for the statefulset
     ##
