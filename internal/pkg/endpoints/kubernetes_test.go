@@ -2194,7 +2194,8 @@ func TestPodTargetsPathAnnotationCorrectQuery(t *testing.T) {
 				Name:      "my-pod",
 				Namespace: "test-ns",
 				Annotations: map[string]string{
-					"prometheus.io/path": "/metrics?format=prometheus",
+					"prometheus.io/path": "/stats?format=prometheus&text_readouts",
+					"prometheus.io/port": "9901",
 				},
 			},
 			Spec: corev1.PodSpec{
@@ -2230,9 +2231,9 @@ func TestPodTargetsPathAnnotationCorrectQuery(t *testing.T) {
 				},
 				URL: url.URL{
 					Scheme:   "http",
-					Host:     "10.0.0.1:80",
-					Path:     "/metrics",
-					RawQuery: "format=prometheus",
+					Host:     "10.0.0.1:9901",
+					Path:     "/stats",
+					RawQuery: "format=prometheus&text_readouts",
 				},
 			},
 		},

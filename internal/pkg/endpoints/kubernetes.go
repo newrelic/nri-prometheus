@@ -427,9 +427,10 @@ func podTargets(p *corev1.Pod) []Target {
 
 	if port != "" {
 		u := url.URL{
-			Scheme: scheme,
-			Host:   net.JoinHostPort(p.Status.PodIP, port),
-			Path:   path,
+			Scheme:   scheme,
+			Host:     net.JoinHostPort(p.Status.PodIP, port),
+			Path:     path,
+			RawQuery: query,
 		}
 		return []Target{podTarget(p, u)}
 	}
