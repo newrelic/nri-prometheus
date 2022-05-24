@@ -43,3 +43,41 @@ apache:
 rwmock:
   replicas: 1
 
+avalanche:
+  replicas: 0
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    # prometheus.io/scrape: "false"
+    prometheus.io/port: "9001"
+  config:
+  - '--metric-count=10'             #Number of metrics to serve.
+  - '--label-count=5'               #Number of labels per-metric.
+  - '--series-count=10'              #Number of series per-metric.
+  - '--metricname-length=5'          #Modify length of metric names.
+  - '--labelname-length=5'           #Modify length of label names.
+  # - '--const-label="labelName=labelValue"'                 #
+  - '--value-interval=30'            #Change series values every {interval} seconds.
+  - '--series-interval=999999'           #Change series_id label values every {interval} seconds.
+  - '--metric-interval=999999'          #Change __name__ label values every {interval} seconds.
+  - '--port=9001'                    #Port to serve at
+  # - '--remote-url=REMOTE-URL'        #URL to send samples via remote_write API.
+  # - '--remote-pprof-urls='           
+  # - '--remote-pprof-interval='       
+  # - '--remote-batch-size=2000'       #how many samples to send with each remote_write API request.
+  # - '--remote-requests-count=100'    #how many requests to send in total to the remote_write API.
+  # - '--remote-write-interval=100ms'  #delay between each remote write request.
+  # - '--remote-tenant="0"'            #Tenant ID to include in remote_write send
+  # - '--tls-client-insecure'          #Skip certificate check on tls connection
+
+
+  # - '--metric-count=1'             #Number of metrics to serve.
+  # - '--label-count=2'               #Number of labels per-metric.
+  # - '--series-count=2'              #Number of series per-metric.
+# # HELP avalanche_metric_mmmmm_0_0 A tasty metric morsel
+# # TYPE avalanche_metric_mmmmm_0_0 gauge
+# avalanche_metric_mmmmm_0_0{cycle_id="0",label_key_kkkkk_0="label_val_vvvvv_0",label_key_kkkkk_1="label_val_vvvvv_1",series_id="0"} 87
+# avalanche_metric_mmmmm_0_0{cycle_id="0",label_key_kkkkk_0="label_val_vvvvv_0",label_key_kkkkk_1="label_val_vvvvv_1",series_id="1"} 33
+# # HELP avalanche_metric_mmmmm_0_1 A tasty metric morsel
+# # TYPE avalanche_metric_mmmmm_0_1 gauge
+# avalanche_metric_mmmmm_0_1{cycle_id="0",label_key_kkkkk_0="label_val_vvvvv_0",label_key_kkkkk_1="label_val_vvvvv_1",series_id="0"} 41
+# avalanche_metric_mmmmm_0_1{cycle_id="0",label_key_kkkkk_0="label_val_vvvvv_0",label_key_kkkkk_1="label_val_vvvvv_1",series_id="1"} 75
