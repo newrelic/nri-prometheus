@@ -1,0 +1,41 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: rwmock
+  labels:
+    name: rwmock
+spec:
+  selector:
+    matchLabels:
+      app: rwmock
+  replicas: {{ .Values.rwmock.replicas }}
+  # replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rwmock
+    spec:
+      containers:
+      - name: rwmock
+        image: gsancheznewrelic/remote-write-mock:latest
+        args:
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rwmock
+  labels:
+    app: rwmock
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: rwmock

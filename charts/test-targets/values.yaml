@@ -39,3 +39,7 @@ apache:
       port: 9117
       annotations: 
         prometheus.io/scrape: "false"
+
+rwmock:
+  replicas: 1
+

@@ -23,6 +23,8 @@ metadata:
   labels:
     prometheus.io/scrape: "true"
     app.kubernetes.io/name: {{ $uniqueDeployName }}
+  annotations:
+    prometheus.io/scrape: "true"
 spec:
   type: ClusterIP
   ports:
