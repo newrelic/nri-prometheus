@@ -1,0 +1,46 @@
+name: Nightly build
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GO_VERSION: '1.17'
+  INTEGRATION: "prometheus"
+  ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
+  REPO_FULL_NAME: ${{ github.event.repository.full_name }}
+  TAG: nightly
+  TAG_SUFFIX: "-nightly" # In order to avoid nightly updating images
+
+jobs:
+  release:
+    name: Build and release nightlies with goreleaser
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
+          password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
+      - name: Do the release
+        # The release target is not being executed inside a container (ci/release) since the target
+        # compiles docker images (from goreleaser) and that cannot be done inside a container.
+        run: make release
+        env:
+          GENERATE_PACKAGES: true
