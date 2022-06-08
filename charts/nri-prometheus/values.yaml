@@ -168,7 +168,6 @@ config:
   #   - 95
   #   - 99
 
-  # If lowDataMode is se to true the config.transformations option will be ignored
   transformations: []
   # - description: "Custom transformation Example"
   #   rename_attributes:
