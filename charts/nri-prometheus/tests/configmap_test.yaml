@@ -1,6 +1,7 @@
 suite: test nri-prometheus configmap
 templates:
   - templates/configmap.yaml
+  - templates/deployment.yaml
 tests:
   - it: creates the config map with default config in values.yaml and cluster_name.
     set:
@@ -18,6 +19,7 @@ tests:
             scrape_endpoints: false
             scrape_services: true
             transformations: []
+        template: templates/configmap.yaml
 
   - it: creates the config map with lowDataMode.
     set:
@@ -43,6 +45,7 @@ tests:
                 - container_
                 - machine_
                 - cadvisor_
+        template: templates/configmap.yaml
 
   - it: merges existing transformation with lowDataMode.
     set:
@@ -80,3 +83,4 @@ tests:
                 - container_
                 - machine_
                 - cadvisor_
+        template: templates/configmap.yaml
