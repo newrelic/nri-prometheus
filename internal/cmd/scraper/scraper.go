@@ -37,6 +37,7 @@ type Config struct {
 	ScrapeServices                    bool                         `mapstructure:"scrape_services"`
 	ScrapeEndpoints                   bool                         `mapstructure:"scrape_endpoints"`
 	ScrapeDuration                    string                       `mapstructure:"scrape_duration"`
+	ScrapeAcceptHeader                string                       `mapstructure:"accept_header"`
 	EmitterHarvestPeriod              string                       `mapstructure:"emitter_harvest_period"`
 	MinEmitterHarvestPeriod           string                       `mapstructure:"min_emitter_harvest_period"`
 	MaxStoredMetrics                  int                          `mapstructure:"max_stored_metrics"`
@@ -171,7 +172,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		scrapeDuration,
 		selfRetriever,
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.ScrapeAcceptHeader, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(processingRules, queueLength),
 		emitters)
 
@@ -212,7 +213,7 @@ func RunOnceWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	// Fetch duration is hardcoded to 1 since the target is scraped only once
 	integration.ExecuteOnce(
 		retrievers,
-		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
+		integration.NewFetcher(scrapeDuration, cfg.ScrapeTimeout, cfg.ScrapeAcceptHeader, cfg.WorkerThreads, cfg.BearerTokenFile, cfg.CaFile, cfg.InsecureSkipVerify, queueLength),
 		integration.RuleProcessor(cfg.ProcessingRules, queueLength),
 		emitters)
 

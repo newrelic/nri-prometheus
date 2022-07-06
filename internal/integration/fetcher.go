@@ -119,7 +119,7 @@ func cloneRequest(r *http.Request) *http.Request {
 }
 
 // NewFetcher returns the default Fetcher implementation
-func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
+func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, acceptHeader string, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
 	roundTripper, _ := newRoundTripper(CaFile, InsecureSkipVerify)
 	client := &http.Client{
 		Transport: roundTripper,
@@ -142,6 +142,7 @@ func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, workerT
 		fetchTimeout:  fetchTimeout,
 		getMetrics:    prometheus.Get,
 		log:           logrus.WithField("component", "Fetcher"),
+		acceptHeader:  acceptHeader,
 	}
 }
 
@@ -153,8 +154,9 @@ type prometheusFetcher struct {
 	httpClient    prometheus.HTTPDoer
 	bearerClient  prometheus.HTTPDoer
 	// Provides IoC for better testability. Its usual value is 'prometheus.Get'.
-	getMetrics func(httpClient prometheus.HTTPDoer, url string) (prometheus.MetricFamiliesByName, error)
-	log        *logrus.Entry
+	getMetrics   func(httpClient prometheus.HTTPDoer, url string, acceptHeader string) (prometheus.MetricFamiliesByName, error)
+	log          *logrus.Entry
+	acceptHeader string
 }
 
 // Fetch implementation runs the connections to many targets in parallel, limited by the maxTargetConnections constant,
@@ -251,7 +253,7 @@ func (pf *prometheusFetcher) fetch(t endpoints.Target) (prometheus.MetricFamilie
 		httpClient = pf.bearerClient
 	}
 
-	mfs, err := pf.getMetrics(httpClient, t.URL.String())
+	mfs, err := pf.getMetrics(httpClient, t.URL.String(), pf.acceptHeader)
 	timer.ObserveDuration()
 	if err != nil {
 		pf.log.WithError(err).Warnf("fetching Prometheus metrics: %s (%s)", t.URL.String(), t.Object.Name)

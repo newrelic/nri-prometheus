@@ -5,7 +5,6 @@ package prometheus_test
 import (
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,10 +12,12 @@ import (
 	"github.com/newrelic/nri-prometheus/internal/pkg/prometheus"
 )
 
-func TestGet(t *testing.T) {
+const testHeader = "application/openmetrics-text"
+
+func TestGetHeader(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		accept := r.Header.Get("Accept")
-		if !strings.Contains(accept, "application/openmetrics-text") {
+		if accept != testHeader {
 			t.Errorf("Expected Accept header to prefer application/openmetrics-text, got %q", accept)
 		}
 
@@ -25,7 +26,7 @@ func TestGet(t *testing.T) {
 	defer ts.Close()
 
 	expected := []string{"metric_a", "metric_b"}
-	mfs, err := prometheus.Get(http.DefaultClient, ts.URL)
+	mfs, err := prometheus.Get(http.DefaultClient, ts.URL, testHeader)
 	actual := []string{}
 	for k := range mfs {
 		actual = append(actual, k)

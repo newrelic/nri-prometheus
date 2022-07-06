@@ -36,11 +36,8 @@ func ResetTargetSize() {
 	targetSize.Reset()
 }
 
-// acceptHeader from Prometheus server https://github.com/prometheus/prometheus/blob/v2.33.1/scrape/scrape.go#L751
-const acceptHeader = `application/openmetrics-text;version=0.0.1,text/plain;version=0.0.4;q=0.5,*/*;q=0.1`
-
 // Get scrapes the given URL and decodes the retrieved payload.
-func Get(client HTTPDoer, url string) (MetricFamiliesByName, error) {
+func Get(client HTTPDoer, url string, acceptHeader string) (MetricFamiliesByName, error) {
 	mfs := MetricFamiliesByName{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
