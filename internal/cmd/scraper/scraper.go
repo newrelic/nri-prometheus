@@ -37,7 +37,7 @@ type Config struct {
 	ScrapeServices                    bool                         `mapstructure:"scrape_services"`
 	ScrapeEndpoints                   bool                         `mapstructure:"scrape_endpoints"`
 	ScrapeDuration                    string                       `mapstructure:"scrape_duration"`
-	ScrapeAcceptHeader                string                       `mapstructure:"accept_header"`
+	ScrapeAcceptHeader                string                       `mapstructure:"scrape_accept_header"`
 	EmitterHarvestPeriod              string                       `mapstructure:"emitter_harvest_period"`
 	MinEmitterHarvestPeriod           string                       `mapstructure:"min_emitter_harvest_period"`
 	MaxStoredMetrics                  int                          `mapstructure:"max_stored_metrics"`
