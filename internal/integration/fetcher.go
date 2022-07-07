@@ -136,13 +136,13 @@ func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, acceptH
 	return &prometheusFetcher{
 		workerThreads: workerThreads,
 		queueLength:   queueLength,
-		httpClient:    client,
-		bearerClient:  bearerTokenClient,
 		duration:      fetchDuration,
 		fetchTimeout:  fetchTimeout,
+		acceptHeader:  acceptHeader,
+		httpClient:    client,
+		bearerClient:  bearerTokenClient,
 		getMetrics:    prometheus.Get,
 		log:           logrus.WithField("component", "Fetcher"),
-		acceptHeader:  acceptHeader,
 	}
 }
 
@@ -151,12 +151,12 @@ type prometheusFetcher struct {
 	queueLength   int
 	duration      time.Duration
 	fetchTimeout  time.Duration
+	acceptHeader  string
 	httpClient    prometheus.HTTPDoer
 	bearerClient  prometheus.HTTPDoer
 	// Provides IoC for better testability. Its usual value is 'prometheus.Get'.
-	getMetrics   func(httpClient prometheus.HTTPDoer, url string, acceptHeader string) (prometheus.MetricFamiliesByName, error)
-	log          *logrus.Entry
-	acceptHeader string
+	getMetrics func(httpClient prometheus.HTTPDoer, url string, acceptHeader string) (prometheus.MetricFamiliesByName, error)
+	log        *logrus.Entry
 }
 
 // Fetch implementation runs the connections to many targets in parallel, limited by the maxTargetConnections constant,
