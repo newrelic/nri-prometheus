@@ -94,7 +94,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("require_scrape_enabled_label_for_nodes", true)
 	viper.SetDefault("scrape_timeout", 5*time.Second)
 	viper.SetDefault("scrape_duration", "30s")
-	viper.SetDefault("scrape_accept_header", "text/plain;version=0.0.4")
+	viper.SetDefault("scrape_accept_header", "text/plain;version=0.0.4;q=1,*/*;q=0.1")
 	viper.SetDefault("emitter_harvest_period", fmt.Sprint(integration.BoundedHarvesterDefaultHarvestPeriod))
 	viper.SetDefault("min_emitter_harvest_period", fmt.Sprint(integration.BoundedHarvesterDefaultMinReportInterval))
 	viper.SetDefault("max_stored_metrics", fmt.Sprint(integration.BoundedHarvesterDefaultMetricsCap))
