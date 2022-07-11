@@ -45,6 +45,7 @@ func TestLoadConfig(t *testing.T) {
 		ScrapeTimeout:                     5 * time.Second,
 		ScrapeServices:                    true,
 		ScrapeDuration:                    "5s",
+		ScrapeAcceptHeader:                "text/plain;version=0.0.4;q=1,*/*;q=0.1",
 		EmitterHarvestPeriod:              "1s",
 		MinEmitterHarvestPeriod:           "200ms",
 		MaxStoredMetrics:                  10000,
