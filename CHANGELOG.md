@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.16.2
+## Fix
+- AcceptHeader was including `application/openmetrics-text` that was not fully supported by the nri-prometheus parser
+
+## 2.16.1
+## Fix
+- Query params were not included if port was specified by @paologallinaharbur in #301
+
+## 2.16.0
+## Changed
+ - Query parameters, such as `?format=prometheus`, can now be specified in the `prometheus.io/path` label/annotation
+
+## 2.15.0
+## Changed
+ - Added `UseBearer` flag and set it to true for nodes by @roobre in #264
+ - chore(deps): bump github.com/prometheus/common from 0.32.1 to 0.33.0 by @dependabot in #271
+ - chore(deps): bump golangci/golangci-lint-action from 2 to 3.1.0 by @dependabot in #261
+
 ## 2.14.0
 ## Changed
 - Bump SDK version
