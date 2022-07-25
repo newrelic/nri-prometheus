@@ -14,7 +14,9 @@ type TargetConfig struct {
 	Description string
 	URLs        []string  `mapstructure:"urls"`
 	TLSConfig   TLSConfig `mapstructure:"tls_config"`
-	UseBearer   bool      `mapstructure:"use_bearer"`
+	// UseBearer tells nri-prometheus whether it should send the Kubernetes Service Account token as a Bearer token in
+	// the HTTP request.
+	UseBearer bool `mapstructure:"use_bearer"`
 }
 
 // TLSConfig is used to store all the configuration required to use Mutual TLS authentication.
