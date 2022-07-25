@@ -84,6 +84,7 @@ func endpointToTarget(tc TargetConfig) ([]Target, error) {
 		if err != nil {
 			return nil, err
 		}
+		t.UseBearer = tc.UseBearer
 		targets = append(targets, t)
 	}
 	return targets, nil
