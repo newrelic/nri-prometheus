@@ -14,6 +14,7 @@ type TargetConfig struct {
 	Description string
 	URLs        []string  `mapstructure:"urls"`
 	TLSConfig   TLSConfig `mapstructure:"tls_config"`
+	UseBearer   bool      `mapstructure:"use_bearer"`
 }
 
 // TLSConfig is used to store all the configuration required to use Mutual TLS authentication.
