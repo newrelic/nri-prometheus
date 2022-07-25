@@ -92,14 +92,16 @@ func TestConfigParseWithCustomType(t *testing.T) {
 	assert.Equal(t, licenseKey, string(cfg.LicenseKey))
 }
 
-func TestRunIntegrationOnce(t *testing.T) {
+func TestRunIntegrationOnceNoTokenAttached(t *testing.T) {
 	dat, err := ioutil.ReadFile("./testData/testData.prometheus")
 	require.NoError(t, err)
 	counter := 0
+	headers := http.Header{}
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		_, _ = w.Write(dat)
+		headers = r.Header
 		counter++
 	}))
 	defer srv.Close()
@@ -118,6 +120,7 @@ func TestRunIntegrationOnce(t *testing.T) {
 	err = Run(c)
 	require.NoError(t, err)
 	require.Equal(t, 2, counter, "the scraper should have hit the mock exactly twice")
+	require.Equal(t, "", headers.Get("Authorization"), "the scraper should not add any authorization token")
 }
 
 func TestScrapingAnsweringWithError(t *testing.T) {
