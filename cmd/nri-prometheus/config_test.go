@@ -54,6 +54,7 @@ func TestLoadConfig(t *testing.T) {
 				Description: "AAA",
 				URLs:        []string{"localhost:9121"},
 				TLSConfig:   endpoints.TLSConfig{},
+				UseBearer:   true,
 			},
 		},
 		InsecureSkipVerify: true,

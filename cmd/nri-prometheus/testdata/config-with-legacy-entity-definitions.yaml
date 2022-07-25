@@ -20,6 +20,7 @@ entity_definitions: [
 targets:
   - description: "AAA"
     urls: ["localhost:9121"]
+    use_bearer: true
 verbose: true
 scrape_duration: "5s"
 insecure_skip_verify: true
