@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"strings"
 	"testing"
 	"time"
@@ -20,6 +21,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
+
+const fakeToken = "fakeToken"
 
 func TestLicenseKeyMasking(t *testing.T) {
 	const licenseKeyString = "secret"
@@ -192,4 +195,41 @@ func TestScrapingNotAnswering(t *testing.T) {
 
 	// then
 	require.NoError(t, err)
+}
+
+func TestScrapingWithToken(t *testing.T) {
+	headers := http.Header{}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		headers = r.Header
+		w.WriteHeader(202)
+	}))
+	defer srv.Close()
+
+	// Populate a fake token
+	tempDir := t.TempDir()
+	tokenFile := path.Join(tempDir, "fakeToken")
+	err := ioutil.WriteFile(tokenFile, []byte(fakeToken), 0o444)
+	require.NoError(t, err)
+
+	c := &Config{
+		TargetConfigs: []endpoints.TargetConfig{
+			{
+				URLs:      []string{srv.URL},
+				UseBearer: true,
+			},
+		},
+		BearerTokenFile: tokenFile,
+		Emitters:        []string{"stdout"},
+		Standalone:      false,
+		Verbose:         true,
+		ScrapeDuration:  "500ms",
+		ScrapeTimeout:   time.Duration(500) * time.Millisecond,
+	}
+
+	// when
+	err = Run(c)
+	require.NoError(t, err)
+
+	// then
+	require.Equal(t, "Bearer "+fakeToken, headers.Get("Authorization"))
 }
