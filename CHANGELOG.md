@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.16.3
+## Changed
+- Several dependencies updated
+- The `use_bearer` config is now exposed the config for static targets by @paologallinaharbur in https://github.com/newrelic/nri-prometheus/pull/327
+
 ## 2.16.2
 ## Fix
 - AcceptHeader was including `application/openmetrics-text` that was not fully supported by the nri-prometheus parser

@@ -138,6 +138,8 @@ config:
   # targets:
   #   - description: Secure etcd example
   #     urls: ["https://192.168.3.1:2379", "https://192.168.3.2:2379", "https://192.168.3.3:2379"]
+  #     If true the Kubernetes Service Account token will be included as a Bearer token in the HTTP request.
+  #     use_bearer: false
   #     tls_config:
   #       ca_file_path: "/etc/etcd/etcd-client-ca.crt"
   #       cert_file_path: "/etc/etcd/etcd-client.crt"
