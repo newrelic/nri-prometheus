@@ -1,6 +1,6 @@
 # nri-prometheus
 
-![Version: 2.1.8](https://img.shields.io/badge/Version-2.1.8-informational?style=flat-square) ![AppVersion: 2.16.2](https://img.shields.io/badge/AppVersion-2.16.2-informational?style=flat-square)
+![Version: 2.1.8](https://img.shields.io/badge/Version-2.1.8-informational?style=flat-square) ![AppVersion: 2.16.3](https://img.shields.io/badge/AppVersion-2.16.3-informational?style=flat-square)
 
 A Helm chart to deploy the New Relic Prometheus OpenMetrics integration
 
