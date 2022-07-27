@@ -54,7 +54,7 @@ jobs:
           minikube version: v1.20.0
           kubernetes version: ${{ matrix.kubernetes-version }}
           github token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         if: steps.list-changed.outputs.changed == 'true'
         with:
           go-version: '1.18'
@@ -117,7 +117,7 @@ jobs:
         with:
           path: src/github.com/${{ env.ORIGINAL_REPO_NAME }}
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Running unit tests
@@ -145,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
       - uses: actions/checkout@v3

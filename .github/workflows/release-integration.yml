@@ -62,7 +62,7 @@ jobs:
         with:
           path: src/github.com/${{env.ORIGINAL_REPO_NAME}}
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{env.GO_VERSION}}
       - name: Running unit tests
@@ -80,7 +80,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
           go-version: ${{ env.GO_VERSION }}
       - name: Set up QEMU
