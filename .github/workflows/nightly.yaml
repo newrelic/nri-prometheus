@@ -9,7 +9,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GO_VERSION: '1.17'
+  GO_VERSION: '1.18'
   INTEGRATION: "prometheus"
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}

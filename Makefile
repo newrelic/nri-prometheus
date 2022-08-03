@@ -1,7 +1,6 @@
 INTEGRATION     := prometheus
 BINARY_NAME      = nri-$(INTEGRATION)
 SRC_DIR          = .
-TEST_DEPS        = github.com/axw/gocov/gocov github.com/AlekSi/gocov-xml
 INTEGRATIONS_DIR = /var/db/newrelic-infra/newrelic-integrations/
 CONFIG_DIR       = /etc/newrelic-infra/integrations.d
 GO_FILES        := ./
@@ -43,15 +42,11 @@ clean-test:
 	@echo "=== $(INTEGRATION) === [ compile ]: cleanup test dependencies..."
 	@go mod tidy
 
-test-deps: compile-deps
-	@echo "=== $(INTEGRATION) === [ test-deps ]: installing testing dependencies..."
-	@go get -v $(TEST_DEPS)
-
 test-only:
 	@echo "=== $(INTEGRATION) === [ test ]: running unit tests..."
-	@gocov test ./... | gocov-xml > coverage.xml
+	@go test ./...
 
-test: test-deps test-only clean-test
+test: test-only clean-test
 
 install: bin/$(BINARY_NAME)
 	@echo "=== $(INTEGRATION) === [ install ]: installing bin/$(BINARY_NAME)..."
@@ -63,4 +58,4 @@ install: bin/$(BINARY_NAME)
 include $(CURDIR)/build/ci.mk
 include $(CURDIR)/build/release.mk
 
-.PHONY: all build clean validate compile-deps compile test-deps test-only test install
+.PHONY: all build clean validate compile-deps compile test-only test install
