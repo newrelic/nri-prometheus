@@ -17,7 +17,7 @@ helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
 ## Source Code
 
 * <https://github.com/newrelic/nri-prometheus>
-* <https://github.com/newrelic/nri-prometheus/tree/master/charts/nri-prometheus>
+* <https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus>
 
 ## Scraping services and endpoints
 
