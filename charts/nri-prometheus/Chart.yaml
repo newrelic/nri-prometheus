@@ -7,12 +7,12 @@ sources:
   - https://github.com/newrelic/nri-prometheus
   - https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus
 
-version: 2.1.10
+version: 2.1.11
 appVersion: 2.16.3
 
 dependencies:
   - name: common-library
-    version: 1.0.5
+    version: 1.0.6
     repository: "https://helm-charts.newrelic.com"
 
 maintainers:
