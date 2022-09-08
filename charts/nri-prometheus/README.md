@@ -11,7 +11,7 @@ You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm
 
 ```shell
 helm repo add nri-prometheus https://newrelic.github.io/nri-prometheus
-helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
+helm upgrade --install newrelic-prometheus nri-prometheus/nri-prometheus -f your-custom-values.yaml
 ```
 
 ## Source Code
