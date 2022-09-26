@@ -428,6 +428,18 @@ func TestAddAttributesRules(t *testing.T) {
 	}
 }
 
+func TestEmptyIgnoreRules(t *testing.T) {
+	t.Parallel()
+
+	entity := scrapeString(t, prometheusInput)
+	filter(&entity, []IgnoreRule{
+		{},
+	})
+
+	assert.Len(t, entity.Metrics, 6)
+
+}
+
 func TestIgnoreRules(t *testing.T) {
 	t.Parallel()
 
@@ -535,6 +547,9 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 		},
 		{
 			Except: []string{"redis_instance"},
+		},
+		{
+			Prefixes: []string{"not_matching"},
 		},
 	})
 
