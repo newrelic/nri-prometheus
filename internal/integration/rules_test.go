@@ -437,7 +437,6 @@ func TestEmptyIgnoreRules(t *testing.T) {
 	})
 
 	assert.Len(t, entity.Metrics, 6)
-
 }
 
 func TestIgnoreRules(t *testing.T) {
