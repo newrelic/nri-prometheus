@@ -428,6 +428,17 @@ func TestAddAttributesRules(t *testing.T) {
 	}
 }
 
+func TestEmptyIgnoreRules(t *testing.T) {
+	t.Parallel()
+
+	entity := scrapeString(t, prometheusInput)
+	filter(&entity, []IgnoreRule{
+		{},
+	})
+
+	assert.Len(t, entity.Metrics, 6)
+}
+
 func TestIgnoreRules(t *testing.T) {
 	t.Parallel()
 
@@ -536,6 +547,9 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 		{
 			Except: []string{"redis_instance"},
 		},
+		{
+			Prefixes: []string{"not_matching"},
+		},
 	})
 
 	actual := map[string]interface{}{}
@@ -556,5 +570,46 @@ func TestIgnoreRules_IgnoreAllExceptExceptions(t *testing.T) {
 
 	assert.Len(t, actual, 2)
 	assert.Contains(t, actual, "redis_exporter_build_info")
+	assert.Contains(t, actual, "redis_instance_info")
+}
+
+func TestIgnoreRules_MatchingExceptRulesTakesPriorityOverOtherRules(t *testing.T) {
+	t.Parallel()
+
+	entity := scrapeString(t, prometheusInput)
+	filter(&entity, []IgnoreRule{
+		{
+			Prefixes:    []string{"redis_instance"},
+			MetricTypes: []string{"counter"},
+		},
+		{
+			Except: []string{"redis_instance"},
+		},
+		{
+			Except: []string{"something_different"},
+		},
+		{
+			Prefixes:    []string{"redis_instance"},
+			MetricTypes: []string{"counter"},
+		},
+	})
+
+	actual := map[string]interface{}{}
+	for _, metric := range entity.Metrics {
+		switch metric.name {
+		case "redis_exporter_build_info":
+			require.Fail(t, "redis_exporter_build_info must have been filtered")
+		case "redis_instantaneous_input_kbps":
+			require.Fail(t, "redis_instantaneous_input_kbps must have been filtered")
+		case "redis_exporter_scrapes_total":
+			require.Fail(t, "redis_exporter_scrapes_total must have been filtered")
+		case "redis_instance_info":
+			actual[metric.name] = 1
+		default:
+			require.Fail(t, "unexpected metric", "%#v", metric)
+		}
+	}
+
+	assert.Len(t, actual, 1)
 	assert.Contains(t, actual, "redis_instance_info")
 }

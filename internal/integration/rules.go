@@ -209,17 +209,20 @@ func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 type ignoreRules []IgnoreRule
 
 func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
-	var prefixesLen, metricTypesLen, exceptRulesLen int
+	// If the user specified ,in any set of rules, an except rule that is matching the metric name, we should keep the metric
+	if rules.isMetricExcepted(name) {
+		return false
+	}
+
 	for _, rule := range rules {
-		exceptRulesLen += len(rule.Except)
-		for _, prefix := range rule.Except {
-			if strings.HasPrefix(name, prefix) {
-				return false
-			}
+		// if metricTypesLen or prefixesLen are not defined and exceptRulesLen
+		// is not empty then all not previously excepted metric should be dropped
+		totalDroppingRules := len(rule.MetricTypes) + len(rule.Prefixes)
+		if totalDroppingRules == 0 && len(rule.Except) != 0 {
+			return true
 		}
 
 		// MetricTypes
-		metricTypesLen += len(rule.MetricTypes)
 		for _, rMetricType := range rule.MetricTypes {
 			if strings.EqualFold(rMetricType, string(metricType)) {
 				return true
@@ -227,7 +230,6 @@ func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
 		}
 
 		// Prefixes
-		prefixesLen += len(rule.Prefixes)
 		for _, prefix := range rule.Prefixes {
 			if strings.HasPrefix(name, prefix) {
 				return true
@@ -235,12 +237,20 @@ func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
 		}
 	}
 
-	if prefixesLen > 0 || metricTypesLen > 0 {
-		return false
+	return false
+}
+
+// When matching an except rule we do not drop the metric, no matter if a rule is dropping it after
+func (rules ignoreRules) isMetricExcepted(name string) bool {
+	for _, rule := range rules {
+		for _, prefix := range rule.Except {
+			if strings.HasPrefix(name, prefix) {
+				return true
+			}
+		}
 	}
 
-	// only exceptions were provided and the current metric is not an exception
-	return exceptRulesLen > 0
+	return false
 }
 
 // filter removes the metrics whose name matches the prefixes in the given ignore rules
