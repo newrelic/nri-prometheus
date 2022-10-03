@@ -209,13 +209,14 @@ func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 type ignoreRules []IgnoreRule
 
 func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
-	if rules.isMetricExcludedFromFilters(name) {
+	// If the user specified ,in any set of rules, an except rule that is matching the metric name, we should keep the metric
+	if rules.isMetricExcepted(name) {
 		return false
 	}
 
 	for _, rule := range rules {
 		// if metricTypesLen or prefixesLen are not defined and exceptRulesLen
-		// is not empty then all not excepted metric should be dropped
+		// is not empty then all not previously excepted metric should be dropped
 		totalDroppingRules := len(rule.MetricTypes) + len(rule.Prefixes)
 		if totalDroppingRules == 0 && len(rule.Except) != 0 {
 			return true
@@ -240,7 +241,7 @@ func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
 }
 
 // When matching an except rule we do not drop the metric, no matter if a rule is dropping it after
-func (rules ignoreRules) isMetricExcludedFromFilters(name string) bool {
+func (rules ignoreRules) isMetricExcepted(name string) bool {
 	for _, rule := range rules {
 		for _, prefix := range rule.Except {
 			if strings.HasPrefix(name, prefix) {
