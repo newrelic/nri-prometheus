@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.16.6
+## Changed
+- Several dependencies updated
+## Fix
+- https://github.com/newrelic/nri-prometheus/issues/344 The Bug was caused by a wrong implementation of the filtering feature.
+In particular, it was not possible having `lowDataMode=true` to filter out everything including just some metrics.
+
 ## 2.16.5
 ## Changed
 - Several dependencies updated
