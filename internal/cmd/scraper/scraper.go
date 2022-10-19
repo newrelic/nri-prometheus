@@ -25,6 +25,7 @@ type Config struct {
 	MetricAPIURL                      string                       `mapstructure:"metric_api_url"`
 	LicenseKey                        LicenseKey                   `mapstructure:"license_key"`
 	ClusterName                       string                       `mapstructure:"cluster_name"`
+	NameSpace                         string                       `mapstructure:"cluster_namespace"`
 	Debug                             bool                         `mapstructure:"debug"`
 	Verbose                           bool                         `mapstructure:"verbose"`
 	Audit                             bool                         `mapstructure:"audit"`
@@ -87,6 +88,9 @@ func validateConfig(cfg *Config) error {
 	if cfg.LicenseKey == "" && cfg.Standalone {
 		return fmt.Errorf(requiredMsg, "license_key")
 	}
+	if cfg.NameSpace == "" {
+		logrus.Infof("cluster_namespace can be blank, will run at cluster level, otherwise, set cluster_namespace to run only in namespace")
+	}
 
 	if cfg.EmitterProxy != "" {
 		proxyURL, err := url.Parse(cfg.EmitterProxy)
@@ -129,7 +133,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	retrievers = append(retrievers, fixedRetriever)
 
 	if !cfg.DisableAutodiscovery {
-		kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes, cfg.ScrapeServices, cfg.ScrapeEndpoints, endpoints.WithInClusterConfig())
+		kubernetesRetriever, err := endpoints.NewKubernetesTargetRetriever(cfg.ScrapeEnabledLabel, cfg.RequireScrapeEnabledLabelForNodes, cfg.ScrapeServices, cfg.ScrapeEndpoints, cfg.NameSpace, endpoints.WithInClusterConfig())
 		if err != nil {
 			logrus.WithError(err).Errorf("not possible to get a Kubernetes client. If you aren't running this integration in a Kubernetes cluster, you can ignore this error")
 		} else {
