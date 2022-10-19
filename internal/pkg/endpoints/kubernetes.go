@@ -150,11 +150,11 @@ func nodeTargets(n *corev1.Node) ([]Target, error) {
 
 // listEndpoints gets the scrapable endpoints that are currently available
 func (k *kubernetesTargetRetriever) listEndpoints() error {
-	endpoints, err := k.client.CoreV1().Endpoints("").List(context.TODO(), metav1.ListOptions{})
+	endpoints, err := k.client.CoreV1().Endpoints(k.scrapeNamespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	services, err := k.client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
+	services, err := k.client.CoreV1().Services(k.scrapeNamespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (k *kubernetesTargetRetriever) listEndpoints() error {
 
 // listServices gets the scrapable services that are currently available
 func (k *kubernetesTargetRetriever) listServices() error {
-	services, err := k.client.CoreV1().Services("").List(context.TODO(), metav1.ListOptions{})
+	services, err := k.client.CoreV1().Services(k.scrapeNamespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -369,7 +369,7 @@ func serviceTargets(s *corev1.Service) []Target {
 }
 
 func (k *kubernetesTargetRetriever) listPods() error {
-	pods, err := k.client.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	pods, err := k.client.CoreV1().Pods(k.scrapeNamespace).List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -503,11 +503,12 @@ type kubernetesTargetRetriever struct {
 	scrapeServices                    bool
 	scrapeEndpoints                   bool
 	requireScrapeEnabledLabelForNodes bool
+	scrapeNamespace                   string
 }
 
 // NewKubernetesTargetRetriever creates a new kubernetesTargetRetriever
 // setting the required label to identified targets that can be scrapped.
-func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, options ...Option) (TargetRetriever, error) {
+func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnabledLabelForNodes bool, scrapeServices bool, scrapeEndpoints bool, scrapeNamespace string, options ...Option) (TargetRetriever, error) {
 	if scrapeEnabledLabel == "" {
 		scrapeEnabledLabel = defaultScrapeEnabledLabel
 	}
@@ -518,6 +519,7 @@ func NewKubernetesTargetRetriever(scrapeEnabledLabel string, requireScrapeEnable
 		scrapeEndpoints:                   scrapeEndpoints,
 		scrapeServices:                    scrapeServices,
 		requireScrapeEnabledLabelForNodes: requireScrapeEnabledLabelForNodes,
+		scrapeNamespace:                   scrapeNamespace,
 	}
 
 	for _, opt := range options {
@@ -599,7 +601,7 @@ func (k *kubernetesTargetRetriever) getWatchableResources() []watchableResource 
 		listFunction:              k.listPods,
 		requireScrapeEnabledLabel: true,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Pods("").Watch(context.TODO(), metav1.ListOptions{})
+			return k.client.CoreV1().Pods(k.scrapeNamespace).Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}, {
 		name:                      "node",
@@ -613,14 +615,14 @@ func (k *kubernetesTargetRetriever) getWatchableResources() []watchableResource 
 		requireScrapeEnabledLabel: true,
 		listFunction:              k.listServices,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Services("").Watch(context.TODO(), metav1.ListOptions{})
+			return k.client.CoreV1().Services(k.scrapeNamespace).Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}, {
 		name:                      "endpoints",
 		requireScrapeEnabledLabel: true,
 		listFunction:              k.listEndpoints,
 		watchFunction: func() (watch.Interface, error) {
-			return k.client.CoreV1().Endpoints("").Watch(context.TODO(), metav1.ListOptions{})
+			return k.client.CoreV1().Endpoints(k.scrapeNamespace).Watch(context.TODO(), metav1.ListOptions{})
 		},
 	}}
 }

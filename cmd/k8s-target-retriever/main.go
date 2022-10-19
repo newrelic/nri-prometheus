@@ -15,6 +15,7 @@ import (
 )
 
 var kubeConfigFile = flag.String("kubeconfig", "", "location of the kube config file. Defaults to ~/.kube/config")
+var scrapeNamespace = flag.String("namespace", "", "namespace you want to scan, defaults to cluster scope (empty string)")
 
 func init() {
 	flag.Usage = func() {
@@ -34,7 +35,7 @@ func main() {
 	}
 
 	kubeconf := endpoints.WithKubeConfig(*kubeConfigFile)
-	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, true, true, kubeconf)
+	ktr, err := endpoints.NewKubernetesTargetRetriever("prometheus.io/scrape", false, true, true, *scrapeNamespace, kubeconf)
 	if err != nil {
 		logrus.Fatalf("could not create KubernetesTargetRetriever: %v", err)
 	}
