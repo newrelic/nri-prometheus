@@ -61,7 +61,7 @@ dockers:
     use: buildx
     build_flag_templates:
     - "--platform=linux/amd64"
-    skip_push: false
+    skip_push: true
   - goos: linux
     goarch: arm64
     dockerfile: Dockerfile.release
@@ -72,7 +72,7 @@ dockers:
     use: buildx
     build_flag_templates:
     - "--platform=linux/arm64"
-    skip_push: false
+    skip_push: true
   - goos: linux
     goarch: arm
     goarm: 6
@@ -84,7 +84,7 @@ dockers:
     use: buildx
     build_flag_templates:
     - "--platform=linux/arm"
-    skip_push: false
+    skip_push: true
 
 docker_manifests:
   - name_template: newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}
