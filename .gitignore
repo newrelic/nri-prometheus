@@ -19,3 +19,4 @@ snyk_report.html
 
 # Downloaded chart dependencies
 **/charts/*.tgz
+cmd/nri-prometheus/versioninfo.json
