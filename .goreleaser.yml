@@ -58,7 +58,7 @@ dockers:
       - nri-prometheus-nix
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-amd64'
-    use_buildx
+    use_buildx: true
     build_flag_templates:
     - "--platform=linux/amd64"
     skip_push: false
@@ -69,7 +69,7 @@ dockers:
       - nri-prometheus-nix
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm64'
-    use_buildx
+    use_buildx: true
     build_flag_templates:
     - "--platform=linux/arm64"
     skip_push: false
@@ -81,7 +81,7 @@ dockers:
       - nri-prometheus-nix
     image_templates:
       - 'newrelic/nri-prometheus:{{ .Version }}{{ .Env.TAG_SUFFIX }}-arm'
-    use_buildx
+    use_buildx: true
     build_flag_templates:
     - "--platform=linux/arm"
     skip_push: false
