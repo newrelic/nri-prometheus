@@ -166,7 +166,7 @@ jobs:
         run: |
           echo "CC_PREFIX=$(go list -m)" >> $GITHUB_ENV
       - name: Test & publish code coverage
-        uses: paambaati/codeclimate-action@v2.7.5
+        uses: paambaati/codeclimate-action@v3.1.0
         env:
           CC_TEST_REPORTER_ID: 286fd24e272c97116860791b9c4ed636092663dc665a6608c8aaa625e9c46b1b
         with:
