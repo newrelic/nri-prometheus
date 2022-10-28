@@ -20,7 +20,7 @@ You can install this chart using [`nri-bundle`](https://github.com/newrelic/helm
 
 ```shell
 helm repo add nri-prometheus https://newrelic.github.io/nri-prometheus
-helm upgrade --install nri-prometheus/nri-prometheus -f your-custom-values.yaml
+helm upgrade --install newrelic/nri-prometheus -f your-custom-values.yaml
 ```
 
 For further information of the configuration needed for the chart just read the [chart's README](/charts/nri-prometheus/README.md).
