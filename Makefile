@@ -26,21 +26,9 @@ bin/$(BINARY_NAME):
 
 compile: compile-deps bin/$(BINARY_NAME)
 
-clean-test:
-	@echo "=== $(INTEGRATION) === [ compile ]: cleanup test dependencies..."
-	@go mod tidy
-
-test-deps: compile-deps
-	@echo "=== $(INTEGRATION) === [ test-deps ]: installing testing dependencies..."
-	@go get -v $(TEST_DEPS)
-
-test-only:
+test:
 	@echo "=== $(INTEGRATION) === [ test ]: running unit tests..."
 	@go test ./...
-	@echo "=== $(INTEGRATION) === [ install ]: installing bin/$(BINARY_NAME)..."
-	@sudo install -D --mode=755 --owner=root --strip $(ROOT)bin/$(BINARY_NAME) $(INTEGRATIONS_DIR)/bin/$(BINARY_NAME)
-	@sudo install -D --mode=644 --owner=root $(ROOT)$(INTEGRATION)-definition.yml $(INTEGRATIONS_DIR)/$(INTEGRATION)-definition.yml
-	@sudo install -D --mode=644 --owner=root $(ROOT)$(INTEGRATION)-config.yml.sample $(CONFIG_DIR)/$(INTEGRATION)-config.yml.sample
 
 # Include thematic Makefiles
 include $(CURDIR)/build/ci.mk

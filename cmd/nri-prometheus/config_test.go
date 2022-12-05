@@ -49,6 +49,7 @@ func TestLoadConfig(t *testing.T) {
 		EmitterHarvestPeriod:              "1s",
 		MinEmitterHarvestPeriod:           "200ms",
 		MaxStoredMetrics:                  10000,
+		SelfMetricsListeningAddress:       ":8080",
 		TargetConfigs: []endpoints.TargetConfig{
 			{
 				Description: "AAA",
