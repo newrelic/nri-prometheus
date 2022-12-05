@@ -162,9 +162,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 
 	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
 	if err != nil {
-		return fmt.Errorf("parsing scrape_duration value (%v): %w",
-			cfg.ScrapeDuration,
-			err)
+		return fmt.Errorf("parsing scrape_duration value (%v): %w", cfg.ScrapeDuration, err)
 	}
 
 	go integration.Execute(
