@@ -184,7 +184,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 	}
 	err = http.ListenAndServe(cfg.SelfMetricsListeningAddress, r)
 	if err != nil {
-		return fmt.Errorf("listening on %s for metrics: %w", cfg.SelfMetricsListeningAddress, err)
+		return fmt.Errorf("listening on %q for metrics: %w", cfg.SelfMetricsListeningAddress, err)
 	}
 
 	return nil
