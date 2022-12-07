@@ -47,6 +47,7 @@ type Config struct {
 	BearerTokenFile                   string                       `mapstructure:"bearer_token_file"`
 	InsecureSkipVerify                bool                         `mapstructure:"insecure_skip_verify" default:"false"`
 	ProcessingRules                   []integration.ProcessingRule `mapstructure:"transformations"`
+	SelfMetricsListeningAddress       string                       `mapstructure:"self_metrics_listening_address"`
 	DecorateFile                      bool
 	EmitterProxy                      string `mapstructure:"emitter_proxy"`
 	// Parsed version of `EmitterProxy`
@@ -161,11 +162,7 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 
 	scrapeDuration, err := time.ParseDuration(cfg.ScrapeDuration)
 	if err != nil {
-		return fmt.Errorf(
-			"parsing scrape_duration value (%v): %w",
-			cfg.ScrapeDuration,
-			err,
-		)
+		return fmt.Errorf("parsing scrape_duration value (%v): %w", cfg.ScrapeDuration, err)
 	}
 
 	go integration.Execute(
@@ -185,7 +182,12 @@ func RunWithEmitters(cfg *Config, emitters []integration.Emitter) error {
 		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
 	}
-	return http.ListenAndServe(":8080", r)
+	err = http.ListenAndServe(cfg.SelfMetricsListeningAddress, r)
+	if err != nil {
+		return fmt.Errorf("listening on %q for metrics: %w", cfg.SelfMetricsListeningAddress, err)
+	}
+
+	return nil
 }
 
 // RunOnceWithEmitters runs the scraper with preselected emitters once.
