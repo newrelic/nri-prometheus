@@ -6,7 +6,7 @@ cleanOldResources(){
   rm ./load-test/load_test.results || true
 }
 
-#Deploy laodTest chart
+#Deploy loadTest chart
 deployLoadTestEnvironment(){
   kubectl create namespace newrelic-load
   ## we are using the template and not the install since helm suffers when deploying at the same time 800+ resources "http2: stream closed"
