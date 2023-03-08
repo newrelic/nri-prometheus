@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version-file: "go.mod"
-      - name: Installing dependencies yq and skaffold
+      - name: Installing dependencies
         run: |
           sudo wget -O /usr/local/bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
           sudo chmod +x /usr/local/bin/skaffold
@@ -24,7 +24,11 @@ jobs:
         uses: manusa/actions-setup-minikube@v2.7.2
         with:
           minikube version: v1.29.0
-          kubernetes version: v1.26.1
+          kubernetes version: v1.26.0
+          github token: ${{ secrets.GITHUB_TOKEN }}
+          driver: docker
+          start args: "--container-runtime=containerd"
+
       - name: Run laod tests
         env:
           NEWRELIC_LICENSE: ${{ secrets.NEWRELIC_LICENSE }}
