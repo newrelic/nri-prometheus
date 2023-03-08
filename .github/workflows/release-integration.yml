@@ -18,38 +18,17 @@ env:
   TAG_SUFFIX: "" # This suffix is used for pre-release only
 
 jobs:
-  # this might not be necessary
-  snyk:
-    name: Run security checks via snyk
-    runs-on: ubuntu-20.04
-    env:
-      SNYK_TOKEN: ${{ secrets.COREINT_SNYK_TOKEN }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
-          password: ${{ secrets.OHAI_DOCKER_HUB_PASSWORD }}
-      - name: Scan code for vulnerabilities
-        run: make ci/snyk-test
-
   test-nix:
     name: Run unit tests on *Nix
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.OHAI_DOCKER_HUB_ID }}
-          password: ${{ secrets.OHAI_DOCKER_HUB_PASSWORD }}
       - name: Unit tests
         run: make ci/test
 
   test-windows:
     name: Run unit tests on Windows
-    runs-on: windows-2019
+    runs-on: windows-latest
     env:
       GOPATH: ${{ github.workspace }}
     defaults:
@@ -71,7 +50,7 @@ jobs:
 
   integration-release:
     name: Use goreleaser for releasing
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [ test-nix, test-windows ]
     steps:
       - name: checkout
