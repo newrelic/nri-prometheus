@@ -17,7 +17,7 @@ deployLoadTestEnvironment(){
 deployCurrentNriPrometheus(){
   # We need to statically link libraries otherwise in the current test Docker image the command could fail
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ./bin/nri-prometheus ./cmd/nri-prometheus/
-  yq eval '.spec.template.spec.containers[0].env[0].value = env(NEWRELIC_LICENSE)' ./deploy/local.yaml.example > ./deploy/local.yaml
+  yq write -d3 ./deploy/local.yaml.example 'spec.template.spec.containers[0].env[0].value'  "${NEWRELIC_LICENSE}" > ./deploy/local.yaml
   skaffold run
 }
 
@@ -49,11 +49,3 @@ runLoadTest(){
     verifyResults
   fi
 }
-
-
-
-
-
-
-
-

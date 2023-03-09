@@ -9,7 +9,7 @@ jobs:
   load_tests:
     if: ${{ ! contains(github.event.pull_request.labels.*.name, 'ci/skip-load-test') }}
     name: Load Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # Read the comment below why this is not set to `latest`.
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,16 +18,30 @@ jobs:
           go-version-file: "go.mod"
       - name: Installing dependencies
         run: |
+          sudo wget -O /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/3.3.0/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
           sudo wget -O /usr/local/bin/skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
           sudo chmod +x /usr/local/bin/skaffold
+      # Load test uses skaffold to run `nri-prometheus` in the cluster. skaffold is not compatible with minikube when the
+      # clusters do not use docker as CRI giving this error:
+      #
+      # invalid skaffold config: getting minikube env: running [/home/runner/work/_temp/minikube docker-env --shell none -p minikube --user=skaffold]
+      #  - stdout: "false exit code 14\n"
+      #  - stderr: "X Exiting due to MK_USAGE: The docker-env command is only compatible with the \"docker\" runtime, but this cluster was configured to use the \"containerd\" runtime.\n"
+      #  - cause: exit status 14
+      #
+      # Se we are in a dependency cycle:
+      #  - Minikube with Kubernetes > 1.24 needs the CRI to NOT be docker
+      #  - Skaffold needs the CRI to be docker
+      #
+      # Here we test `nri-prometheus`, Kubernetes is just a tool we use for testing, so we should not care about the version 
+      # of Kubernetes and we should not upgrade it so the test keeps working.
       - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.7.2
+        uses: manusa/actions-setup-minikube@v2.7.1
         with:
-          minikube version: v1.29.0
-          kubernetes version: v1.26.0
+          minikube version: v1.15.1
+          kubernetes version: v1.19.4
           github token: ${{ secrets.GITHUB_TOKEN }}
-          driver: docker
-          start args: "--container-runtime=containerd"
 
       - name: Run load tests
         env:
