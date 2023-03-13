@@ -35,7 +35,7 @@ jobs:
       # Here we test `nri-prometheus`, Kubernetes is just a tool we use for testing, so we should not care about the version 
       # of Kubernetes and we should not upgrade it so the test keeps working.
       - name: Setup Minikube
-        uses: manusa/actions-setup-minikube@v2.7.1
+        uses: manusa/actions-setup-minikube@v2.7.2
         with:
           minikube version: v1.15.1
           kubernetes version: v1.19.4
