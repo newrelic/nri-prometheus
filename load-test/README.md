@@ -8,7 +8,7 @@ es from the repo root folder:
 ```bash
 minikube --memory 8192 --cpus 4 start
 NEWRELIC_LICENSE=xxxx
-source ./load-test/laod_test.sh
+source ./load-test/load_test.sh
 runLoadTest
 ```
 

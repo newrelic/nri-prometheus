@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.18.0  (2023-03-08)
+### Changed
+- Upgrade Go to 1.19 and bump dependencies
+
 ## v2.17.0
 ## Changed
 - Exposed `self_metrics_listening_address` to set listening address for self-metrics, having as default `:8080`.
