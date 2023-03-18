@@ -1,4 +1,4 @@
-[![Community Plus header](https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Community_Plus.png)](https://opensource.newrelic.com/oss-category/#community-plus)
+<a href="https://opensource.newrelic.com/oss-category/#community-plus"><picture><source media="(prefers-color-scheme: dark)" srcset="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/dark/Community_Plus.png"><source media="(prefers-color-scheme: light)" srcset="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Community_Plus.png"><img alt="New Relic Open Source community plus project banner." src="https://github.com/newrelic/opensource-website/raw/main/src/images/categories/Community_Plus.png"></picture></a>
 
 # New Relic Prometheus OpenMetrics integration
 
@@ -34,7 +34,7 @@ This integration requires having a Kubernetes cluster available to deploy and ru
 After cloning this repository, go to the directory of the Prometheus integration and build it:
 
 ```bash
-$ make
+make
 ```
 
 The command above executes the tests for the Prometheus integration and builds an executable file called `nri-prometheus` under the `bin` directory.
@@ -42,13 +42,13 @@ The command above executes the tests for the Prometheus integration and builds a
 To start the integration, run `nri-prometheus`:
 
 ```bash
-$ ./bin/nri-prometheus
+./bin/nri-prometheus
 ```
 
 If you want to know more about usage of `./bin/nri-prometheus`, pass the `-help` parameter:
 
 ```bash
-$ ./bin/nri-prometheus -help
+./bin/nri-prometheus -help
 ```
 
 External dependencies are managed through the [govendor tool](https://github.com/kardianos/govendor). Locking all external dependencies to a specific version (if possible) into the vendor directory is required.
@@ -66,7 +66,7 @@ And push it later with `docker push`
 ### Executing the integration in a development cluster
 
 - You need to configure how to deploy the integration in the cluster. Copy deploy/local.yaml.example to deploy/local.yaml and edit the placeholders.
- - To get the New Relic license key, visit:
+- To get the New Relic license key, visit:
    `https://newrelic.com/accounts/<YOUR_ACCOUNT_ID>`. It's located in the right sidebar.
 - After updating the yaml file, you need to compile the integration: `GOOS=linux make compile-only`.
 - Once you have it compiled, you need to deploy it in your Kubernetes cluster: `skaffold run`
@@ -89,7 +89,7 @@ go run cmd/k8s-target-retriever/main.go
 To run the tests execute:
 
 ```bash
-$ make test
+make test
 ```
 
 At the moment, tests are totally isolated and you don't need a cluster to run them.
@@ -104,11 +104,11 @@ If the issue has been confirmed as a bug or is a Feature request, please file a 
 
 **Support Channels**
 
-* [New Relic Documentation](https://docs.newrelic.com): Comprehensive guidance for using our platform
-* [New Relic Community](https://discuss.newrelic.com): The best place to engage in troubleshooting questions
-* [New Relic Developer](https://developer.newrelic.com/): Resources for building a custom observability applications
-* [New Relic University](https://learn.newrelic.com/): A range of online training for New Relic users of every level
-* [New Relic Technical Support](https://support.newrelic.com/) 24/7/365 ticketed support. Read more about our [Technical Support Offerings](https://docs.newrelic.com/docs/licenses/license-information/general-usage-licenses/support-plan).
+- [New Relic Documentation](https://docs.newrelic.com): Comprehensive guidance for using our platform
+- [New Relic Community](https://discuss.newrelic.com): The best place to engage in troubleshooting questions
+- [New Relic Developer](https://developer.newrelic.com/): Resources for building a custom observability applications
+- [New Relic University](https://learn.newrelic.com/): A range of online training for New Relic users of every level
+- [New Relic Technical Support](https://support.newrelic.com/) 24/7/365 ticketed support. Read more about our [Technical Support Offerings](https://docs.newrelic.com/docs/licenses/license-information/general-usage-licenses/support-plan).
 
 ## Privacy
 
