@@ -27,7 +27,7 @@ integrations:
       audit: false
 
       # The HTTP client timeout when fetching data from endpoints. Defaults to "5s" if it is not set.
-      # scrape_timeout: "30s"
+      # scrape_timeout: "5s"
 
       # Length in time to distribute the scraping from the endpoints. Default to "30s" if it is not set.
       scrape_duration: "5s"
