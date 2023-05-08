@@ -61,6 +61,7 @@ func TestLoadConfig(t *testing.T) {
 		InsecureSkipVerify: true,
 		WorkerThreads:      4,
 		HostID:             "awesome-host",
+		HotReload:          true,
 	}
 	t.Setenv("CONFIG_PATH", "testdata/config-with-legacy-entity-definitions.yaml")
 	t.Setenv("NRI_HOST_ID", "awesome-host")

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/newrelic/nri-prometheus/internal/integration"
 
 	"github.com/newrelic/infra-integrations-sdk/v4/args"
@@ -80,6 +81,11 @@ func loadConfig() (*scraper.Config, error) {
 	if scraperCfg.MetricAPIURL == "" {
 		scraperCfg.MetricAPIURL = determineMetricAPIURL(string(scraperCfg.LicenseKey))
 	}
+
+	if scraperCfg.HotReload {
+		setHotReload(cfg)
+	}
+
 	scraperCfg.HostID = c.NriHostID
 
 	return &scraperCfg, nil
@@ -108,6 +114,7 @@ func setViperDefaults(viper *viper.Viper) {
 	viper.SetDefault("percentiles", []float64{50.0, 95.0, 99.0})
 	viper.SetDefault("worker_threads", 4)
 	viper.SetDefault("self_metrics_listening_address", ":8080")
+	viper.SetDefault("hot_load_config", false)
 }
 
 // bindViperEnv automatically binds the variables in given configuration struct to environment variables.
@@ -150,4 +157,20 @@ func determineMetricAPIURL(license string) string {
 	}
 
 	return defaultMetricAPIURL
+}
+
+// setHotLoadConfig sets Viper to watch config files for changes.
+// If changes occur, then the config is reloaded
+func setHotReload(viper *viper.Viper) {
+	// Start watching the config
+	viper.WatchConfig()
+	// When a change happens to the configuration ...
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		logrus.Debug("Config file changed:", e.Name)
+		// Config file changed, so reload it
+		err := viper.ReadInConfig()
+		if err != nil {
+			logrus.Error("Error reading config file after hot reloading:", err)
+		}
+	})
 }

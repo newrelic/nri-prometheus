@@ -24,3 +24,5 @@ targets:
 verbose: true
 scrape_duration: "5s"
 insecure_skip_verify: true
+hot_reload: true
+
