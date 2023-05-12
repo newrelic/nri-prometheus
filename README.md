@@ -2,8 +2,13 @@
 
 # New Relic Prometheus OpenMetrics integration
 
-[![Build Status](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=main)](https://travis-ci.org/newrelic/nri-prometheus.svg?branch=main)
-[![CLA assistant](https://cla-assistant.io/readme/badge/newrelic/nri-prometheus)](https://cla-assistant.io/newrelic/nri-prometheus)
+> 🚧 Important Notice
+> 
+> Prometheus Open Metrics integration for Kubernetes has been discontinued and will only be supported until the end of June 2023.
+>
+> See how to install the [Prometheus agent](https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-prometheus-agent/install-prometheus-agent/) to understand its benefits and get a full visibility of your Prometheus workloads running in a Kubernetes cluster.
+>
+> In case you need to migrate from the Prometheus Open Metrics integration to Open Metrics check the following [migration guide](https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-prometheus-agent/migration-guide/).
 
 Fetch metrics in the Prometheus metrics format, inside or outside Kubernetes, and send them to the New Relic platform.
 
