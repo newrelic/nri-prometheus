@@ -4,7 +4,7 @@
 
 > 🚧 Important Notice
 > 
-> Prometheus Open Metrics Integration support for new features is discontinued.
+> Prometheus Open Metrics integration for Kubernetes has been discontinued and will only be supported until the end of June 2023.
 >
 > See how to install the [Prometheus agent](https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-prometheus-agent/install-prometheus-agent/) to understand its benefits and get a full visibility of your Prometheus workloads running in a Kubernetes cluster.
 >
