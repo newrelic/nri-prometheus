@@ -19,3 +19,6 @@ snyk_report.html
 
 # Downloaded chart dependencies
 **/charts/*.tgz
+
+# Release toolkit
+CHANGELOG.partial.md
