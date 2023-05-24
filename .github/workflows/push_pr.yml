@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - renovate/**
   pull_request:
 
 env:
@@ -131,3 +132,5 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build all platforms:arch
         run: make ci/build
+      - name: Check if CHANGELOG is valid
+        uses: newrelic/release-toolkit/validate-markdown@v1

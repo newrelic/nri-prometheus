@@ -1,9 +1,13 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+Unreleased section should follow [Release Toolkit](https://github.com/newrelic/release-toolkit#render-markdown-and-update-markdown)
+
+## Unreleased
 
 ## 2.18.0  (2023-03-08)
 ### Changed
@@ -36,7 +40,7 @@ In particular, it was not possible having `lowDataMode=true` to filter out every
 
 ## 2.16.3
 ## Changed
-- Several dependencies updated
+- Several dependencies updated 
 - The `use_bearer` config is now exposed the config for static targets by @paologallinaharbur in https://github.com/newrelic/nri-prometheus/pull/327
 
 ## 2.16.2
