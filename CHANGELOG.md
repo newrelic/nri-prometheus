@@ -9,6 +9,18 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.1 - 2023-05-24
+
+### ⛓️ Dependencies
+- Updated github.com/prometheus/client_model to v0.4.0 - [Changelog 🔗](https://github.com/prometheus/client_model/releases/tag/v0.4.0)
+- Updated kubernetes packages to v0.27.2
+- Updated github.com/prometheus/common to v0.44.0 - [Changelog 🔗](https://github.com/prometheus/common/releases/tag/v0.44.0)
+- Updated github.com/sirupsen/logrus to v1.9.2 - [Changelog 🔗](https://github.com/sirupsen/logrus/releases/tag/v1.9.2)
+- Updated github.com/stretchr/testify to v1.8.3 - [Changelog 🔗](https://github.com/stretchr/testify/releases/tag/v1.8.3)
+- Updated alpine to v3.18
+- Updated github.com/containerd/containerd to v1.7.1 - [Changelog 🔗](https://github.com/containerd/containerd/releases/tag/v1.7.1)
+- Upgraded google.golang.org/protobuf from 1.29.0 to 1.29.1
+
 ## 2.18.0  (2023-03-08)
 ### Changed
 - Upgrade Go to 1.19 and bump dependencies
