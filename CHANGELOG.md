@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.2 - 2023-05-31
+
+### ⛓️ Dependencies
+- Updated github.com/spf13/viper to v1.16.0 - [Changelog 🔗](https://github.com/spf13/viper/releases/tag/v1.16.0)
+- Updated github.com/stretchr/testify to v1.8.4 - [Changelog 🔗](https://github.com/stretchr/testify/releases/tag/v1.8.4)
+
 ## v2.18.1 - 2023-05-24
 
 ### ⛓️ Dependencies
