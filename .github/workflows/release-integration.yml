@@ -81,10 +81,15 @@ jobs:
         env:
           GENERATE_PACKAGES: true
           UPLOAD_PACKAGES: ${{ github.event.release.prerelease }}
+
+  notify-failure:
+    if: ${{ always() && failure() }}
+    needs: [test-nix, test-windows, integration-release]
+    runs-on: ubuntu-latest
+    steps:
       - name: Notify failure via Slack
-        if: ${{ failure() }}
         uses: archive/github-actions-slack@master
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.COREINT_SLACK_TOKEN }}
           slack-channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
-          slack-text: "❌ `${{ env.REPO_FULL_NAME }}`: prerelease pipeline failed."
+          slack-text: "❌ `${{ env.ORIGINAL_REPO_NAME }}`: [release pipeline failed](${{ github.server_url }}/${{ env.ORIGINAL_REPO_NAME }}/actions/runs/${{ github.run_id }})."
