@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.3 - 2023-06-07
+
+### ⛓️ Dependencies
+- Updated github.com/containerd/containerd to v1.7.2 - [Changelog 🔗](https://github.com/containerd/containerd/releases/tag/v1.7.2)
+- Updated github.com/sirupsen/logrus to v1.9.3 - [Changelog 🔗](https://github.com/sirupsen/logrus/releases/tag/v1.9.3)
+
 ## v2.18.2 - 2023-05-31
 
 ### ⛓️ Dependencies
