@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.4 - 2023-06-21
+
+### ⛓️ Dependencies
+- Updated kubernetes packages to v0.27.3
+- Updated github.com/prometheus/client_golang to v1.16.0 - [Changelog 🔗](https://github.com/prometheus/client_golang/releases/tag/v1.16.0)
+
 ## v2.18.3 - 2023-06-07
 
 ### ⛓️ Dependencies
