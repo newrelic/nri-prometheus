@@ -7,8 +7,8 @@ sources:
   - https://github.com/newrelic/nri-prometheus
   - https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus
 
-version: 2.1.16
-appVersion: 2.18.0
+version: 2.1.17
+appVersion: 2.18.4
 
 dependencies:
   - name: common-library
