@@ -42,7 +42,7 @@ jobs:
           helm plugin install https://github.com/helm-unittest/helm-unittest
           for chart in $(ct --config .github/ct.yaml list-changed); do
             if [ -d "$chart/tests/" ]; then
-              helm unittest -3 $chart
+              helm unittest $chart
             else
               echo "No unit tests found for $chart"
             fi
