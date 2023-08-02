@@ -1,4 +1,4 @@
-FROM golang:1.20.6-bookworm
+FROM golang:1.20.7-bookworm
 
 ARG GH_VERSION='2.23.0'
 
