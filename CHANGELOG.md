@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.6 - 2023-08-02
+
+### ⛓️ Dependencies
+- Updated github.com/containerd/containerd to v1.7.3 - [Changelog 🔗](https://github.com/containerd/containerd/releases/tag/v1.7.3)
+- Updated golang to v1.20.7
+
 ## v2.18.5 - 2023-06-28
 
 ### ⛓️ Dependencies
