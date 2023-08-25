@@ -76,4 +76,4 @@ require (
 )
 
 // To mitigate Snyk security scan.
-replace github.com/containerd/containerd => github.com/containerd/containerd v1.7.4
+replace github.com/containerd/containerd => github.com/containerd/containerd v1.7.5
