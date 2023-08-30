@@ -9,6 +9,11 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.18.7 - 2023-08-30
+
+### ⛓️ Dependencies
+- Updated github.com/containerd/containerd to v1.7.5 - [Changelog 🔗](https://github.com/containerd/containerd/releases/tag/v1.7.5)
+
 ## v2.18.6 - 2023-08-02
 
 ### ⛓️ Dependencies
