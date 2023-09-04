@@ -23,7 +23,7 @@ jobs:
       matrix:
         kubernetes-version: [ "v1.25.6", "v1.26.0" ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
         with:
           fetch-depth: 0
       - uses: helm/chart-testing-action@v2.4.0
@@ -78,7 +78,7 @@ jobs:
     name: Run all static analysis checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - uses: actions/setup-go@v4
         with:
           go-version-file: 'go.mod'
@@ -101,7 +101,7 @@ jobs:
     name: Run unit tests on *Nix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - name: Unit tests
         run: make ci/test
 
@@ -115,7 +115,7 @@ jobs:
         working-directory: src/github.com/${{ env.ORIGINAL_REPO_NAME }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
         with:
           path: src/github.com/${{ env.ORIGINAL_REPO_NAME }}
       - name: Install Go
@@ -132,7 +132,7 @@ jobs:
     name: Build binary for all platforms:arch
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4
       - name: Build all platforms:arch
         run: make ci/build
       - name: Check if CHANGELOG is valid
