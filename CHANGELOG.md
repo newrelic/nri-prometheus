@@ -9,7 +9,7 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
-### enanchement
+### enhancement
 - updated go to 1.21
 - updated several dependencies
 
