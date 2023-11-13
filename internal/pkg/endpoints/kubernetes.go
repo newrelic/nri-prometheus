@@ -344,7 +344,16 @@ func serviceTargets(s *corev1.Service) []Target {
 		return nil
 	}
 
+	availablePorts := make(map[string]bool)
+	for _, port := range s.Spec.Ports {
+		availablePorts[fmt.Sprintf("%d", port.Port)] = true
+	}
+
 	if port != "" {
+		if !availablePorts[port] {
+			klog.WithError(err).Warnf("Port %s is not exposed on service  %s/%s", port, s.Namespace, s.Name)
+			return nil
+		}
 		u := url.URL{
 			Scheme:   scheme,
 			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
@@ -356,10 +365,10 @@ func serviceTargets(s *corev1.Service) []Target {
 
 	// No port specified so return a target for each Port defined for the Service.
 	var targets []Target
-	for _, port := range s.Spec.Ports {
+	for port := range availablePorts {
 		u := url.URL{
 			Scheme:   scheme,
-			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), fmt.Sprintf("%d", port.Port)),
+			Host:     net.JoinHostPort(fmt.Sprintf("%s.%s.svc", s.Name, s.Namespace), port),
 			Path:     path,
 			RawQuery: query,
 		}
