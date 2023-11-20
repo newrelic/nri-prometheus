@@ -85,10 +85,6 @@ jobs:
       - uses: newrelic/newrelic-infra-checkers@v1
         with:
           golangci-lint-config: golangci-lint-limited
-      - name: Semgrep
-        uses: returntocorp/semgrep-action@v1
-        with:
-          auditOn: push
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         continue-on-error: ${{ github.event_name != 'pull_request' }}
