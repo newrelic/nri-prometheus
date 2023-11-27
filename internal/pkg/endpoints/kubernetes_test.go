@@ -356,6 +356,13 @@ func populateFakeEndpointsDataSinglePort(clientset *fake.Clientset) error {
 				"prometheus.io/port":   "1",
 			},
 		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Port: 1,
+				},
+			},
+		},
 	}
 
 	_, err := clientset.CoreV1().Services("test-ns").Create(context.TODO(), s, metav1.CreateOptions{})
@@ -1637,6 +1644,36 @@ func TestServiceTargetsInvalidPortAnnotaion(t *testing.T) {
 				},
 			},
 		},
+	)
+}
+
+func TestServiceTargetsNonExistingPort(t *testing.T) {
+	t.Parallel()
+
+	assert.ElementsMatch(
+		t,
+		serviceTargets(&corev1.Service{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "my-service",
+				Namespace: "test-ns",
+				Annotations: map[string]string{
+					"prometheus.io/port": "5000",
+				},
+			},
+			Spec: corev1.ServiceSpec{
+				Ports: []corev1.ServicePort{
+					{
+						Name: "http-app",
+						Port: 80,
+					},
+					{
+						Name: "http-app2",
+						Port: 8080,
+					},
+				},
+			},
+		}),
+		[]Target{},
 	)
 }
 
