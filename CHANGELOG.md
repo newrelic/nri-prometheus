@@ -9,6 +9,9 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### Enhancement
+- Skip prometheus services with non-existing port
+
 ## v2.19.0 - 2023-11-02
 
 ### 🚀 Enhancements
