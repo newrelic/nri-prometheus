@@ -9,8 +9,13 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
-### Enhancement
+## v2.20.0 - 2023-12-20
+
+### 🚀 Enhancements
 - Skip prometheus services with non-existing port
+
+### ⛓️ Dependencies
+- Updated github.com/spf13/viper to v1.18.2 - [Changelog 🔗](https://github.com/spf13/viper/releases/tag/v1.18.2)
 
 ## v2.19.0 - 2023-11-02
 
