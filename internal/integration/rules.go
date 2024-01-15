@@ -27,14 +27,21 @@ type RenameRule struct {
 	Attributes   map[string]interface{} `mapstructure:"attributes"`
 }
 
+type ExceptAttributeRule struct {
+	MetricPrefix   string `mapstructure:"metric_prefix"`
+	AttributeKey   string `mapstructure:"attribute_key"`
+	AttributeValue string `mapstructure:"attribute_value"`
+}
+
 // IgnoreRule skips for processing metrics that match any of the Prefixes or MetricTypes.
 // Metrics that match any of the Except are never skipped.
 // If Prefixes are empty and Except is not, then all metrics that do not
 // match Except will be skipped.
 type IgnoreRule struct {
-	Prefixes    []string `mapstructure:"prefixes"`
-	MetricTypes []string `mapstructure:"metric_types"`
-	Except      []string `mapstructure:"except"`
+	Prefixes         []string              `mapstructure:"prefixes"`
+	MetricTypes      []string              `mapstructure:"metric_types"`
+	Except           []string              `mapstructure:"except"`
+	ExceptAttributes []ExceptAttributeRule `mapstructure:"except_attributes"`
 }
 
 // CopyAttributesRule is a rule that copies the Attributes from the metric that
@@ -208,9 +215,9 @@ func addAttributes(targetMetrics *TargetMetrics, rules []AddAttributesRule) {
 
 type ignoreRules []IgnoreRule
 
-func (rules ignoreRules) shouldIgnore(name string, metricType metricType) bool {
-	// If the user specified ,in any set of rules, an except rule that is matching the metric name, we should keep the metric
-	if rules.isMetricExcepted(name) {
+func (rules ignoreRules) shouldIgnore(name string, metricType metricType, attributes labels.Set) bool {
+	// If the user specified in any set of rules, an except rule that is matching the metric name, we should keep the metric
+	if rules.isMetricExcepted(name) || rules.isAttributeExcepted(name, attributes) {
 		return false
 	}
 
@@ -253,6 +260,38 @@ func (rules ignoreRules) isMetricExcepted(name string) bool {
 	return false
 }
 
+// When matching an except rule we do not drop the metric, no matter if a rule is dropping it after
+func (rules ignoreRules) isAttributeExcepted(name string, attributes labels.Set) bool {
+	for _, rule := range rules {
+		for _, exceptItem := range rule.ExceptAttributes {
+			prefixMatched := false
+			attributeMatched := false
+
+			if strings.HasPrefix(name, exceptItem.MetricPrefix) {
+				prefixMatched = true
+			}
+
+			for attributeKey, attributeValue := range attributes {
+				if exceptItem.AttributeKey == "" && exceptItem.AttributeValue == "" {
+					attributeMatched = true
+					break
+				}
+
+				if exceptItem.AttributeKey == attributeKey && exceptItem.AttributeValue == attributeValue.(string) {
+					attributeMatched = true
+					break
+				}
+			}
+
+			if prefixMatched == true && attributeMatched == true {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // filter removes the metrics whose name matches the prefixes in the given ignore rules
 func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 	// Fast path, quickly exit if there are no rules defined.
@@ -262,7 +301,7 @@ func filter(targetMetrics *TargetMetrics, rules ignoreRules) {
 
 	copied := make([]Metric, 0, len(targetMetrics.Metrics))
 	for _, m := range targetMetrics.Metrics {
-		if !rules.shouldIgnore(m.name, m.metricType) {
+		if !rules.shouldIgnore(m.name, m.metricType, m.attributes) {
 			copied = append(copied, m)
 		}
 	}
