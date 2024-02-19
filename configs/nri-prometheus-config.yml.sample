@@ -27,6 +27,7 @@ integrations:
       audit: false
 
       # The HTTP client timeout when fetching data from endpoints. Defaults to "5s" if it is not set.
+      # This timeout in seconds is passed as well as a X-Prometheus-Scrape-Timeout-Seconds header to the exporters
       # scrape_timeout: "5s"
 
       # Length in time to distribute the scraping from the endpoints. Default to "30s" if it is not set.
