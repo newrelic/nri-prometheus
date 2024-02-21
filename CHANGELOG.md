@@ -9,7 +9,9 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
-### Enhancement
+## v2.21.0 - 2024-02-21
+
+### 🚀 Enhancements
 - Added XPrometheusHeader to allow exporters to give up complex computation when needed.
 
 ## v2.20.1 - 2024-01-03
