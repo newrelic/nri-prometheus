@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -155,7 +156,7 @@ type prometheusFetcher struct {
 	httpClient    prometheus.HTTPDoer
 	bearerClient  prometheus.HTTPDoer
 	// Provides IoC for better testability. Its usual value is 'prometheus.Get'.
-	getMetrics func(httpClient prometheus.HTTPDoer, url string, acceptHeader string) (prometheus.MetricFamiliesByName, error)
+	getMetrics func(httpClient prometheus.HTTPDoer, url string, acceptHeader string, fetchTimeout string) (prometheus.MetricFamiliesByName, error)
 	log        *logrus.Entry
 }
 
@@ -253,7 +254,8 @@ func (pf *prometheusFetcher) fetch(t endpoints.Target) (prometheus.MetricFamilie
 		httpClient = pf.bearerClient
 	}
 
-	mfs, err := pf.getMetrics(httpClient, t.URL.String(), pf.acceptHeader)
+	ft := strconv.FormatFloat(pf.fetchTimeout.Seconds(), 'f', -1, 64)
+	mfs, err := pf.getMetrics(httpClient, t.URL.String(), pf.acceptHeader, ft)
 	timer.ObserveDuration()
 	if err != nil {
 		pf.log.WithError(err).Warnf("fetching Prometheus metrics: %s (%s)", t.URL.String(), t.Object.Name)

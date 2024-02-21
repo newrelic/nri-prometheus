@@ -4,7 +4,10 @@
 package integration
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"net/http"
 	"net/url"
 	"strings"
 	"sync/atomic"
@@ -24,9 +27,50 @@ import (
 const (
 	fetchDuration = 1 * time.Millisecond
 	fetchTimeout  = time.Second * 5
+	testAccept    = "this-is-a-test"
 	workerThreads = 4
 	queueLength   = 100
 )
+
+type mockClient struct {
+	recordedHeader http.Header
+}
+
+func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
+	m.recordedHeader = req.Header
+	return &http.Response{
+		StatusCode: 200,
+		Body:       io.NopCloser(bytes.NewReader([]byte(""))),
+	}, nil
+}
+
+func TestXHeader(t *testing.T) {
+	mClient := mockClient{}
+	fetcher := NewFetcher(fetchDuration, fetchTimeout, "this-is-a-test", workerThreads, "", "", true, queueLength)
+	fetcher.(*prometheusFetcher).httpClient = &mClient
+
+	pairsCh := fetcher.Fetch([]endpoints.Target{
+		{
+			URL: url.URL{Scheme: "http", Path: "hello/metrics"},
+		},
+	})
+
+	select {
+	case <-pairsCh:
+	case <-time.After(fetchTimeout):
+		t.Fatal("can't fetch data")
+	}
+
+	accept := mClient.recordedHeader.Get(prometheus.AcceptHeader)
+	if accept != testAccept {
+		t.Errorf("Expected Accept header %q, got %q", testAccept, accept)
+	}
+
+	xPrometheus := mClient.recordedHeader.Get(prometheus.XPrometheusScrapeTimeoutHeader)
+	if xPrometheus != "5" {
+		t.Errorf("Expected xPrometheus header %q, got %q", "5", xPrometheus)
+	}
+}
 
 func TestFetcher(t *testing.T) {
 	t.Parallel()
@@ -34,7 +78,7 @@ func TestFetcher(t *testing.T) {
 	// Given a fetcher
 	fetcher := NewFetcher(fetchDuration, fetchTimeout, "", workerThreads, "", "", true, queueLength)
 	var invokedURL string
-	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string) (names prometheus.MetricFamiliesByName, e error) {
+	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string, _ string) (names prometheus.MetricFamiliesByName, e error) {
 		invokedURL = url
 		return prometheus.MetricFamiliesByName{
 			"some-name": dto.MetricFamily{},
@@ -73,7 +117,7 @@ func TestFetcher_Error(t *testing.T) {
 
 	// That fails retrieving data from one of the metrics endpoint
 	invokedURLs := make([]string, 0)
-	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string) (names prometheus.MetricFamiliesByName, e error) {
+	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string, _ string) (names prometheus.MetricFamiliesByName, e error) {
 		if strings.Contains(url, "fail") {
 			return nil, errors.New("catapun")
 		}
@@ -125,7 +169,7 @@ func TestFetcher_ConcurrencyLimit(t *testing.T) {
 	// Given a Fetcher
 	fetcher := NewFetcher(time.Millisecond, fetchTimeout, "", workerThreads, "", "", true, queueLength)
 
-	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string) (names prometheus.MetricFamiliesByName, e error) {
+	fetcher.(*prometheusFetcher).getMetrics = func(client prometheus.HTTPDoer, url string, _ string, _ string) (names prometheus.MetricFamiliesByName, e error) {
 		defer atomic.AddInt32(&parallelTasks, -1)
 		atomic.AddInt32(&parallelTasks, 1)
 		reportedParallel <- atomic.LoadInt32(&parallelTasks)

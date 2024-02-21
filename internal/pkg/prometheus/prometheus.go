@@ -36,15 +36,23 @@ func ResetTargetSize() {
 	targetSize.Reset()
 }
 
+const (
+	// XPrometheusScrapeTimeoutHeader included in all requests. It informs exporters about its timeout.
+	XPrometheusScrapeTimeoutHeader = "X-Prometheus-Scrape-Timeout-Seconds"
+	// AcceptHeader included in all requests
+	AcceptHeader = "Accept"
+)
+
 // Get scrapes the given URL and decodes the retrieved payload.
-func Get(client HTTPDoer, url string, acceptHeader string) (MetricFamiliesByName, error) {
+func Get(client HTTPDoer, url string, acceptHeader string, fetchTimeout string) (MetricFamiliesByName, error) {
 	mfs := MetricFamiliesByName{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return mfs, err
 	}
 
-	req.Header.Add("Accept", acceptHeader)
+	req.Header.Add(AcceptHeader, acceptHeader)
+	req.Header.Add(XPrometheusScrapeTimeoutHeader, fetchTimeout)
 
 	resp, err := client.Do(req)
 	if err != nil {

@@ -9,6 +9,9 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### Enhancement
+- Added XPrometheusHeader to allow exporters to give up complex computation when needed.
+
 ## v2.20.1 - 2024-01-03
 
 ### ⛓️ Dependencies
@@ -105,7 +108,7 @@ In particular, it was not possible having `lowDataMode=true` to filter out every
 
 ## 2.16.3
 ## Changed
-- Several dependencies updated 
+- Several dependencies updated
 - The `use_bearer` config is now exposed the config for static targets by @paologallinaharbur in https://github.com/newrelic/nri-prometheus/pull/327
 
 ## 2.16.2

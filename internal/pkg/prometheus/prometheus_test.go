@@ -15,10 +15,17 @@ import (
 const testHeader = "application/openmetrics-text"
 
 func TestGetHeader(t *testing.T) {
+	fetchTimeout := "15"
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		accept := r.Header.Get("Accept")
+		accept := r.Header.Get(prometheus.AcceptHeader)
 		if accept != testHeader {
 			t.Errorf("Expected Accept header %s, got %q", testHeader, accept)
+		}
+
+		xPrometheus := r.Header.Get(prometheus.XPrometheusScrapeTimeoutHeader)
+		if xPrometheus != fetchTimeout {
+			t.Errorf("Expected xPrometheus header %s, got %q", xPrometheus, fetchTimeout)
 		}
 
 		_, _ = w.Write([]byte("metric_a 1\nmetric_b 2\n"))
@@ -26,7 +33,7 @@ func TestGetHeader(t *testing.T) {
 	defer ts.Close()
 
 	expected := []string{"metric_a", "metric_b"}
-	mfs, err := prometheus.Get(http.DefaultClient, ts.URL, testHeader)
+	mfs, err := prometheus.Get(http.DefaultClient, ts.URL, testHeader, fetchTimeout)
 	actual := []string{}
 	for k := range mfs {
 		actual = append(actual, k)
