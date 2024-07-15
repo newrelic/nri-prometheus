@@ -7,31 +7,25 @@ sources:
   - https://github.com/newrelic/nri-prometheus
   - https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus
 
-version: 2.1.17
-appVersion: 2.18.4
+version: 2.1.18
+appVersion: 2.21.4
 
 dependencies:
   - name: common-library
-    version: 1.1.1
+    version: 1.2.0
     repository: "https://helm-charts.newrelic.com"
 
 maintainers:
   - name: alvarocabanas
     url: https://github.com/alvarocabanas
-  - name: carlossscastro
-    url: https://github.com/carlossscastro
   - name: sigilioso
     url: https://github.com/sigilioso
   - name: gsanchezgavier
     url: https://github.com/gsanchezgavier
   - name: kang-makes
     url: https://github.com/kang-makes
-  - name: marcsanmi
-    url: https://github.com/marcsanmi
   - name: paologallinaharbur
     url: https://github.com/paologallinaharbur
-  - name: roobre
-    url: https://github.com/roobre
 
 keywords:
   - prometheus
