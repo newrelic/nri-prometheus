@@ -1,6 +1,6 @@
 module github.com/newrelic/nri-prometheus
 
-go 1.22.5
+go 1.23.1
 
 require (
 	github.com/newrelic/infra-integrations-sdk/v4 v4.2.1
