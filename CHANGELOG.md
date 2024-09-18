@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.21.6 - 2024-09-18
+
+### ⛓️ Dependencies
+- Updated kubernetes packages to v0.31.1
+- Updated github.com/prometheus/client_model to v0.6.1 - [Changelog 🔗](https://github.com/prometheus/client_model/releases/tag/v0.6.1)
+
 ## v2.21.5 - 2024-09-10
 
 ### ⛓️ Dependencies
