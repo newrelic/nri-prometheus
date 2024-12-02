@@ -9,7 +9,7 @@ jobs:
   load_tests:
     if: ${{ ! contains(github.event.pull_request.labels.*.name, 'ci/skip-load-test') }}
     name: Load Tests
-    runs-on: ubuntu-22.04  # Read the comment below why this is not set to `latest`.
+    runs-on: ubuntu-24.04  # Read the comment below why this is not set to `latest`.
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
