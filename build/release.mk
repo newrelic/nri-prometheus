@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION ?= v0.168.0
+GORELEASER_VERSION ?= v2.4.4
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -31,11 +31,11 @@ ifeq ($(GENERATE_PACKAGES), true)
 	# Pre-release/release actually builds and uploads images
 	# goreleaser will compile binaries, generate manifests, and push multi-arch docker images
 	# TAG_SUFFIX should be set as "-pre" during prereleases
-	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip=validate --clean
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
 	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
-	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 endif
 
 .PHONY : release/fix-archive
@@ -53,7 +53,7 @@ ifeq ($(UPLOAD_PACKAGES), true)
 	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
 endif
 	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
-	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 
 
 .PHONY : release
