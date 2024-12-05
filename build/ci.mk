@@ -69,6 +69,7 @@ ifdef TAG
 			-e REPO_FULL_NAME \
 			-e TAG \
 			-e TAG_SUFFIX \
+			-e GENERATE_PACKAGES \
 			$(BUILDER_IMAGE) make release
 else
 	@echo "===> $(INTEGRATION) ===  [ci/prerelease] TAG env variable expected to be set"
