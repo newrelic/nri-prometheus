@@ -54,3 +54,23 @@ else
 	@echo "===> $(INTEGRATION) ===  [ci/build] TAG env variable expected to be set"
 	exit 1
 endif
+
+.PHONY : ci/prerelease
+ci/prerelease: ci/deps
+ifdef TAG
+	@docker run --rm -t \
+			--name "nri-$(INTEGRATION)-prerelease" \
+			-v $(CURDIR):/go/src/github.com/newrelic/nri-$(INTEGRATION) \
+			-v /var/run/docker.sock:/var/run/docker.sock \
+			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
+			-e INTEGRATION \
+			-e PRERELEASE=true \
+			-e GITHUB_TOKEN \
+			-e REPO_FULL_NAME \
+			-e TAG \
+			-e TAG_SUFFIX \
+			$(BUILDER_IMAGE) make release
+else
+	@echo "===> $(INTEGRATION) ===  [ci/prerelease] TAG env variable expected to be set"
+	exit 1
+endif

@@ -22,6 +22,26 @@ builds:
         goarch: 386
       - goos: darwin
         goarch: arm
+  
+  - id: nri-prometheus-nix-fips
+    main: ./cmd/nri-prometheus/
+    binary: nri-prometheus
+    ldflags:
+      - -s -w -X github.com/newrelic/nri-prometheus/internal/integration.Version={{.Version}} #-X main.gitCommit={{.Commit}} -X main.buildDate={{.Date}}
+    env:
+      - CGO_ENABLED=1
+      - GOEXPERIMENT=boringcrypto
+      - >-
+        {{- if eq .Arch "arm64" -}}
+        CC=aarch64-linux-gnu-gcc
+        {{- end }}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    tags:
+      - fips
 
   - id: nri-prometheus-win
     main: ./cmd/nri-prometheus/
@@ -43,6 +63,12 @@ archives:
     builds:
       - nri-prometheus-nix
     name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Version }}_{{ .Arch }}_dirty"
+    format: tar.gz
+  
+  - id: nri-prometheus-nix-fips
+    builds:
+      - nri-prometheus-nix-fips
+    name_template: "{{ .ProjectName }}-fips_{{ .Os }}_{{ .Version }}_{{ .Arch }}_dirty"
     format: tar.gz
 
   - id: nri-prometheus-win
