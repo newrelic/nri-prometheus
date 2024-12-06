@@ -1,0 +1,33 @@
+---
+version: 2
+project_name: nri-prometheus
+builds:
+  - id: nri-prometheus-nix-fips
+    main: ./cmd/nri-prometheus/
+    binary: nri-prometheus
+    ldflags:
+      - -s -w -X github.com/newrelic/nri-prometheus/internal/integration.Version={{.Version}}
+    env:
+      - CGO_ENABLED=1
+      - GOEXPERIMENT=boringcrypto
+      - >-
+        {{- if eq .Arch "arm64" -}}
+        CC=aarch64-linux-gnu-gcc
+        {{- end }}
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    tags:
+      - fips
+
+archives:
+  - id: nri-prometheus-nix-fips
+    builds:
+      - nri-prometheus-nix-fips
+    name_template: "{{ .ProjectName }}-fips_{{ .Os }}_{{ .Version }}_{{ .Arch }}_dirty"
+    format: tar.gz
+
+release:
+  disable: true
