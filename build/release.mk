@@ -45,7 +45,7 @@ ifeq ($(GENERATE_PACKAGES), true)
 	# TAG_SUFFIX should be set as "-pre" during prereleases
 	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --clean
 else
-	@echo "===> $(INTEGRATION) === [release/build] build compiling fips binaries"
+	@echo "===> $(INTEGRATION) === [release/build-fips] build compiling fips binaries"
 	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 endif
@@ -59,31 +59,29 @@ release/fix-archive:
 
 .PHONY : release/publish
 release/publish:
-ifeq ($(UPLOAD_PACKAGES), true)
+ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
-	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
-	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh
 endif
-	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
+	@echo "===> $(INTEGRATION) === [release/publish] compiling binaries"
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 
 .PHONY : release/publish-fips
 release/publish-fips:
-ifeq ($(UPLOAD_PACKAGES), true)
-	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
-	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
-	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
+ifeq ($(PRERELEASE), true)
+	@echo "===> $(INTEGRATION) === [release/publish-fips] publishing fips packages"
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh
 endif
-	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
+	@echo "===> $(INTEGRATION) === [release/publish-fips] compiling fips binaries"
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 
 .PHONY : release
 release: release/build release/fix-archive release/publish release/clean
-	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
+	@echo "===> $(INTEGRATION) === [release] full pre-release cycle complete for nix"
 
 .PHONY : release-fips
 release-fips: release/build-fips release/fix-archive release/publish-fips release/clean
-	@echo "===> $(INTEGRATION) === [release/publish] fips pre-release cycle complete for nix"
+	@echo "===> $(INTEGRATION) === [release-fips] fips pre-release cycle complete for nix"
 
 OS := $(shell uname -s)
 ifeq ($(OS), Darwin)

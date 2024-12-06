@@ -69,7 +69,7 @@ ifdef TAG
 			-e TAG \
 			-e TAG_SUFFIX \
 			-e GENERATE_PACKAGES \
-			-e UPLOAD_PACKAGES \
+			-e PRERELEASE \
 			$(BUILDER_IMAGE) make release-fips
 else
 	@echo "===> $(INTEGRATION) ===  [ci/prerelease] TAG env variable expected to be set"
