@@ -55,13 +55,12 @@ else
 	exit 1
 endif
 
-.PHONY : ci/prerelease
-ci/prerelease: ci/deps
+.PHONY : ci/prerelease-fips
+ci/prerelease-fips: ci/deps
 ifdef TAG
 	@docker run --rm -t \
 			--name "nri-$(INTEGRATION)-prerelease" \
 			-v $(CURDIR):/go/src/github.com/newrelic/nri-$(INTEGRATION) \
-			-v /var/run/docker.sock:/var/run/docker.sock \
 			-w /go/src/github.com/newrelic/nri-$(INTEGRATION) \
 			-e INTEGRATION \
 			-e PRERELEASE=true \
@@ -70,7 +69,8 @@ ifdef TAG
 			-e TAG \
 			-e TAG_SUFFIX \
 			-e GENERATE_PACKAGES \
-			$(BUILDER_IMAGE) make release
+			-e UPLOAD_PACKAGES \
+			$(BUILDER_IMAGE) make release-fips
 else
 	@echo "===> $(INTEGRATION) ===  [ci/prerelease] TAG env variable expected to be set"
 	exit 1

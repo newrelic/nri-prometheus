@@ -38,6 +38,18 @@ else
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 endif
 
+.PHONY : release/build-fips
+release/build-fips: release/deps release/clean
+ifeq ($(GENERATE_PACKAGES), true)
+	@echo "===> $(INTEGRATION) === [release/build] PRERELEASE/RELEASE compiling fips binaries, creating packages, archives"
+	# TAG_SUFFIX should be set as "-pre" during prereleases
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --clean
+else
+	@echo "===> $(INTEGRATION) === [release/build] build compiling fips binaries"
+	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
+endif
+
 .PHONY : release/fix-archive
 release/fix-archive:
 	@echo "===> $(INTEGRATION) === [release/fix-archive] fixing tar.gz archives internal structure"
@@ -55,10 +67,23 @@ endif
 	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 
+.PHONY : release/publish-fips
+release/publish-fips:
+ifeq ($(UPLOAD_PACKAGES), true)
+	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
+	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
+endif
+	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 
 .PHONY : release
 release: release/build release/fix-archive release/publish release/clean
 	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
+
+.PHONY : release-fips
+release-fips: release/build-fips release/fix-archive release/publish-fips release/clean
+	@echo "===> $(INTEGRATION) === [release/publish] fips pre-release cycle complete for nix"
 
 OS := $(shell uname -s)
 ifeq ($(OS), Darwin)
