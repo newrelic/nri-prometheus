@@ -31,3 +31,4 @@ jobs:
       go_version_file: 'go.mod'
       trivy_scan: false
       generate_packages: true
+  
