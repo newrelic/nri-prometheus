@@ -15,7 +15,7 @@ env:
 
 jobs:
   nightly:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_nightly.yaml@NR-341878-Use-reusable-workflow-for-docker-image-security-checks
+    uses: newrelic/coreint-automation/.github/workflows/reusable_nightly.yaml@v3
     secrets:
       docker_username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
       docker_password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
