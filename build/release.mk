@@ -63,6 +63,7 @@ ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
 	@bash $(CURDIR)/build/upload_artifacts_gh.sh
 endif
+# TODO: This seems like a leftover, should consider removing
 	@echo "===> $(INTEGRATION) === [release/publish] compiling binaries"
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 
@@ -72,6 +73,7 @@ ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/publish-fips] publishing fips packages"
 	@bash $(CURDIR)/build/upload_artifacts_gh.sh
 endif
+# TODO: This seems like a leftover, should consider removing
 	@echo "===> $(INTEGRATION) === [release/publish-fips] compiling fips binaries"
 	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 
