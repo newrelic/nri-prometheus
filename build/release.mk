@@ -1,5 +1,5 @@
 BUILD_DIR    := ./bin/
-GORELEASER_VERSION ?= v0.168.0
+GORELEASER_VERSION ?= v2.4.4
 GORELEASER_BIN ?= bin/goreleaser
 
 bin:
@@ -31,11 +31,23 @@ ifeq ($(GENERATE_PACKAGES), true)
 	# Pre-release/release actually builds and uploads images
 	# goreleaser will compile binaries, generate manifests, and push multi-arch docker images
 	# TAG_SUFFIX should be set as "-pre" during prereleases
-	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip-validate --rm-dist
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser.yml --skip=validate --clean
 else
 	@echo "===> $(INTEGRATION) === [release/build] build compiling all binaries"
 	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
-	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
+endif
+
+.PHONY : release/build-fips
+release/build-fips: release/deps release/clean
+ifeq ($(GENERATE_PACKAGES), true)
+	@echo "===> $(INTEGRATION) === [release/build] PRERELEASE/RELEASE compiling fips binaries, creating packages, archives"
+	# TAG_SUFFIX should be set as "-pre" during prereleases
+	@$(GORELEASER_BIN) release --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --clean
+else
+	@echo "===> $(INTEGRATION) === [release/build-fips] build compiling fips binaries"
+	# release/build with PRERELEASE unset is actually called only from push/pr pipeline to check everything builds correctly
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 endif
 
 .PHONY : release/fix-archive
@@ -47,18 +59,31 @@ release/fix-archive:
 
 .PHONY : release/publish
 release/publish:
-ifeq ($(UPLOAD_PACKAGES), true)
+ifeq ($(PRERELEASE), true)
 	@echo "===> $(INTEGRATION) === [release/publish] publishing packages"
-	# REPO_FULL_NAME here is only necessary for forks. It can be removed when this is merged into the original repo
-	@bash $(CURDIR)/build/upload_artifacts_gh.sh $(REPO_FULL_NAME)
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh
 endif
-	@echo "===> $(INTEGRATION) === [release/publish] publishing manifests"
-	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip-validate --snapshot --rm-dist
+	# TODO: This seems like a leftover, should consider removing
+	@echo "===> $(INTEGRATION) === [release/publish] compiling binaries"
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser.yml --skip=validate --snapshot --clean
 
+.PHONY : release/publish-fips
+release/publish-fips:
+ifeq ($(PRERELEASE), true)
+	@echo "===> $(INTEGRATION) === [release/publish-fips] publishing fips packages"
+	@bash $(CURDIR)/build/upload_artifacts_gh.sh
+endif
+	# TODO: This seems like a leftover, should consider removing
+	@echo "===> $(INTEGRATION) === [release/publish-fips] compiling fips binaries"
+	@$(GORELEASER_BIN) build --config $(CURDIR)/.goreleaser-fips.yml --skip=validate --snapshot --clean
 
 .PHONY : release
 release: release/build release/fix-archive release/publish release/clean
-	@echo "===> $(INTEGRATION) === [release/publish] full pre-release cycle complete for nix"
+	@echo "===> $(INTEGRATION) === [release] full pre-release cycle complete for nix"
+
+.PHONY : release-fips
+release-fips: release/build-fips release/fix-archive release/publish-fips release/clean
+	@echo "===> $(INTEGRATION) === [release-fips] fips pre-release cycle complete for nix"
 
 OS := $(shell uname -s)
 ifeq ($(OS), Darwin)
