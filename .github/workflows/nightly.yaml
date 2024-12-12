@@ -23,8 +23,7 @@ jobs:
       docker_tag: nightly
       target_branches: "main"
       integration_name: "prometheus"
-      build_command: |
-        make release
+      build_command: make release
       setup_qemu: true
       setup_buildx: true
       setup_go: true
