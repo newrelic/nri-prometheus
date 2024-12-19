@@ -10,7 +10,7 @@ on:
 
 jobs:
   container-release:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@v3
+    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@NR-341876-Make-docker-images-pre-release-uniform
     with:
       original_repo_name: "newrelic/nri-prometheus"
       docker_platforms: "linux/amd64,linux/arm64"
