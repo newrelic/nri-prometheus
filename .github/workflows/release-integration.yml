@@ -13,12 +13,14 @@ jobs:
     uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@NR-341876-Make-docker-images-pre-release-uniform
     with:
       original_repo_name: "newrelic/nri-prometheus"
-      docker_platforms: "linux/amd64,linux/arm64"
       docker_image_name: "newrelic/nri-prometheus"
       integration_name: "prometheus"
-      s_three_path: "s3://nr-downloads-main/infrastructure_agent"
+
+      docker_platforms: "linux/amd64,linux/arm64,linux/arm"
       go_version_file: "go.mod"
-      
+      generate_packages: true
+      bucket_url: "s3://nr-downloads-main/infrastructure_agent"
+
       run_nix_unit_tests: true
       run_windows_unit_tests: true
       
