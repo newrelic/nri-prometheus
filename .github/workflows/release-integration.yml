@@ -10,7 +10,7 @@ on:
 
 jobs:
   container-release:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@v3
+    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@NR-341876-Make-docker-images-pre-release-uniform
     with:
       original_repo_name: "newrelic/nri-prometheus"
       docker_platforms: "linux/amd64,linux/arm64"
@@ -21,12 +21,8 @@ jobs:
       
       run_nix_unit_tests: true
       run_windows_unit_tests: true
-      run_integration_tests: false
       
-      use_build_push_action: false  # Using custom release command
-      use_custom_release: true
-
-      release_command: |
+      release_command_sh: |
         make release
         make ci/prerelease-fips
     
