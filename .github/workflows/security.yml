@@ -6,11 +6,8 @@ on:
       - main
       - renovate/**
   pull_request:
-  schedule:
-    - cron: "0 3 * * *"
 
 jobs:
-  # Note: Snyk SaaS is already configured for this repository, which does not need a workflow to run
   trivy:
     name: Trivy security scan
     runs-on: ubuntu-latest
@@ -20,28 +17,10 @@ jobs:
 
       - name: Run Trivy vulnerability scanner in repo mode
         uses: aquasecurity/trivy-action@master
-        if: ${{ ! github.event.schedule }} # Do not run inline checks when running periodically
+        if: contains(fromJSON('["push", "pull_request"]'), github.event_name)
         with:
           scan-type: fs
           ignore-unfixed: true
           exit-code: 1
           severity: 'HIGH,CRITICAL'
           skip-dirs: 'tools'
-
-      - name: Run Trivy vulnerability scanner sarif output
-        uses: aquasecurity/trivy-action@master
-        if: ${{ github.event.schedule }} # Generate sarif when running periodically
-        with:
-          scan-type: fs
-          ignore-unfixed: true
-          severity: 'HIGH,CRITICAL'
-          format: 'template'
-          template: '@/contrib/sarif.tpl'
-          output: 'trivy-results.sarif'
-          skip-dirs: 'tools'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: ${{ github.event.schedule }} # Upload sarif when running periodically
-        with:
-          sarif_file: 'trivy-results.sarif'
