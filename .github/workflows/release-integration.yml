@@ -10,19 +10,23 @@ on:
 
 jobs:
   container-release:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@v3
+    uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@NR-341876-Make-docker-images-pre-release-uniform
     with:
       original_repo_name: "newrelic/nri-prometheus"
       docker_image_name: "newrelic/nri-prometheus"
       integration_name: "prometheus"
 
-      generate_packages: true
-      # bucket_url: uses default
-
       run_nix_unit_tests: true
       run_windows_unit_tests: true
       
       release_command_sh: |
+        export GENERATE_PACKAGES=true
+        export S3_PATH=${S3_BASE_FOLDER}
+        if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+          export TAG_SUFFIX="-pre"
+        else
+          export TAG_SUFFIX=""
+        fi
         make release
         make ci/prerelease-fips
     
