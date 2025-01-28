@@ -34,3 +34,5 @@ jobs:
       docker_username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
       docker_password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
       bot_token: ${{ secrets.COREINT_BOT_TOKEN }}
+      slack_channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
+      slack_token: ${{ secrets.COREINT_SLACK_TOKEN }}
