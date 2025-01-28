@@ -18,6 +18,8 @@ jobs:
     secrets:
       docker_username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
       docker_password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}
+      slack_channel: ${{ secrets.COREINT_SLACK_CHANNEL }}
+      slack_token: ${{ secrets.COREINT_SLACK_TOKEN }}
     with:
       docker_image: newrelic/nri-prometheus
       docker_tag: nightly
