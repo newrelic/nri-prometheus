@@ -62,8 +62,20 @@ jobs:
       - name: Create image for chart testing
         if: steps.list-changed.outputs.changed == 'true'
         run: |
-          TAG=test GOOS=linux GOARCH=amd64 make ci/build
-          sudo cp ./dist/nri-prometheus-nix_linux_amd64_v1/nri-prometheus ./bin/nri-prometheus
+          export TAG=test
+          export GOOS=linux
+          export GOARCH=amd64
+          make ci/build
+
+          # Find the highest versioned amd64 build directory
+          # Sort numerically on the version suffix (e.g., _v1, _v2)
+          latest_dir=$(ls -d ./dist/nri-prometheus-nix_linux_amd64* | sort -V | tail -n1)
+          if [ -z "$latest_dir" ]; then
+            echo "Error: No matching build directory found"
+            exit 1
+          fi
+
+          sudo cp "${latest_dir}/nri-prometheus" ./bin/nri-prometheus
           DOCKER_BUILDKIT=1 docker build -t e2e/nri-prometheus:test  . -f Dockerfile.dev
           minikube image load e2e/nri-prometheus:test
       - name: Test install charts
