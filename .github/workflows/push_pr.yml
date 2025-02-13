@@ -66,7 +66,6 @@ jobs:
           export GOOS=linux
           export GOARCH=amd64
           make ci/build
-
           # Find the highest versioned amd64 build directory
           # Sort numerically on the version suffix (e.g., _v1, _v2)
           latest_dir=$(ls -d ./dist/nri-prometheus-nix_linux_amd64* | sort -V | tail -n1)
@@ -74,7 +73,6 @@ jobs:
             echo "Error: No matching build directory found"
             exit 1
           fi
-
           sudo cp "${latest_dir}/nri-prometheus" ./bin/nri-prometheus
           DOCKER_BUILDKIT=1 docker build -t e2e/nri-prometheus:test  . -f Dockerfile.dev
           minikube image load e2e/nri-prometheus:test
@@ -101,6 +99,8 @@ jobs:
         continue-on-error: ${{ github.event_name != 'pull_request' }}
         with:
           only-new-issues: true
+          skip-cache: true
+          version: v1.63
       - name: Check if CHANGELOG is valid
         uses: newrelic/release-toolkit/validate-markdown@v1
 
