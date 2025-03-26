@@ -10,7 +10,7 @@ require (
 	github.com/prometheus/client_model v0.6.1
 	github.com/prometheus/common v0.62.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.10.0
 	k8s.io/api v0.31.1
 	k8s.io/apimachinery v0.31.1
