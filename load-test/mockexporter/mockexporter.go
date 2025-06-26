@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
@@ -81,7 +81,7 @@ func (ms *metricsServer) ListenAndServe(address string) error {
 		return fmt.Errorf("could not open %s: %v", ms.MetricsFile, err)
 	}
 
-	ms.metricsBuffer, err = ioutil.ReadAll(metricsFile)
+	ms.metricsBuffer, err = io.ReadAll(metricsFile)
 	if err != nil {
 		return fmt.Errorf("could not load metrics into memory: %v", err)
 	}
@@ -92,7 +92,7 @@ func (ms *metricsServer) ListenAndServe(address string) error {
 		ms.waiter = make(chan struct{}, ms.MaxRoutines)
 	}
 
-	log.Printf("starting server in " + address)
+	log.Printf("%s", "starting server in "+address)
 	return http.ListenAndServe(address, ms)
 }
 
