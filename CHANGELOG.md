@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.27.0 - 2025-07-21
+
+### ⛓️ Dependencies
+- Updated go to v1.24.5
+- Upgraded golang.org/x/oauth2 from 0.25.0 to 0.27.0
+
 ## v2.26.2 - 2025-07-10
 
 ### ⛓️ Dependencies
