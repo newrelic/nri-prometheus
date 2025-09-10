@@ -9,6 +9,12 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.27.2 - 2025-09-10
+
+### ⛓️ Dependencies
+- Updated github.com/prometheus/client_golang to v1.23.2 - [Changelog 🔗](https://github.com/prometheus/client_golang/releases/tag/v1.23.2)
+- Updated github.com/spf13/viper to v1.21.0 - [Changelog 🔗](https://github.com/spf13/viper/releases/tag/v1.21.0)
+
 ## v2.27.1 - 2025-08-13
 
 ### ⛓️ Dependencies
