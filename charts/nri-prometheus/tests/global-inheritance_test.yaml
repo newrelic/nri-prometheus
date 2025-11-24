@@ -441,3 +441,303 @@ tests:
           path: spec.template.spec.dnsConfig.nameservers[0]
           value: "1.1.1.1"
         template: templates/deployment.yaml
+
+  # =============================================================================
+  # HostNetwork Inheritance Tests
+  # =============================================================================
+  # NOTE: Tests commented out due to missing implementation
+  # The values.yaml documents hostNetwork support but the deployment.yaml template
+  # does not render spec.template.spec.hostNetwork. This is a chart bug.
+  # The common-library helper "newrelic.common.hostNetwork" exists but is not used.
+  # TODO: Uncomment these tests once hostNetwork is implemented in deployment.yaml
+  #
+  # - it: should inherit global.hostNetwork when no local hostNetwork is set
+  #   set:
+  #     licenseKey: fakeLicense
+  #     cluster: test
+  #     global:
+  #       hostNetwork: true
+  #   asserts:
+  #     - equal:
+  #         path: spec.template.spec.hostNetwork
+  #         value: true
+  #       template: templates/deployment.yaml
+
+  # - it: should use local hostNetwork over global.hostNetwork when both are set
+  #   set:
+  #     licenseKey: fakeLicense
+  #     cluster: test
+  #     global:
+  #       hostNetwork: false
+  #     hostNetwork: true
+  #   asserts:
+  #     - equal:
+  #         path: spec.template.spec.hostNetwork
+  #         value: true
+  #       template: templates/deployment.yaml
+
+  # =============================================================================
+  # Labels Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.labels when no local labels are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        labels:
+          global-label: "true"
+          environment: "production"
+    asserts:
+      - equal:
+          path: metadata.labels.global-label
+          value: "true"
+        template: templates/deployment.yaml
+      - equal:
+          path: metadata.labels.environment
+          value: "production"
+        template: templates/deployment.yaml
+
+  - it: should merge local labels with global.labels
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        labels:
+          global-label: "true"
+      labels:
+        local-label: "true"
+    asserts:
+      - equal:
+          path: metadata.labels.global-label
+          value: "true"
+        template: templates/deployment.yaml
+      - equal:
+          path: metadata.labels.local-label
+          value: "true"
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # PodLabels Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.podLabels when no local podLabels are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        podLabels:
+          global-pod-label: "true"
+          pod-environment: "production"
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.global-pod-label
+          value: "true"
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.metadata.labels.pod-environment
+          value: "production"
+        template: templates/deployment.yaml
+
+  - it: should merge local podLabels with global.podLabels
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        podLabels:
+          global-pod-label: "true"
+      podLabels:
+        local-pod-label: "true"
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.global-pod-label
+          value: "true"
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.metadata.labels.local-pod-label
+          value: "true"
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # CustomSecret Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.customSecretName when no local customSecretName is set
+    set:
+      cluster: test
+      global:
+        customSecretName: "global-secret"
+        customSecretLicenseKey: "global-key"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "global-secret"
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "global-key"
+        template: templates/deployment.yaml
+
+  - it: should use local customSecretName over global.customSecretName when both are set
+    set:
+      cluster: test
+      global:
+        customSecretName: "global-secret"
+        customSecretLicenseKey: "global-key"
+      customSecretName: "local-secret"
+      customSecretLicenseKey: "local-key"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: "local-secret"
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.key
+          value: "local-key"
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # PodSecurityContext Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.podSecurityContext when no local podSecurityContext is set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        podSecurityContext:
+          runAsUser: 1000
+          runAsGroup: 3000
+          fsGroup: 2000
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1000
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+        template: templates/deployment.yaml
+
+  - it: should use local podSecurityContext over global.podSecurityContext when both are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        podSecurityContext:
+          runAsUser: 1000
+      podSecurityContext:
+        runAsUser: 2000
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 2000
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # ContainerSecurityContext Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.containerSecurityContext when no local containerSecurityContext is set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        containerSecurityContext:
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 1000
+        template: templates/deployment.yaml
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
+        template: templates/deployment.yaml
+
+  - it: should use local containerSecurityContext over global.containerSecurityContext when both are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        containerSecurityContext:
+          runAsUser: 1000
+      containerSecurityContext:
+        runAsUser: 2000
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 2000
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # ServiceAccount Annotations Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.serviceAccount.annotations when no local serviceAccount.annotations are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        serviceAccount:
+          annotations:
+            eks.amazonaws.com/role-arn: "arn:aws:iam::123456789:role/global-role"
+            global-annotation: "true"
+    asserts:
+      - equal:
+          path: metadata.annotations["eks.amazonaws.com/role-arn"]
+          value: "arn:aws:iam::123456789:role/global-role"
+        template: templates/serviceaccount.yaml
+
+  - it: should merge local serviceAccount.annotations with global.serviceAccount.annotations
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        serviceAccount:
+          annotations:
+            global-annotation: "true"
+      serviceAccount:
+        annotations:
+          local-annotation: "true"
+    asserts:
+      - equal:
+          path: metadata.annotations.global-annotation
+          value: "true"
+        template: templates/serviceaccount.yaml
+      - equal:
+          path: metadata.annotations.local-annotation
+          value: "true"
+        template: templates/serviceaccount.yaml
+
+  # =============================================================================
+  # Images.PullSecrets Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.images.pullSecrets when no local image.pullSecrets are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        images:
+          pullSecrets:
+            - name: "global-regcred"
+    asserts:
+      - contains:
+          path: spec.template.spec.imagePullSecrets
+          content:
+            name: "global-regcred"
+        template: templates/deployment.yaml
+
+  - it: should use local image.pullSecrets over global.images.pullSecrets when both are set
+    set:
+      licenseKey: fakeLicense
+      cluster: test
+      global:
+        images:
+          pullSecrets:
+            - name: "global-regcred"
+      image:
+        pullSecrets:
+          - name: "local-regcred"
+    asserts:
+      - contains:
+          path: spec.template.spec.imagePullSecrets
+          content:
+            name: "local-regcred"
+        template: templates/deployment.yaml
