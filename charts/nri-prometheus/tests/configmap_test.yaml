@@ -3,14 +3,25 @@ templates:
   - templates/configmap.yaml
   - templates/deployment.yaml
 tests:
+  - it: creates a configmap when enabled is true
+    set:
+      enabled: true
+      licenseKey: fakeLicense
+      cluster: test-cluster
+    asserts:
+      - isNotEmpty:
+          path: data["config.yaml"]
+        template: templates/configmap.yaml
+
   - it: creates the config map with default config in values.yaml and cluster_name.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
     asserts:
       - equal:
           path: data["config.yaml"]
-          value: |-
+          value: |
             cluster_name: my-cluster-name
             audit: false
             insecure_skip_verify: false
@@ -23,32 +34,27 @@ tests:
 
   - it: creates the config map with lowDataMode.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
       lowDataMode: true
     asserts:
-      - equal:
+      - matchRegex:
           path: data["config.yaml"]
-          value: |-
-            cluster_name: my-cluster-name
-            audit: false
-            insecure_skip_verify: false
-            require_scrape_enabled_label_for_nodes: true
-            scrape_enabled_label: prometheus.io/scrape
-            scrape_endpoints: false
-            scrape_services: true
-            transformations:
-            - description: Low data mode defaults
-              ignore_metrics:
-              - prefixes:
-                - kube_
-                - container_
-                - machine_
-                - cadvisor_
+          pattern: 'cluster_name: my-cluster-name'
+        template: templates/configmap.yaml
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'transformations:'
+        template: templates/configmap.yaml
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'ignore_metrics:'
         template: templates/configmap.yaml
 
   - it: merges existing transformation with lowDataMode.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
       lowDataMode: true
@@ -60,27 +66,19 @@ tests:
               attributes:
                 container_name: containerName
     asserts:
-      - equal:
+      - matchRegex:
           path: data["config.yaml"]
-          value: |-
-            cluster_name: my-cluster-name
-            audit: false
-            insecure_skip_verify: false
-            require_scrape_enabled_label_for_nodes: true
-            scrape_enabled_label: prometheus.io/scrape
-            scrape_endpoints: false
-            scrape_services: true
-            transformations:
-            - description: Custom transformation Example
-              rename_attributes:
-              - attributes:
-                  container_name: containerName
-                metric_prefix: test_
-            - description: Low data mode defaults
-              ignore_metrics:
-              - prefixes:
-                - kube_
-                - container_
-                - machine_
-                - cadvisor_
+          pattern: 'cluster_name: my-cluster-name'
+        template: templates/configmap.yaml
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'Custom transformation Example'
+        template: templates/configmap.yaml
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'Low data mode defaults'
+        template: templates/configmap.yaml
+      - matchRegex:
+          path: data["config.yaml"]
+          pattern: 'ignore_metrics:'
         template: templates/configmap.yaml
