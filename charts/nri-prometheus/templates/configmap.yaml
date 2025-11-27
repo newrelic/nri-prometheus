@@ -1,3 +1,4 @@
+{{- if .Values.enabled }}
 kind: ConfigMap
 metadata:
   name: {{ include "newrelic.common.naming.fullname" . }}
@@ -12,10 +13,15 @@ data:
   {{- if and (.Values.config.transformations) (include "newrelic.common.lowDataMode" .) -}}
     {{- include "nri-prometheus.mergeTransformations" . -}}
   {{- else if (include "newrelic.common.lowDataMode" .) -}}
+    {{/* When lowDataMode is enabled without custom transformations, merge config with defaults */}}
     {{ $lowDataDefault := .Files.Get "static/lowdatamodedefaults.yaml" | fromYaml }}
-    {{- mergeOverwrite (deepCopy .Values.config) $lowDataDefault | toYaml | nindent 4 -}}
+    {{ $mergedConfig := mergeOverwrite (deepCopy .Values.config) $lowDataDefault }}
+    {{- omit $mergedConfig "transformations" | toYaml | nindent 4 -}}
+    {{/* Render transformations array from lowDataMode defaults */}}
+    transformations:
+    {{- $lowDataDefault.transformations | toYaml | nindent 4 -}}
   {{- else }}
     {{- .Values.config | toYaml | nindent 4  -}}
   {{- end -}}
 {{- end -}}
-
+{{- end }}
