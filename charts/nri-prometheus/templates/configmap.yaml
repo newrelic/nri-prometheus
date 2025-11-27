@@ -1,3 +1,4 @@
+{{- if .Values.enabled }}
 kind: ConfigMap
 metadata:
   name: {{ include "newrelic.common.naming.fullname" . }}
@@ -18,4 +19,4 @@ data:
     {{- .Values.config | toYaml | nindent 4  -}}
   {{- end -}}
 {{- end -}}
-
+{{- end }}
