@@ -1,3 +1,6 @@
+# -- Enable or disable the nri-prometheus integration
+enabled: false
+
 # -- Override the name of the chart
 nameOverride: ""
 # -- Override the full name of the release
