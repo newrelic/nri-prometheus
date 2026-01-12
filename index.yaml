@@ -20,6 +20,37 @@ entries:
   nri-prometheus:
   - apiVersion: v2
     appVersion: 2.21.4
+    created: "2026-01-12T08:26:53.414881233Z"
+    dependencies:
+    - name: common-library
+      repository: https://helm-charts.newrelic.com
+      version: 1.4.0
+    description: A Helm chart to deploy the New Relic Prometheus OpenMetrics integration
+    digest: a0e53819c763e26f3b5f76ac6704f8dfbe118349198a9b953b2ccf851cdcc769
+    home: https://docs.newrelic.com/docs/infrastructure/prometheus-integrations/install-configure-openmetrics/configure-prometheus-openmetrics-integrations/
+    icon: https://newrelic.com/themes/custom/curio/assets/mediakit/new_relic_logo_vertical.svg
+    keywords:
+    - prometheus
+    - newrelic
+    - monitoring
+    maintainers:
+    - name: alvarocabanas
+      url: https://github.com/alvarocabanas
+    - name: sigilioso
+      url: https://github.com/sigilioso
+    - name: gsanchezgavier
+      url: https://github.com/gsanchezgavier
+    - name: paologallinaharbur
+      url: https://github.com/paologallinaharbur
+    name: nri-prometheus
+    sources:
+    - https://github.com/newrelic/nri-prometheus
+    - https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus
+    urls:
+    - https://github.com/newrelic/nri-prometheus/releases/download/nri-prometheus-2.1.22/nri-prometheus-2.1.22.tgz
+    version: 2.1.22
+  - apiVersion: v2
+    appVersion: 2.21.4
     created: "2025-06-24T10:02:04.522596628Z"
     dependencies:
     - name: common-library
@@ -865,4 +896,4 @@ entries:
     urls:
     - https://github.com/newrelic/nri-prometheus/releases/download/nri-prometheus-1.14.0/nri-prometheus-1.14.0.tgz
     version: 1.14.0
-generated: "2025-06-24T10:02:04.522765393Z"
+generated: "2026-01-12T08:26:53.415098754Z"
