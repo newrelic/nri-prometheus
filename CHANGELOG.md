@@ -9,6 +9,13 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### Changed
+- Add `enabled` flag to chart, defaults to `false` to prioritize `newrelic-prometheus-agent`
+
+### Added
+- Add conditional rendering of resources based on `enabled` flag
+- Chart can be explicitly enabled by setting `enabled: true` in values
+
 ## v2.27.7 - 2026-02-09
 
 ### ⛓️ Dependencies
