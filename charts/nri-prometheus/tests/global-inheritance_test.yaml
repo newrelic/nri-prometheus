@@ -12,7 +12,7 @@ tests:
   # Proxy Inheritance Tests
   # =============================================================================
   - it: should inherit global.proxy when no local proxy is set
-    set:
+    set: &base
       enabled: true
       licenseKey: fakeLicense
       cluster: test
@@ -28,9 +28,7 @@ tests:
 
   - it: should use local proxy over global.proxy when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         proxy: "http://global-proxy.example.com:3128"
       proxy: "http://local-proxy.example.com:8080"
@@ -44,9 +42,7 @@ tests:
 
   - it: should not set EMITTER_PROXY when neither global nor local proxy is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
     asserts:
       - notContains:
           path: spec.template.spec.containers[0].env
@@ -59,9 +55,7 @@ tests:
   # =============================================================================
   - it: should inherit global.nodeSelector when no local nodeSelector is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         nodeSelector:
           role: monitoring
@@ -76,9 +70,7 @@ tests:
 
   - it: should use local nodeSelector over global.nodeSelector when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         nodeSelector:
           role: global-value
@@ -93,9 +85,7 @@ tests:
 
   - it: should not set nodeSelector when neither global nor local is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
     asserts:
       - isNull:
           path: spec.template.spec.nodeSelector
@@ -106,9 +96,7 @@ tests:
   # =============================================================================
   - it: should inherit global.tolerations when no local tolerations are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         tolerations:
           - key: "node-role"
@@ -133,9 +121,7 @@ tests:
 
   - it: should use local tolerations over global.tolerations when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         tolerations:
           - key: "global-taint"
@@ -153,9 +139,7 @@ tests:
 
   - it: should not set tolerations when neither global nor local is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
     asserts:
       - isNull:
           path: spec.template.spec.tolerations
@@ -166,9 +150,7 @@ tests:
   # =============================================================================
   - it: should inherit global.affinity when no local affinity is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         affinity:
           nodeAffinity:
@@ -187,9 +169,7 @@ tests:
 
   - it: should use local affinity over global.affinity when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         affinity:
           nodeAffinity:
@@ -267,9 +247,7 @@ tests:
   # =============================================================================
   - it: should inherit global.priorityClassName when no local priorityClassName is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         priorityClassName: "high-priority"
     asserts:
@@ -280,9 +258,7 @@ tests:
 
   - it: should use local priorityClassName over global.priorityClassName when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         priorityClassName: "global-priority"
       priorityClassName: "local-priority"
@@ -325,9 +301,7 @@ tests:
   # =============================================================================
   - it: should inherit global.verboseLog when no local verboseLog is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         verboseLog: true
     asserts:
@@ -340,9 +314,7 @@ tests:
 
   - it: should use local verboseLog over global.verboseLog when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         verboseLog: false
       verboseLog: true
@@ -359,9 +331,7 @@ tests:
   # =============================================================================
   - it: should inherit global.nrStaging when no local nrStaging is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         nrStaging: true
     asserts:
@@ -374,9 +344,7 @@ tests:
 
   - it: should use local nrStaging over global.nrStaging when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         nrStaging: false
       nrStaging: true
@@ -414,9 +382,7 @@ tests:
 
   - it: should use local fedramp.enabled to set FedRAMP endpoint
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       fedramp:
         enabled: true
     asserts:
@@ -432,9 +398,7 @@ tests:
   # =============================================================================
   - it: should inherit global.dnsConfig when no local dnsConfig is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         dnsConfig:
           nameservers:
@@ -449,9 +413,7 @@ tests:
 
   - it: should use local dnsConfig over global.dnsConfig when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         dnsConfig:
           nameservers:
@@ -470,9 +432,7 @@ tests:
   # =============================================================================
   - it: should inherit global.hostNetwork when no local hostNetwork is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         hostNetwork: true
     asserts:
@@ -483,9 +443,7 @@ tests:
 
   - it: should use local hostNetwork over global.hostNetwork when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         hostNetwork: false
       hostNetwork: true
@@ -500,9 +458,7 @@ tests:
   # =============================================================================
   - it: should inherit global.labels when no local labels are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         labels:
           global-label: "true"
@@ -519,9 +475,7 @@ tests:
 
   - it: should merge local labels with global.labels
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         labels:
           global-label: "true"
@@ -542,9 +496,7 @@ tests:
   # =============================================================================
   - it: should inherit global.podLabels when no local podLabels are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         podLabels:
           global-pod-label: "true"
@@ -561,9 +513,7 @@ tests:
 
   - it: should merge local podLabels with global.podLabels
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         podLabels:
           global-pod-label: "true"
@@ -623,9 +573,7 @@ tests:
   # =============================================================================
   - it: should inherit global.podSecurityContext when no local podSecurityContext is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         podSecurityContext:
           runAsUser: 1000
@@ -643,9 +591,7 @@ tests:
 
   - it: should use local podSecurityContext over global.podSecurityContext when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         podSecurityContext:
           runAsUser: 1000
@@ -662,9 +608,7 @@ tests:
   # =============================================================================
   - it: should inherit global.containerSecurityContext when no local containerSecurityContext is set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         containerSecurityContext:
           runAsUser: 1000
@@ -682,9 +626,7 @@ tests:
 
   - it: should use local containerSecurityContext over global.containerSecurityContext when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         containerSecurityContext:
           runAsUser: 1000
@@ -701,9 +643,7 @@ tests:
   # =============================================================================
   - it: should inherit global.serviceAccount.annotations when no local serviceAccount.annotations are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         serviceAccount:
           annotations:
@@ -717,9 +657,7 @@ tests:
 
   - it: should merge local serviceAccount.annotations with global.serviceAccount.annotations
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         serviceAccount:
           annotations:
@@ -742,9 +680,7 @@ tests:
   # =============================================================================
   - it: should inherit global.images.pullSecrets when no local image.pullSecrets are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         images:
           pullSecrets:
@@ -758,9 +694,7 @@ tests:
 
   - it: should use local image.pullSecrets over global.images.pullSecrets when both are set
     set:
-      enabled: true
-      licenseKey: fakeLicense
-      cluster: test
+      <<: *base
       global:
         images:
           pullSecrets:
