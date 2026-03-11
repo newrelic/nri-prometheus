@@ -708,3 +708,93 @@ tests:
           content:
             name: "local-regcred"
         template: templates/deployment.yaml
+
+  # =============================================================================
+  # Images.Registry Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.images.registry when no local registry is set
+    set:
+      <<: *base
+      global:
+        images:
+          registry: "my-registry.example.com"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: 'my-registry\.example\.com/newrelic/nri-prometheus:'
+        template: templates/deployment.yaml
+
+  - it: should use local image.registry over global.images.registry when both are set
+    set:
+      <<: *base
+      global:
+        images:
+          registry: "global-registry.example.com"
+      image:
+        registry: "local-registry.example.com"
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[0].image
+          pattern: 'local-registry\.example\.com/newrelic/nri-prometheus:'
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # Images.PullPolicy Tests
+  # =============================================================================
+  # NOTE: global.images.pullPolicy is not supported by the common-library for this chart.
+  # The template reads .Values.image.pullPolicy directly. Only local value is supported.
+  - it: should use local image.pullPolicy when set
+    set:
+      <<: *base
+      image:
+        pullPolicy: Always
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].imagePullPolicy
+          value: Always
+        template: templates/deployment.yaml
+
+  # =============================================================================
+  # ServiceAccount.Create Inheritance Tests
+  # =============================================================================
+  # NOTE: global.serviceAccount.create cannot meaningfully override the local default.
+  # values.yaml sets serviceAccount.create: true, which the common-library helper treats
+  # as an explicit local bool — global is only checked when local is unset.
+  - it: should not create serviceaccount when serviceAccount.create is false
+    set:
+      <<: *base
+      serviceAccount:
+        create: false
+    asserts:
+      - hasDocuments:
+          count: 0
+        template: templates/serviceaccount.yaml
+
+  # =============================================================================
+  # ServiceAccount.Name Inheritance Tests
+  # =============================================================================
+  - it: should inherit global.serviceAccount.name in deployment when no local name is set
+    set:
+      <<: *base
+      global:
+        serviceAccount:
+          name: "global-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: "global-sa"
+        template: templates/deployment.yaml
+
+  - it: should use local serviceAccount.name over global.serviceAccount.name when both are set
+    set:
+      <<: *base
+      global:
+        serviceAccount:
+          name: "global-sa"
+      serviceAccount:
+        name: "local-sa"
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: "local-sa"
+        template: templates/deployment.yaml
