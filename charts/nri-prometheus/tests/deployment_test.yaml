@@ -9,6 +9,7 @@ release:
 tests:
   - it: adds defaults.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: test
     asserts:
@@ -31,6 +32,7 @@ tests:
 
   - it: adds METRIC_API_URL when nrStaging is true.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: test
       nrStaging: true
@@ -44,6 +46,7 @@ tests:
 
   - it: adds FedRamp endpoint when FedRamp is enabled.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: test
       fedramp:
@@ -58,6 +61,7 @@ tests:
 
   - it: adds proxy when enabled.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: test
       proxy: "https://my-proxy:9999"
@@ -71,6 +75,7 @@ tests:
 
   - it: set priorityClassName.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: test
       priorityClassName: foo

@@ -3,14 +3,25 @@ templates:
   - templates/configmap.yaml
   - templates/deployment.yaml
 tests:
+  - it: creates a configmap when enabled is true
+    set:
+      enabled: true
+      licenseKey: fakeLicense
+      cluster: test-cluster
+    asserts:
+      - isNotEmpty:
+          path: data["config.yaml"]
+        template: templates/configmap.yaml
+
   - it: creates the config map with default config in values.yaml and cluster_name.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
     asserts:
       - equal:
           path: data["config.yaml"]
-          value: |-
+          value: |
             cluster_name: my-cluster-name
             audit: false
             insecure_skip_verify: false
@@ -23,13 +34,14 @@ tests:
 
   - it: creates the config map with lowDataMode.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
       lowDataMode: true
     asserts:
       - equal:
           path: data["config.yaml"]
-          value: |-
+          value: |
             cluster_name: my-cluster-name
             audit: false
             insecure_skip_verify: false
@@ -49,6 +61,7 @@ tests:
 
   - it: merges existing transformation with lowDataMode.
     set:
+      enabled: true
       licenseKey: fakeLicense
       cluster: my-cluster-name
       lowDataMode: true
@@ -62,7 +75,7 @@ tests:
     asserts:
       - equal:
           path: data["config.yaml"]
-          value: |-
+          value: |
             cluster_name: my-cluster-name
             audit: false
             insecure_skip_verify: false

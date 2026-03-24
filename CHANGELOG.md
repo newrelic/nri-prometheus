@@ -9,6 +9,13 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### Added
+- Add `enabled` flag to chart (defaults to `true` for standalone use). When deployed via nri-bundle,
+  the bundle's own `nri-prometheus.enabled: false` default takes precedence via Helm's subchart
+  condition mechanism — no change for nri-bundle users.
+- Add conditional rendering of resources based on `enabled` flag; set `enabled: false` to suppress
+  all chart resources without uninstalling the release.
+
 ## v2.27.7 - 2026-02-09
 
 ### ⛓️ Dependencies
