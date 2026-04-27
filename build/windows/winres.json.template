@@ -1,0 +1,28 @@
+{
+	"RT_VERSION": {
+		"#1": {
+			"0000": {
+				"fixed": {
+					"file_version": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}",
+					"product_version": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}"
+				},
+				"info": {
+					"0409": {
+						"Comments": "(c) {Year} New Relic, Inc.",
+						"CompanyName": "New Relic, Inc.",
+						"FileDescription": "",
+						"FileVersion": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}",
+						"InternalName": "{Integration}",
+						"LegalCopyright": "(c) {Year} New Relic, Inc.",
+						"LegalTrademarks": "",
+						"OriginalFilename": "{IntegrationExe}",
+						"PrivateBuild": "",
+						"ProductName": "New Relic Infrastructure Integration, {Integration}",
+						"ProductVersion": "{MajorVersion}.{MinorVersion}.{PatchVersion}.{BuildVersion}",
+						"SpecialBuild": ""
+					}
+				}
+			}
+		}
+	}
+}
