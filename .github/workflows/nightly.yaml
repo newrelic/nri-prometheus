@@ -7,6 +7,10 @@ on:
     branches:
       - main
 
+
+permissions:
+  contents: read
+
 env:
   INTEGRATION: "prometheus"
   ORIGINAL_REPO_NAME: 'newrelic/nri-prometheus'

@@ -8,6 +8,10 @@ on:
     tags:
       - "v*"
 
+
+permissions:
+  contents: read
+
 jobs:
   container-release:
     uses: newrelic/coreint-automation/.github/workflows/reusable_image_release.yaml@v3

@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "0 12 * * 3"
 
+
+permissions:
+  contents: read
+
 jobs:
   release_management:
     uses: newrelic/coreint-automation/.github/workflows/reusable_release_automation.yaml@v3
