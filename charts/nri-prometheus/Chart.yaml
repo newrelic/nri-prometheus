@@ -7,7 +7,7 @@ sources:
   - https://github.com/newrelic/nri-prometheus
   - https://github.com/newrelic/nri-prometheus/tree/main/charts/nri-prometheus
 
-version: 2.1.22
+version: 2.1.23
 appVersion: 2.21.5
 
 dependencies:
