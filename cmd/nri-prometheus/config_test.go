@@ -21,6 +21,8 @@ func TestDetermineMetricAPIURL(t *testing.T) {
 		{license: "", expectedURL: defaultMetricAPIURL},
 		// non-region license
 		{license: "0123456789012345678901234567890123456789", expectedURL: defaultMetricAPIURL},
+		// three letter region
+		{license: "jpx6789012345678901234567890123456789", expectedURL: fmt.Sprintf(metricAPIRegionURL, "jp")},
 		// four letter region
 		{license: "eu01xx6789012345678901234567890123456789", expectedURL: fmt.Sprintf(metricAPIRegionURL, "eu")},
 		// five letter region

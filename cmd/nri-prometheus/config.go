@@ -135,7 +135,7 @@ func bindViperEnv(vCfg *viper.Viper, iface interface{}, parts ...string) {
 }
 
 var (
-	regionLicenseRegex = regexp.MustCompile(`^([a-z]{2,3})[0-9]{2}x{1,2}`)
+	regionLicenseRegex = regexp.MustCompile(`^([a-z]{2,3})(?:[0-9]{2})?x{1,2}`)
 	metricAPIRegionURL = "https://metric-api.%s.newrelic.com/metric/v1/infra"
 	// for historical reasons the US datacenter is the default Metric API
 	defaultMetricAPIURL = "https://metric-api.newrelic.com/metric/v1/infra"
