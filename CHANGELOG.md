@@ -9,6 +9,10 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### enhancement
+- Adds support for japan region @philip-r-beckwith [#563](https://github.com/newrelic/nri-prometheus/pull/563)
+
+
 ## v2.29.0 - 2026-04-20
 
 ### 🛡️ Security notices
