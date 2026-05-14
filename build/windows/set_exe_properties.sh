@@ -24,6 +24,8 @@ BuildVersion='0'
 Year=$(date +"%Y")
 INTEGRATION_EXE="nri-${INTEGRATION}.exe"
 
+mkdir -p ./winres
+
 sed \
   -e "s/{MajorVersion}/$MajorVersion/g" \
   -e "s/{MinorVersion}/$MinorVersion/g" \
@@ -32,8 +34,6 @@ sed \
   -e "s/{Year}/$Year/g" \
   -e "s/{Integration}/nri-$INTEGRATION/g" \
   -e "s/{IntegrationExe}/$INTEGRATION_EXE/g" \
-   ./build/windows/versioninfo.json.template > ./cmd/nri-prometheus/versioninfo.json
+   ./build/windows/winres.json.template > ./winres/winres.json
 
-# todo: do we need this export line
-export PATH="$PATH:/go/bin"
-go generate github.com/newrelic/nri-${INTEGRATION}/cmd/nri-prometheus
+go-winres make --arch 386,amd64 --out ./cmd/nri-prometheus/rsrc
