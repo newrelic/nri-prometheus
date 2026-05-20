@@ -6,7 +6,7 @@ on:
 
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   #   Sometimes chart-releaser might fetch an outdated index.yaml from gh-pages, causing a WAW hazard on the repo
