@@ -4,6 +4,10 @@ on:
     branches:
       - main
 
+
+permissions:
+  contents: write
+
 jobs:
   #   Sometimes chart-releaser might fetch an outdated index.yaml from gh-pages, causing a WAW hazard on the repo
   #   This job checks the remote file is up to date with the local one on release

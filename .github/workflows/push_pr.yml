@@ -7,6 +7,10 @@ on:
       - renovate/**
   pull_request:
 
+
+permissions:
+  contents: read
+
 env:
   TAG: "v0.0.0" # needed for goreleaser windows builds
   REPO_FULL_NAME: ${{ github.event.repository.full_name }}
