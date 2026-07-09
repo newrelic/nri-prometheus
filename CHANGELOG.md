@@ -9,7 +9,7 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
-### dependency 
+### enhancements 
 - Update common-library to 2.3.3
 
 
