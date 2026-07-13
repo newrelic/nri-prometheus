@@ -45,3 +45,4 @@ integrations:
       insecure_skip_verify: false
 
     timeout: 10s
+    interval: 30s
