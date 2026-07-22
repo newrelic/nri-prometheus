@@ -9,6 +9,11 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.30.1 - 2026-07-22
+
+### ⛓️ Dependencies
+- Updated github.com/prometheus/client_golang to v1.24.0 - [Changelog 🔗](https://github.com/prometheus/client_golang/releases/tag/v1.24.0)
+
 ## v2.30.0 - 2026-07-15
 
 ### 🚀 Enhancements
