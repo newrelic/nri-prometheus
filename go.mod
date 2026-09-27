@@ -14,7 +14,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	k8s.io/api v0.31.1
 	k8s.io/apimachinery v0.31.1
-	k8s.io/client-go v0.31.1
+	k8s.io/client-go v11.0.0+incompatible
 )
 
 require (
