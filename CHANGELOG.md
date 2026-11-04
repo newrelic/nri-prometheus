@@ -9,6 +9,8 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.30.7 - 2026-11-04
+
 ### dependency
 - Bump chart appVersion to 2.30.7 so the chart deploys the current image (go1.27.3, Alpine 3.24.3) instead of 2.21.4
 
