@@ -9,6 +9,9 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### security
+- Updated golang.org/x/net to v0.62.0 to address GO-2026-6860 and GO-2026-6866, with golang.org/x/sys v0.49.0, golang.org/x/term v0.47.0 and golang.org/x/text v0.43.0
+
 ## v2.30.7 - 2026-11-04
 
 ### dependency
