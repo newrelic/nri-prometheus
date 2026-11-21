@@ -19,7 +19,7 @@ env:
 
 jobs:
   nightly:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_nightly.yaml@v3
+    uses: newrelic/coreint-automation/.github/workflows/reusable_nightly.yaml@v4
     secrets:
       docker_username: ${{ secrets.FSI_DOCKERHUB_USERNAME }}
       docker_password: ${{ secrets.FSI_DOCKERHUB_TOKEN }}

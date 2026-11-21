@@ -11,5 +11,5 @@ permissions:
 
 jobs:
   release_management:
-    uses: newrelic/coreint-automation/.github/workflows/reusable_release_automation.yaml@v3
+    uses: newrelic/coreint-automation/.github/workflows/reusable_release_automation.yaml@v4
     secrets: inherit
