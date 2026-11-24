@@ -9,6 +9,11 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.31.3 - 2026-11-24
+
+### 🛡️ Security notices
+- Address Vulnerabilities from zlib CVE-2026-4738
+
 ## v2.31.2 - 2026-11-24
 
 ### 🛡️ Security notices
