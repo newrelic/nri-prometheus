@@ -9,6 +9,11 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+## v2.31.2 - 2026-11-24
+
+### 🛡️ Security notices
+- Address Vulnerabilities from libssl3 and libcrypto3 CVE-2026-107496, CVE-2026-95691, CVE-2026-95692, CVE-2026-88822, CVE-2026-88823
+
 ## v2.31.1 - 2026-11-17
 
 ### ⛓️ Dependencies
