@@ -1,6 +1,7 @@
 FROM alpine:3.24.4
 
-RUN apk add --no-cache --upgrade \
+RUN apk --no-cache upgrade && \
+    apk --no-cache add \
         ca-certificates \
         tini
 
