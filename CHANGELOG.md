@@ -9,6 +9,9 @@ Unreleased section should follow [Release Toolkit](https://github.com/newrelic/r
 
 ## Unreleased
 
+### 🛡️ Security notices
+- Do not follow redirects to a different host on scrapes authenticated with the bearer token
+
 ## v2.31.3 - 2026-11-24
 
 ### 🛡️ Security notices

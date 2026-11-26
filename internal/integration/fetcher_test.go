@@ -8,7 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -624,4 +627,48 @@ func TestConvertPromMetricsMultiTargetCollisions(t *testing.T) {
 		},
 	}
 	assert.Equal(t, nrMetrics[0], want)
+}
+
+func TestBearerClient_RedirectPolicy(t *testing.T) {
+	t.Parallel()
+
+	tokenFile := filepath.Join(t.TempDir(), "token")
+	require.NoError(t, os.WriteFile(tokenFile, []byte("secret-token\n"), 0o600))
+
+	var leakedHits int32
+	attacker := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "" {
+			atomic.AddInt32(&leakedHits, 1)
+		}
+	}))
+	defer attacker.Close()
+
+	var gotAuth string
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/cross-host":
+			http.Redirect(w, r, attacker.URL+"/stolen", http.StatusFound)
+		case "/same-host":
+			http.Redirect(w, r, "/metrics", http.StatusFound)
+		case "/metrics":
+			gotAuth = r.Header.Get("Authorization")
+		}
+	}))
+	defer target.Close()
+
+	fetcher := NewFetcher(fetchDuration, fetchTimeout, "", workerThreads, tokenFile, "", true, queueLength)
+	client := fetcher.(*prometheusFetcher).bearerClient.(*http.Client)
+
+	t.Run("cross-host redirect is not followed", func(t *testing.T) {
+		_, err := client.Get(target.URL + "/cross-host")
+		require.Error(t, err)
+		assert.Zero(t, atomic.LoadInt32(&leakedHits), "bearer token was sent to the redirect host")
+	})
+
+	t.Run("same-host redirect keeps the token", func(t *testing.T) {
+		resp, err := client.Get(target.URL + "/same-host")
+		require.NoError(t, err)
+		require.NoError(t, resp.Body.Close())
+		assert.Equal(t, "Bearer secret-token", gotAuth)
+	})
 }
