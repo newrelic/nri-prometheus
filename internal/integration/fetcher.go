@@ -119,6 +119,24 @@ func cloneRequest(r *http.Request) *http.Request {
 	return r2
 }
 
+// sameHostRedirectPolicy refuses redirects that leave the original scheme and host. The bearer
+// round tripper attaches the token to every hop, re-adding the Authorization header that net/http
+// strips on cross-host redirects, so following one would send the token to an arbitrary host.
+func sameHostRedirectPolicy(req *http.Request, via []*http.Request) error {
+	if len(via) >= maxRedirects {
+		return fmt.Errorf("stopped after %d redirects", maxRedirects)
+	}
+	orig := via[0].URL
+	if req.URL.Scheme != orig.Scheme || req.URL.Host != orig.Host {
+		return fmt.Errorf("refusing to follow redirect from %s://%s to %s://%s on an authenticated request",
+			orig.Scheme, orig.Host, req.URL.Scheme, req.URL.Host)
+	}
+	return nil
+}
+
+// maxRedirects matches the default limit applied by net/http.
+const maxRedirects = 10
+
 // NewFetcher returns the default Fetcher implementation
 func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, acceptHeader string, workerThreads int, BearerTokenFile string, CaFile string, InsecureSkipVerify bool, queueLength int) Fetcher {
 	roundTripper, _ := newRoundTripper(CaFile, InsecureSkipVerify)
@@ -130,8 +148,9 @@ func NewFetcher(fetchDuration time.Duration, fetchTimeout time.Duration, acceptH
 	// Some endpoints, namely kubelet/cadvisor, will also require an authenticated requests.
 	bearerTokenRoundTripper := NewBearerAuthFileRoundTripper(BearerTokenFile, roundTripper)
 	bearerTokenClient := &http.Client{
-		Transport: bearerTokenRoundTripper,
-		Timeout:   fetchTimeout,
+		Transport:     bearerTokenRoundTripper,
+		Timeout:       fetchTimeout,
+		CheckRedirect: sameHostRedirectPolicy,
 	}
 
 	return &prometheusFetcher{
