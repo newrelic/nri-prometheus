@@ -668,7 +668,7 @@ func TestBearerClient_RedirectPolicy(t *testing.T) {
 	t.Run("same-host redirect keeps the token", func(t *testing.T) {
 		resp, err := client.Get(target.URL + "/same-host")
 		require.NoError(t, err)
-		resp.Body.Close()
+		require.NoError(t, resp.Body.Close())
 		assert.Equal(t, "Bearer secret-token", gotAuth)
 	})
 }
